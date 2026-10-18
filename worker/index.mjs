@@ -22,7 +22,7 @@ export function secureResponse(response, request, environment = "sandbox") {
   else if (
     response.status === 200 &&
     (path.startsWith("/_expo/static/") ||
-      /^\/images\/[a-z-]+-v\d+\.webp$/.test(path))
+      /^\/images\/[a-z-]+-v\d+\.(?:webp|png)$/.test(path))
   )
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
   else if (type.includes("text/html"))

@@ -47,11 +47,27 @@ function FAQs() {
     </NativeSection>
   );
 }
+const nativePhotos = {
+  illness: require("../../assets/care-illness.jpg"),
+  injury: require("../../assets/care-injury.jpg"),
+  physical: require("../../assets/care-physical.jpg"),
+};
 function Services() {
   return (
     <NativeSection title="Let’s help you feel better.">
       {services.map((service) => (
         <View style={s.card} key={service.id}>
+          <Image
+            style={s.image}
+            source={nativePhotos[service.id]}
+            accessibilityLabel={
+              service.id === "physical"
+                ? "Blood pressure examination supplies"
+                : service.id === "injury"
+                  ? "A clinician examines a patient’s upper arm"
+                  : "A care professional checks an adult patient with a stethoscope"
+            }
+          />
           <Text style={s.subheading}>{service.title}</Text>
           <Text style={s.body}>{service.description}</Text>
           {service.items.map((item) => (
@@ -74,6 +90,11 @@ function Visit() {
   return (
     <>
       <NativeSection title="Your visit, made a little easier.">
+        <Image
+          style={s.image}
+          source={require("../../assets/care-visit.jpg")}
+          accessibilityLabel="A care professional assists an older adult"
+        />
         {visitSteps.map((step, i) => (
           <View style={s.card} key={step.title}>
             <Text style={s.subheading}>
@@ -103,6 +124,11 @@ function Visit() {
 function About() {
   return (
     <NativeSection title="You deserve to feel heard, not hurried.">
+      <Image
+        style={s.image}
+        source={require("../../assets/care-approach.jpg")}
+        accessibilityLabel="A care professional listens during a conversation"
+      />
       <Text style={s.body}>
         Our person-centered approach puts your needs, questions, and preferences
         at the heart of your care.
@@ -120,6 +146,11 @@ function About() {
 function Contact() {
   return (
     <NativeSection title="A caring welcome starts here.">
+      <Image
+        style={s.image}
+        source={require("../../assets/care-welcome.jpg")}
+        accessibilityLabel="A care professional speaks with a patient"
+      />
       <Text style={s.body}>
         {clinic.address.street}
         {"\n"}

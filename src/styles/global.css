@@ -1,13 +1,6 @@
+@import "./palette.css";
+
 :root {
-  --ink: #173e35;
-  --green: #214c40;
-  --sage: #e8eee6;
-  --cream: #f8f6f0;
-  --paper: #fffefa;
-  --muted: #58675f;
-  --line: #d9dfd5;
-  --rust: #a64f35;
-  --peach: #f0dfd0;
   --serif: Georgia, "Times New Roman", serif;
   --sans: Arial, Helvetica, sans-serif;
 }
@@ -35,7 +28,7 @@ button {
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--rust);
+  outline: 3px solid var(--accent);
   outline-offset: 5px;
 }
 button,
@@ -57,8 +50,8 @@ a {
   flex-shrink: 0;
 }
 .utility {
-  background: var(--green);
-  color: #f9f7f0;
+  background: var(--primary);
+  color: #ffffff;
   font-size: 12px;
   letter-spacing: 0.02em;
 }
@@ -81,14 +74,14 @@ a {
   height: 6px;
   width: 6px;
   border-radius: 50%;
-  background: #d4deb8;
+  background: #f3b6ba;
   display: inline-block;
 }
 header {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(248, 246, 240, 0.97);
+  background: color-mix(in srgb, var(--cream) 97%, transparent);
   border-bottom: 1px solid var(--line);
 }
 .nav {
@@ -103,27 +96,6 @@ header {
   align-items: center;
   gap: 11px;
   line-height: 1.1;
-}
-.brand-mark {
-  width: 43px;
-  height: 43px;
-  position: relative;
-  background: var(--green);
-  border-radius: 13px 13px 13px 3px;
-}
-.brand-mark:before,
-.brand-mark:after {
-  content: "";
-  position: absolute;
-  background: #f7f2e7;
-  left: 10px;
-  top: 18px;
-  width: 23px;
-  height: 7px;
-  border-radius: 2px;
-}
-.brand-mark:after {
-  transform: rotate(90deg);
 }
 .brand b {
   font: 700 28px var(--sans);
@@ -144,7 +116,7 @@ header {
   font-weight: 600;
 }
 .links a:hover {
-  color: var(--rust);
+  color: var(--accent);
 }
 .nav-actions {
   display: flex;
@@ -166,9 +138,9 @@ header {
   justify-content: center;
   gap: 14px;
   padding: 14px 23px;
-  border: 1px solid var(--green);
+  border: 1px solid var(--primary);
   border-radius: 5px;
-  background: var(--green);
+  background: var(--primary);
   color: white;
   font-weight: 600;
   font-size: 13px;
@@ -178,15 +150,15 @@ header {
     transform 0.2s;
 }
 .btn:hover {
-  background: #133c30;
+  background: #0d286b;
   transform: translateY(-1px);
 }
 .btn-outline {
-  color: var(--green);
+  color: var(--primary);
   background: transparent;
 }
 .btn-outline:hover {
-  background: var(--sage);
+  background: var(--soft);
 }
 .btn .icon {
   height: 18px;
@@ -234,7 +206,7 @@ header {
 }
 .hero h1 em {
   font-weight: normal;
-  color: var(--rust);
+  color: var(--accent);
 }
 .hero p {
   max-width: 395px;
@@ -268,7 +240,7 @@ header {
   content: "";
   position: absolute;
   inset: -18px -18px 68px 35px;
-  border: 1px solid #d6dcca;
+  border: 1px solid #d5dce8;
   border-radius: 140px 12px 12px 12px;
   z-index: -1;
 }
@@ -290,12 +262,12 @@ header {
   gap: 16px;
   align-items: center;
   background: var(--paper);
-  box-shadow: 0 8px 35px #173e3512;
-  border: 1px solid #e8e5db;
+  box-shadow: 0 8px 35px #06184c12;
+  border: 1px solid #e0e3eb;
   border-radius: 6px;
 }
 .caption-icon {
-  background: var(--sage);
+  background: var(--soft);
   height: 40px;
   width: 40px;
   display: grid;
@@ -340,7 +312,7 @@ header {
 }
 .quick-item > a {
   margin-left: auto;
-  color: var(--rust);
+  color: var(--accent);
 }
 section {
   padding: 75px 0;
@@ -381,8 +353,8 @@ h2 {
   font-size: 12px;
 }
 .tab[aria-pressed="true"] {
-  background: var(--green);
-  border-color: var(--green);
+  background: var(--primary);
+  border-color: var(--primary);
   color: white;
 }
 .service-grid {
@@ -403,7 +375,7 @@ h2 {
   display: none;
 }
 .service-card > .icon {
-  color: var(--rust);
+  color: var(--accent);
   height: 30px;
   width: 30px;
   margin-bottom: 24px;
@@ -436,7 +408,7 @@ h2 {
   margin: 17px 0 0;
 }
 .approach {
-  background: var(--sage);
+  background: var(--soft);
   position: relative;
   overflow: hidden;
 }
@@ -457,17 +429,17 @@ h2 {
   margin: 23px 0;
 }
 .values {
-  border-top: 1px solid #cbd6c9;
+  border-top: 1px solid #ccd5e5;
 }
 .value {
   padding: 20px 0;
-  border-bottom: 1px solid #cbd6c9;
+  border-bottom: 1px solid #ccd5e5;
   display: flex;
   gap: 21px;
 }
 .value > span {
   font: italic 22px var(--serif);
-  color: #7d8c72;
+  color: #6b7895;
 }
 .value h3 {
   margin: 0 0 5px;
@@ -500,7 +472,7 @@ h2 {
   padding-top: 0;
 }
 .step-number {
-  background: var(--peach);
+  background: var(--blush);
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -522,13 +494,13 @@ h2 {
 .visit-card {
   padding: 32px 35px;
   border-radius: 8px;
-  background: #ede9df;
+  background: #f2efec;
   display: flex;
   flex-direction: column;
   align-items: start;
 }
 .visit-card .eyebrow {
-  color: var(--rust);
+  color: var(--accent);
 }
 .visit-card h3 {
   font: normal 29px/1.2 var(--serif);
@@ -591,8 +563,8 @@ details p {
   margin: 13px 30px 5px 0;
 }
 .location {
-  background: var(--green);
-  color: #fffaf0;
+  background: var(--primary);
+  color: #ffffff;
   padding: 54px 0;
 }
 .location-grid {
@@ -607,7 +579,7 @@ details p {
 }
 .location p {
   font-size: 13px;
-  color: #d7e2d9;
+  color: #dce4f5;
   margin-bottom: 0;
 }
 .location .address {
@@ -618,13 +590,13 @@ details p {
 .location .address small {
   display: block;
   font-size: 11px;
-  color: #d7e2d9;
+  color: #dce4f5;
   margin-top: 10px;
 }
 .location .btn {
-  background: #f8f4e9;
+  background: #ffffff;
   color: var(--ink);
-  border-color: #f8f4e9;
+  border-color: #ffffff;
 }
 .location .location-actions {
   display: flex;
@@ -653,18 +625,6 @@ footer {
   color: var(--muted);
   max-width: 280px;
 }
-.footer-top .brand-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px 9px 9px 2px;
-}
-.footer-top .brand-mark:before,
-.footer-top .brand-mark:after {
-  width: 18px;
-  height: 6px;
-  left: 7px;
-  top: 13px;
-}
 .footer-top .brand b {
   font-size: 23px;
 }
@@ -685,7 +645,7 @@ footer {
 .concept {
   margin-top: 22px;
   padding: 12px 16px;
-  background: #ede9df;
+  background: #f2efec;
   border-radius: 4px;
   font-size: 10px;
   color: #626359;
@@ -771,15 +731,6 @@ footer {
   .brand b {
     font-size: 24px;
   }
-  .brand-mark {
-    width: 38px;
-    height: 38px;
-  }
-  .brand-mark:before,
-  .brand-mark:after {
-    left: 8px;
-    top: 16px;
-  }
   .menu {
     display: flex;
   }
@@ -795,7 +746,7 @@ footer {
     background: var(--cream);
     padding: 24px;
     border-bottom: 1px solid var(--line);
-    box-shadow: 0 10px 20px #173e3510;
+    box-shadow: 0 10px 20px #06184c10;
     align-items: stretch;
   }
   .links.open {
@@ -1012,7 +963,7 @@ address {
   border: 0;
 }
 .links a[aria-current="page"] {
-  color: var(--rust);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 7px;
 }
@@ -1068,7 +1019,7 @@ address {
   margin: 0 0 24px;
 }
 .soft-band {
-  background: #ede9df;
+  background: #f2efec;
 }
 .soft-band + .faq {
   padding-top: 60px;
@@ -1103,7 +1054,7 @@ address {
   border-radius: 9px;
 }
 .contact-panel > .icon {
-  color: var(--rust);
+  color: var(--accent);
   width: 32px;
   height: 32px;
 }
@@ -1125,7 +1076,7 @@ address {
   line-height: 1.7;
 }
 .location-panel {
-  background: var(--sage);
+  background: var(--soft);
 }
 .large-link {
   font: normal 30px var(--serif);
@@ -1140,7 +1091,7 @@ address {
 .notice {
   display: flex;
   gap: 20px;
-  background: var(--sage);
+  background: var(--soft);
   padding: 26px;
   border-radius: 6px;
 }
@@ -1244,5 +1195,173 @@ details p a {
   }
   .image-caption small {
     font-size: 12px;
+  }
+}
+/* Supplied SMC identity and responsive care photography. */
+.brand-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+.footer-top .brand-logo {
+  width: 66px;
+  height: 66px;
+}
+.service-card .service-photo {
+  display: block;
+  width: calc(100% + 56px);
+  max-width: none;
+  height: 166px;
+  margin: -28px -28px 24px;
+  object-fit: cover;
+  border-radius: 6px 6px 0 0;
+}
+.care-scenes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+.care-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.care-scene img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.care-scene-compact img {
+  object-position: center;
+}
+.care-scene h2 {
+  font-size: 31px;
+  margin-bottom: 16px;
+}
+.care-scene p,
+.preparation-band p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.85;
+}
+.visit-photo {
+  display: block;
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+.preparation-band {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding-top: 12px;
+}
+.preparation-band img {
+  width: 180px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 7px;
+}
+.preparation-band h2 {
+  font-size: 30px;
+}
+.contact-photo {
+  display: block;
+  width: calc(100% + 80px);
+  max-width: none;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  margin: -40px -40px 32px;
+}
+@media (max-width: 1050px) {
+  .brand-logo {
+    width: 68px;
+    height: 68px;
+  }
+  .brand {
+    gap: 8px;
+  }
+}
+@media (max-width: 760px) {
+  .brand-logo {
+    width: 60px;
+    height: 60px;
+  }
+  .footer-top .brand-logo {
+    width: 60px;
+    height: 60px;
+  }
+  .care-scenes {
+    grid-template-columns: 1fr;
+    gap: 38px;
+  }
+  .care-scene img {
+    height: 220px;
+  }
+  .care-scene-compact {
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .care-scene-compact img {
+    width: 110px;
+    height: 130px;
+  }
+  .care-scene-compact h2 {
+    font-size: 25px;
+  }
+  .care-scene-compact .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+  .care-scene-compact .eyebrow:before {
+    display: none;
+  }
+  .preparation-band {
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .preparation-band img {
+    width: 100px;
+    height: 130px;
+  }
+  .preparation-band h2 {
+    font-size: 25px;
+  }
+  .contact-photo {
+    width: calc(100% + 54px);
+    margin: -27px -27px 27px;
+    height: 200px;
+  }
+}
+
+.care-scene-compact {
+  flex-direction: row;
+  align-items: center;
+}
+.care-scene-compact img {
+  width: 140px;
+  height: 160px;
+  flex-shrink: 0;
+}
+.care-scene-compact h2 {
+  font-size: 28px;
+}
+@media (max-width: 760px) {
+  .care-scene-compact {
+    align-items: flex-start;
+  }
+  .care-scene-compact img {
+    width: 110px;
+    height: 130px;
+  }
+  .care-scene-compact h2 {
+    font-size: 25px;
   }
 }

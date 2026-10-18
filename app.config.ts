@@ -1,4 +1,5 @@
 import type { ExpoConfig } from "expo/config";
+import colors from "./src/styles/palette.json";
 
 const config: ExpoConfig = {
   name: "SMC Urgent Care",
@@ -13,8 +14,8 @@ const config: ExpoConfig = {
   ios: { supportsTablet: true },
   android: {
     adaptiveIcon: {
-      foregroundImage: "./assets/icon.png",
-      backgroundColor: "#214c40",
+      foregroundImage: "./assets/adaptive-icon.png",
+      backgroundColor: colors.paper,
     },
   },
   web: { bundler: "metro", output: "static", favicon: "./public/favicon.ico" },

@@ -39,7 +39,13 @@ export function DirectionsLink({ children, ...props }: Props) {
 export function Brand() {
   return (
     <a className="brand" href="/" aria-label={`${clinic.name} home`}>
-      <span className="brand-mark" aria-hidden="true" />
+      <img
+        className="brand-logo"
+        src="/images/smc-logo-v1.png"
+        width={80}
+        height={80}
+        alt=""
+      />
       <span>
         <b>SMC</b>
         <small>Urgent Care</small>

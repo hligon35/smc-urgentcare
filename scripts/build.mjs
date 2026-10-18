@@ -43,6 +43,7 @@ env.EXPO_PUBLIC_SITE_URL = url.origin;
 // Clear generated output so retired routes and obsolete hashed assets cannot survive a rebuild.
 rmSync("dist", { recursive: true, force: true });
 for (const args of [
+  ["scripts/prepare-theme.mjs"],
   ["node_modules/expo/bin/cli", "export", "--platform", "web"],
   ["scripts/prepare-web.mjs"],
 ]) {

@@ -1,0 +1,13 @@
+/* Generated from palette.json by scripts/prepare-theme.mjs. */
+:root {
+  --ink: #15223f;
+  --primary: #06184c;
+  --soft: #edf1f8;
+  --cream: #faf8f5;
+  --paper: #ffffff;
+  --muted: #596477;
+  --line: #dce1e9;
+  --accent: #b91624;
+  --blush: #f9e9e8;
+  --brandRed: #e50914;
+}

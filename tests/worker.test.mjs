@@ -40,6 +40,7 @@ test("hashed bundles and explicitly versioned images can be cached immutably; HT
   for (const path of [
     "/_expo/static/js/web/entry-abc.js",
     "/images/caring-visit-v1.webp",
+    "/images/smc-logo-v1.png",
   ]) {
     const response = await worker.fetch(
       new Request(`https://smc-urgentcare.com${path}`),

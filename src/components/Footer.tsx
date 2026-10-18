@@ -1,12 +1,13 @@
 import { Link, type Href } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { clinic, routes } from "../config/site";
+import Brand from "./Brand";
 import { NativeButton } from "./NativeUI";
 import { colors } from "../styles/theme";
 export default function Footer() {
   return (
     <View style={styles.footer}>
-      <Text style={styles.name}>{clinic.name}</Text>
+      <Brand />
       <Text style={styles.text}>Thoughtful care for the unexpected.</Text>
       <NativeButton label={`Call ${clinic.phone}`} href={clinic.phoneHref} />
       <NativeButton
@@ -36,13 +37,7 @@ const styles = StyleSheet.create({
     padding: 24,
     marginTop: 25,
   },
-  name: {
-    fontSize: 22,
-    fontWeight: "600",
-    color: colors.green,
-    marginBottom: 8,
-  },
   text: { color: colors.muted, fontSize: 12, lineHeight: 20, marginBottom: 15 },
   nav: { flexDirection: "row", gap: 25, marginVertical: 15 },
-  link: { color: colors.green, fontSize: 12, paddingVertical: 10 },
+  link: { color: colors.primary, fontSize: 12, paddingVertical: 10 },
 });

@@ -93,3 +93,22 @@ assert.equal(schema.openingHours, undefined, "No unverified opening hours");
 console.log(
   `PASS: ${pages.length} rendered pages, shared shell, metadata, local links/assets, strict-script CSP compatibility, and clinic schema.`,
 );
+
+// Check that every supplied care photo has a real page placement and the shared identity is present.
+const media = JSON.parse(await readFile("src/content/media.json", "utf8"));
+const rendered = pages.map((page) => page.html).join("\n");
+for (const photo of Object.values(media))
+  assert.ok(
+    rendered.includes(`src="${photo.src}"`),
+    `Unused care photo: ${photo.source}`,
+  );
+for (const { file, html } of pages) {
+  assert.ok(
+    html.includes('src="/images/smc-logo-v1.png"'),
+    `${file}: supplied logo`,
+  );
+  assert.ok(html.includes("/favicon.ico?v=2"), `${file}: updated favicon`);
+}
+console.log(
+  "PASS: supplied SMC logo, favicon, and all 10 care photos are in rendered pages.",
+);
