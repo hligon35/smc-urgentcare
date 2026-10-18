@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+dist/
+dist-native/
+.wrangler/
+.env
+.env.local
+.env.sandbox
+.env.production
+.dev.vars*
+!.env.sandbox.example
+!.env.production.example
+*.tsbuildinfo
+.DS_Store

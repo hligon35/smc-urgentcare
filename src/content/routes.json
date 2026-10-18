@@ -1,0 +1,51 @@
+[
+  {
+    "id": "home",
+    "path": "/",
+    "label": "Home",
+    "title": "Walk-in Urgent Care in Indianapolis",
+    "description": "A caring welcome for the unexpected. Explore SMC Urgent Care’s services, plan your walk-in visit, and find our Indianapolis clinic."
+  },
+  {
+    "id": "services",
+    "path": "/services",
+    "label": "Our services",
+    "title": "Urgent Care Services",
+    "description": "Explore care for common illnesses, allergies, minor injuries, sports and DOT physicals, and work-related concerns at SMC Urgent Care."
+  },
+  {
+    "id": "about",
+    "path": "/about",
+    "label": "Our approach",
+    "title": "Person-Centered Care",
+    "description": "Learn about SMC Urgent Care’s person-centered approach: listening, helping you understand your options, and putting your needs first."
+  },
+  {
+    "id": "visit",
+    "path": "/visit",
+    "label": "Your visit",
+    "title": "Plan Your Visit",
+    "description": "Prepare for a walk-in visit to SMC Urgent Care. Find what to bring, questions about insurance and payment, and answers before you arrive."
+  },
+  {
+    "id": "contact",
+    "path": "/contact",
+    "label": "Find us",
+    "title": "Contact & Directions",
+    "description": "Call SMC Urgent Care at 317-852-3505 or find directions to 7411 Heathrow Way, Indianapolis, IN 46241. Call to confirm current hours."
+  },
+  {
+    "id": "privacy",
+    "path": "/privacy",
+    "label": "Website privacy",
+    "title": "Website Privacy",
+    "description": "Understand this informational website’s data practices, external patient portal links, and how to contact SMC about privacy questions."
+  },
+  {
+    "id": "accessibility",
+    "path": "/accessibility",
+    "label": "Accessibility",
+    "title": "Accessibility",
+    "description": "Get help accessing SMC Urgent Care’s website and learn about its navigation, readability, and accessibility features."
+  }
+]

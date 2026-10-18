@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "smc-urgentcare-sandbox",
+  "main": "worker/index.mjs",
+  "compatibility_date": "2026-10-18",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": true,
+  },
+  "vars": { "ENVIRONMENT": "sandbox" },
+  "env": {
+    "sandbox": {
+      "name": "smc-urgentcare-sandbox",
+      "vars": { "ENVIRONMENT": "sandbox" },
+    },
+    "production": {
+      "name": "smc-urgentcare",
+      "vars": { "ENVIRONMENT": "production" },
+    },
+  },
+}

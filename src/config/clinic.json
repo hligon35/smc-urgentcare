@@ -1,0 +1,20 @@
+{
+  "name": "SMC Urgent Care",
+  "phone": "317-852-3505",
+  "phoneHref": "tel:+13178523505",
+  "address": {
+    "street": "7411 Heathrow Way",
+    "city": "Indianapolis",
+    "region": "IN",
+    "postalCode": "46241",
+    "country": "US",
+    "landmark": "At Heathrow Way and US 67"
+  },
+  "portalUrl": "https://sarepta.prognocis.com/prognocis/sareptaClinicIndex.html",
+  "facebookUrl": "https://www.facebook.com/SMCUrgentcare/",
+  "directionsUrl": "https://www.google.com/maps/search/?api=1&query=7411+Heathrow+Way+Indianapolis+IN+46241",
+  "hoursNote": "Call to confirm today’s hours",
+  "walkInNote": "No appointment necessary.",
+  "paymentNote": "Ask about accepted insurance plans, self-pay pricing, and available payment arrangements before your visit.",
+  "emergencyNote": "For a life-threatening emergency, call 911 or go to the nearest emergency department."
+}
