@@ -57,7 +57,7 @@ export const nativeStyles = StyleSheet.create({
     marginBottom: 18,
   },
   eyebrow: {
-    color: colors.rust,
+    color: colors.accent,
     textTransform: "uppercase",
     fontSize: 11,
     fontWeight: "700",
@@ -81,7 +81,7 @@ export const nativeStyles = StyleSheet.create({
     marginBottom: 15,
   },
   mutedCard: {
-    backgroundColor: colors.sage,
+    backgroundColor: colors.soft,
     borderRadius: 12,
     padding: 22,
     marginVertical: 14,
@@ -90,11 +90,11 @@ export const nativeStyles = StyleSheet.create({
 });
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: colors.green,
+    backgroundColor: colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 18,
     borderRadius: 6,
-    borderColor: colors.green,
+    borderColor: colors.primary,
     borderWidth: 1,
     marginVertical: 5,
     minHeight: 48,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
-  secondaryText: { color: colors.green },
+  secondaryText: { color: colors.primary },
   section: { marginVertical: 20 },
   heading: {
     fontSize: 27,

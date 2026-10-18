@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import { colors } from "../styles/theme";
 import { useServerDocumentContext } from "expo-router/html";
 export default function RootHTML({ children }: PropsWithChildren) {
   const { headNodes, bodyNodes, htmlAttributes, bodyAttributes } =
@@ -8,9 +9,15 @@ export default function RootHTML({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#214c40" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content={colors.primary} />
+        <link rel="icon" href="/favicon.ico?v=2" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32.png"
+        />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
         {headNodes}
       </head>
       <body {...bodyAttributes}>

@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "src": "/images/caring-visit-v1.webp",
+    "alt": "A clinician shares a reassuring smile with a young patient",
+    "width": 1130,
+    "height": 448,
+    "source": "assets/healthcare2.jpg"
+  },
+  "approach": {
+    "src": "/images/supportive-care-v1.webp",
+    "alt": "A care professional supports an older adult outdoors",
+    "width": 1130,
+    "height": 448,
+    "source": "assets/healthcare1.jpg"
+  },
+  "listening": {
+    "src": "/images/listening-care-v1.webp",
+    "alt": "A care professional and an older adult review information together",
+    "width": 268,
+    "height": 222,
+    "source": "assets/healthcare3.jpg"
+  },
+  "preparation": {
+    "src": "/images/visit-preparation-v1.webp",
+    "alt": "A stethoscope resting on medical paperwork",
+    "width": 268,
+    "height": 222,
+    "source": "assets/healthcare4.jpg"
+  },
+  "illness": {
+    "src": "/images/illness-care-v1.webp",
+    "alt": "A care professional checks an adult patient with a stethoscope",
+    "width": 268,
+    "height": 222,
+    "source": "assets/healthcare6.jpg"
+  },
+  "injury": {
+    "src": "/images/minor-injury-care-v1.webp",
+    "alt": "A clinician examines a patient\u2019s upper arm",
+    "width": 602,
+    "height": 301,
+    "source": "assets/healthcare7.jpg"
+  },
+  "physical": {
+    "src": "/images/physical-exam-v1.webp",
+    "alt": "A blood pressure cuff, stethoscope, and examination supplies",
+    "width": 740,
+    "height": 437,
+    "source": "assets/healthcare9.avif"
+  },
+  "welcome": {
+    "src": "/images/welcoming-care-v1.webp",
+    "alt": "A care professional speaks with a patient in a care setting",
+    "width": 612,
+    "height": 408,
+    "source": "assets/healthcare10.jpg"
+  },
+  "visit": {
+    "src": "/images/supportive-visit-v1.webp",
+    "alt": "A care professional smiles while assisting an older adult",
+    "width": 547,
+    "height": 365,
+    "source": "assets/healthcareB1.jpg"
+  },
+  "conversation": {
+    "src": "/images/care-conversation-v1.webp",
+    "alt": "A care professional listens to an older adult during a conversation",
+    "width": 800,
+    "height": 613,
+    "source": "assets/healthcareB2.webp"
+  }
+}

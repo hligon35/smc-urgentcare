@@ -1,16 +1,13 @@
 import { Link, usePathname, type Href } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
+import Brand from "./Brand";
 import { clinic, routes } from "../config/site";
 import { colors } from "../styles/theme";
 export default function Header() {
   const path = usePathname();
   return (
     <View style={styles.header}>
-      <Link href="/" accessibilityLabel={`${clinic.name} home`}>
-        <Text style={styles.brand}>
-          ✚ SMC <Text style={styles.small}>URGENT CARE</Text>
-        </Text>
-      </Link>
+      <Brand />
       <Text style={styles.hours}>{clinic.hoursNote}</Text>
       <View style={styles.nav}>
         {routes.slice(0, 5).map((route) => (
@@ -29,8 +26,6 @@ export default function Header() {
 }
 const styles = StyleSheet.create({
   header: { padding: 22, borderBottomWidth: 1, borderBottomColor: colors.line },
-  brand: { fontSize: 27, fontWeight: "700", color: colors.green },
-  small: { fontSize: 11, letterSpacing: 1 },
   hours: { fontSize: 12, color: colors.muted, marginTop: 7 },
   nav: {
     flexDirection: "row",
@@ -40,5 +35,5 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   link: { color: colors.ink, paddingVertical: 10, fontSize: 13 },
-  active: { color: colors.rust, textDecorationLine: "underline" },
+  active: { color: colors.accent, textDecorationLine: "underline" },
 });

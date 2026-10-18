@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CareImage } from "./CareImage.web";
 import { clinic } from "../config/site";
 import { faqs, services, values, visitSteps } from "../content/care";
 import { Icon } from "./Icon";
@@ -64,6 +65,7 @@ export function ServiceCards({ detailed = false }: { detailed?: boolean }) {
               key={service.id}
               id={detailed ? service.id : undefined}
             >
+              <CareImage name={service.id} className="service-photo" />
               <Icon name={service.icon} />
               <h3>{service.title}</h3>
               <p>{service.description}</p>

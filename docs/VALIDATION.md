@@ -4,6 +4,7 @@
 
 - TypeScript check of web and native source.
 - Static web export of all seven content routes and the branded 404.
+- Branding refresh checks: supplied logo/favicons in every route, all ten healthcare photos placed, shared web/native palette.
 - iOS and Android Metro/Hermes bundle exports.
 - Worker tests: security headers, immutable versioned assets, HTML revalidation, error no-store, sandbox noindex, unsupported POST methods, no API caching, HEAD behavior, canonical alias redirect, and workers.dev noindex.
 - Build checks: page headings, static metadata/canonicals, local routes and assets, shared header/footer, clinic schema without invented hours, no executable inline scripts.

@@ -1,3 +1,4 @@
+import { CareImage } from "../components/CareImage.web";
 import { clinic } from "../config/site";
 import { Icon } from "../components/Icon";
 import {
@@ -48,13 +49,7 @@ function Home() {
             </div>
           </div>
           <div className="hero-visual">
-            <img
-              src="/images/caring-visit-v1.webp"
-              alt="A clinician shares a reassuring smile with a young patient"
-              width="1130"
-              height="448"
-              fetchPriority="high"
-            />
+            <CareImage name="hero" priority />
             <div className="image-caption">
               <span className="caption-icon">
                 <Icon name="heart" />
@@ -179,12 +174,7 @@ function About() {
         </p>
       </PageIntro>
       <section className="wrap story-grid page-section">
-        <img
-          src="/images/supportive-care-v1.webp"
-          alt="A care professional supports an older adult outdoors"
-          width="1130"
-          height="448"
-        />
+        <CareImage name="approach" />
         <div>
           <div className="eyebrow">Here in Indianapolis</div>
           <h2>A caring welcome for the unexpected.</h2>
@@ -204,6 +194,29 @@ function About() {
         </div>
       </section>
       <Approach full />
+      <section className="wrap care-scenes">
+        <article className="care-scene care-scene-compact">
+          <CareImage name="listening" />
+          <div>
+            <div className="eyebrow">Make room for your questions</div>
+            <h2>Bring what’s on your mind.</h2>
+            <p>
+              A short list of questions or concerns can help you make the most
+              of your visit.
+            </p>
+          </div>
+        </article>
+        <article className="care-scene">
+          <CareImage name="conversation" />
+          <div>
+            <div className="eyebrow">Your perspective matters</div>
+            <h2>Tell us what matters to you.</h2>
+            <p>
+              Share your preferences and ask about the next step in your care.
+            </p>
+          </div>
+        </article>
+      </section>
       <section className="wrap two-column">
         <div>
           <div className="eyebrow">Know what to expect</div>
@@ -238,8 +251,23 @@ function Visit() {
       </PageIntro>
       <section className="wrap page-section">
         <div className="visit-grid">
-          <VisitSteps />
+          <div>
+            <CareImage name="visit" className="visit-photo" />
+            <VisitSteps />
+          </div>
           <PaymentCard />
+        </div>
+      </section>
+      <section className="wrap preparation-band">
+        <CareImage name="preparation" />
+        <div>
+          <div className="eyebrow">Coming for a physical?</div>
+          <h2>A little paperwork. A smoother start.</h2>
+          <p>
+            Bring any required examination forms and school or employer
+            instructions. Call ahead to check what your particular visit
+            requires.
+          </p>
         </div>
       </section>
       <section className="soft-band">
@@ -284,6 +312,7 @@ function Contact() {
       </PageIntro>
       <section className="wrap contact-grid page-section">
         <div className="contact-panel">
+          <CareImage name="welcome" className="contact-photo" />
           <Icon name="phone" />
           <h2>Give us a call.</h2>
           <PhoneLink className="large-link" />

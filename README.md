@@ -1,6 +1,6 @@
 # SMC Urgent Care
 
-A warm, accessible public website and native mobile shell built in one **Expo Router / TypeScript** project. The web build exports a complete HTML page for each route and runs on **Cloudflare Workers with Static Assets**. The visual direction follows the approved cream, deep green, and terracotta preview.
+A warm, accessible public website and native mobile shell built in one **Expo Router / TypeScript** project. The web build exports a complete HTML page for each route and runs on **Cloudflare Workers with Static Assets**. The visual direction uses the supplied SMC logo’s navy, red, and white, balanced with warm off-white backgrounds.
 
 ## Start locally
 
@@ -35,7 +35,7 @@ The mobile shell uses native controls, shared clinic/service content, device cal
 
 `src/app/_layout.tsx` owns the shared shell. `src/components/Header.web.tsx` and `Footer.web.tsx` render on **every web page**; native uses the corresponding base components. Active navigation changes with the route, while the component structure, links, and branding stay consistent.
 
-`src/config/clinic.json` is the authority for phone, address, portal, directions, and operating notices. `src/content/care.ts` contains shared service, FAQ, and visit content. `src/content/routes.json` drives navigation, route metadata, and sitemap generation. Web-specific semantic HTML and native views use the same configuration.
+`src/config/clinic.json` is the authority for phone, address, portal, directions, and operating notices. `src/content/care.ts` contains shared service, FAQ, and visit content. `src/content/routes.json` drives navigation, route metadata, and sitemap generation. `src/content/media.json` records supplied photo placements and descriptions. `src/styles/palette.json` is shared by native styles and generated web color tokens (`npm run build` refreshes `palette.css`). Web-specific semantic HTML and native views use the same configuration.
 
 ## Environments
 
@@ -93,6 +93,6 @@ No D1, R2, Resend, Turnstile, or authentication integration is added: this scope
 
 ## Before replacing the existing website
 
-Confirm phone, address, portal ownership/destination, current services, physical availability, accepted insurance, self-pay policies, and actual hours with SMC. Hours are deliberately displayed as **call to confirm**, with no fabricated wait times, staff credentials, reviews, or opening-hours schema. Confirm image reuse rights and the proposed SMC wordmark/app icon. See `docs/CONTENT-SOURCES.md`.
+Confirm phone, address, portal ownership/destination, current services, physical availability, accepted insurance, self-pay policies, and actual hours with SMC. Hours are deliberately displayed as **call to confirm**, with no fabricated wait times, staff credentials, reviews, or opening-hours schema. Confirm image reuse rights. The supplied `assets/smcLogo.png` is used in shared branding, favicon/touch icons, and native icons. See `docs/CONTENT-SOURCES.md`.
 
 The old WordPress page contains unrelated gambling/essay links. This repository does not copy its scripts or third-party embeds. Investigate the existing host, accounts, plugins, files, redirects, and search indexing before cutover; the original installation has not been repaired by this implementation. Preserve domain/email records and arrange the clinic’s legal/privacy review as part of launch acceptance.
