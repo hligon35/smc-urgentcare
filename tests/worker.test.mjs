@@ -34,6 +34,14 @@ test("public pages receive security headers and revalidation without advertising
     /script-src[^;]*unsafe-inline/,
   );
   assert.match(response.headers.get("Permissions-Policy"), /camera=\(\)/);
+  assert.match(
+    response.headers.get("Content-Security-Policy"),
+    /frame-src https:\/\/www\.google\.com\/maps\/embed;/,
+  );
+  assert.match(
+    response.headers.get("Content-Security-Policy"),
+    /frame-ancestors 'none'/,
+  );
   assert.equal(response.headers.has("X-Robots-Tag"), false);
 });
 test("hashed bundles and explicitly versioned images can be cached immutably; HTML cannot", async () => {

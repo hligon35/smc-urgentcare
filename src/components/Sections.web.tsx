@@ -242,6 +242,17 @@ export function LocationCTA() {
           </DirectionsLink>
           <PhoneLink>Call {clinic.phone}</PhoneLink>
         </div>
+        <div className="location-map">
+          <iframe
+            src={clinic.mapEmbedUrl}
+            title={`${clinic.name} location at ${clinic.address.street}, ${clinic.address.city}`}
+            width={400}
+            height={300}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
       </div>
     </section>
   );

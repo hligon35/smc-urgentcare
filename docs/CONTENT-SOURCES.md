@@ -36,4 +36,8 @@ All ten supplied healthcare photos are used on the website. Original uploads rem
 
 Native views use optimized local derivatives for service cards, approach, visits, and contact. The photos are illustrative; they are not identified as actual SMC staff, patients, or premises. Confirm reuse rights with the clinic before launch.
 
-No unrelated outbound links, WordPress scripts, third-party embeds, testimonials, or unverified clinical credentials were imported. Newly written copy remains subject to clinic approval.
+No unrelated outbound links, WordPress scripts, testimonials, or unverified clinical credentials were imported. Newly written copy remains subject to clinic approval.
+
+## Interactive location map
+
+The Google Maps embed URL in `src/config/clinic.json` was supplied by the user on October 18, 2026. It is used only in the shared “Your neighborhood urgent care” location section, retaining Google’s interactive controls and attribution. The frame is labelled, lazily loaded, and restricted by the parent page’s content security policy to Google’s map embed endpoint. The website privacy page describes the external map connection.
