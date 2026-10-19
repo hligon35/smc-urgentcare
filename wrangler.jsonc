@@ -36,9 +36,11 @@
     "production": {
       "name": "smc-urgentcare",
       "vars": {
-        "ENVIRONMENT": "production",
-        "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
-        "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com"
+      "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com",
+      "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
+      "ENVIRONMENT": "production",
+      "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
+      "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
       },
       "d1_databases": [
         {
