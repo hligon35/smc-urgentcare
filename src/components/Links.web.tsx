@@ -14,12 +14,9 @@ export function PortalLink({ children, ...props }: Props) {
   return (
     <a
       {...props}
-      href={clinic.portalUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+      href="/portal"
     >
       {children || "Patient portal"}
-      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }
