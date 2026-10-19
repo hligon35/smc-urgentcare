@@ -31,6 +31,14 @@ The repository includes `.env.production.example` and `.env.sandbox.example` wit
 
 **Deployment distinction:** `scripts/build.mjs` reads the ignored local environment files for static build settings. This **does not** upload private variables to Cloudflare. Configure each Worker environment independently using Cloudflare secrets and variables (for example, `npx wrangler secret put AUTH_PEPPER --env sandbox`), and make sure `AUTH_ORIGIN` matches that deployed hostname. Do not put private values in `EXPO_PUBLIC_*` keys or tracked example files.
 
+### Authentication troubleshooting on smcuc.alphazonelabs.com
+
+The login and Google buttons are **intentionally disabled until a Turnstile challenge succeeds**. A private `TURNSTILE_SECRET_KEY` alone cannot render a challenge. Configure the matching **public** `TURNSTILE_SITE_KEY` as a Worker text variable. The login UI now reads the public key and capability flags from same-origin `/api/portal/auth/config` at runtime, rather than relying only on the old `EXPO_PUBLIC_TURNSTILE_SITE_KEY` build variable. The key is public; never place the Turnstile secret in this endpoint or an `EXPO_PUBLIC_*` setting.
+
+For the active `smc-urgentcare` Worker, check Production runtime vars and D1 bindings: `ENVIRONMENT=production`, `AUTH_ORIGIN=https://smcuc.alphazonelabs.com`, `AUTH_ALLOWED_ORIGINS=https://smc-urgentcare.com`, `TURNSTILE_SITE_KEY`, `GOOGLE_CLIENT_ID`, `RESEND_FROM`, and verified Worker secrets `AUTH_PEPPER`, `TURNSTILE_SECRET_KEY`, `GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`. Bind `AUTH_DB` to `smc-db` for production. Google sign-in requires the callback registered for smcuc. Registration and recovery also require Resend setup. Confirm the Turnstile widget allows `smcuc.alphazonelabs.com`. Test `/api/portal/auth/config` (safe, public readiness flags) before attempting sign-in; the endpoint should not expose secret values. D1 migrations still need to exist on the bound database.
+
+**Important:** The screenshot showed `ENVIRONMENT=sandbox` and `AUTH_DB=smc-sandbox` on the active Worker. Do not change database bindings blindly if that database already contains test accounts; review and migrate intentionally. Sandbox and production Wrangler environments currently target the same Worker name, so deploying sandbox can overwrite the intended production configuration.
+
 ### Production testing domain and Turnstile
 
 The approved production-compatible testing origin is **https://smcuc.alphazonelabs.com**. The eventual SMC hostname remains **https://smc-urgentcare.com**. The app supports either in `EXPO_PUBLIC_SITE_URL` when built for production; this does not automatically attach or configure DNS/custom domains. The test domain is intentionally **noindex**. Keep the clinical PrognoCIS link available.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const SITE_KEY = process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY || "";
+
 const SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 type WidgetOptions = {
   sitekey: string;
@@ -24,15 +24,17 @@ declare global {
 export default function Turnstile({
   onToken,
   resetKey,
+  siteKey,
 }: {
   onToken: (token: string) => void;
   resetKey: number;
+  siteKey: string;
 }) {
   const node = useRef<HTMLDivElement>(null);
   const widget = useRef<string | null>(null);
   const callback = useRef(onToken);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    SITE_KEY ? "loading" : "error",
+    siteKey ? "loading" : "error",
   );
 
   useEffect(() => {
@@ -40,14 +42,14 @@ export default function Turnstile({
   }, [onToken]);
 
   useEffect(() => {
-    if (!SITE_KEY || !node.current) return;
+    if (!siteKey || !node.current) return;
     let active = true;
     let script = document.querySelector<HTMLScriptElement>("script[data-smc-turnstile]");
     const render = () => {
       if (!active || !node.current || !window.turnstile || widget.current) return;
       try {
         widget.current = window.turnstile.render(node.current, {
-          sitekey: SITE_KEY,
+          sitekey: siteKey,
           action: "patient_auth",
           theme: "light",
           callback: (token) => callback.current(token),
@@ -86,7 +88,7 @@ export default function Turnstile({
       }
       callback.current("");
     };
-  }, []);
+  }, [siteKey]);
 
   useEffect(() => {
     if (!resetKey || !widget.current || !window.turnstile) return;

@@ -198,6 +198,23 @@ async function googleCallback(req, env, origin) {
 export async function handlePortalAuth(req, env) {
   const url = new URL(req.url);
   const route = url.pathname.replace("/api/portal/auth/", "");
+  if (route === "config" && req.method === "GET") {
+    if (!requestAuthOrigin(req, env)) return fail("Invalid origin.", 403);
+    // Public capability flags and the public widget key only; never expose
+    // secrets, database IDs, access tokens, or provider error details.
+    const baseReady = configured(env) &&
+      Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY);
+    const emailPasswordReady = baseReady;
+    const recoveryReady = baseReady &&
+      Boolean(env.RESEND_API_KEY && env.RESEND_FROM);
+    return json({
+      turnstileSiteKey: String(env.TURNSTILE_SITE_KEY || ""),
+      emailPasswordReady,
+      recoveryReady,
+      googleReady: baseReady &&
+        Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    });
+  }
   if (!configured(env)) return fail("Patient sign-in is not configured yet.", 503);
   const origin = requestAuthOrigin(req, env);
   if (!origin) return fail("Invalid origin.", 403);

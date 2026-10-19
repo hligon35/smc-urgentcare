@@ -24,6 +24,9 @@ function Entrance() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [authConfig, setAuthConfig] = useState<{turnstileSiteKey:string;emailPasswordReady:boolean;recoveryReady:boolean;googleReady:boolean}|null>(null);
+  const [configError, setConfigError] = useState("");
+  useEffect(()=>{let active=true;fetch("/api/portal/auth/config",{cache:"no-store"}).then(async response=>{if(!response.ok)throw Error("Authentication service unavailable");return response.json();}).then(data=>{if(active)setAuthConfig(data);}).catch(()=>{if(active)setConfigError("Patient login configuration is unavailable. Please contact the site administrator.");});return()=>{active=false;};},[]);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState("");
@@ -55,17 +58,18 @@ function Entrance() {
       <span className="portal-eyebrow">Patient access</span>
       <h2>{label}</h2>
       <p className="portal-muted">{mode === "login" ? "Sign in to your patient dashboard." : mode === "register" ? "Create an account for the CareConnect interface. Clinical records are not connected yet." : "Follow the instructions below."}</p>
-      {error && <div className="portal-error" role="alert">{error}</div>}
+      {(error || configError) && <div className="portal-error" role="alert">{error || configError}</div>}
+      {authConfig && !authConfig.turnstileSiteKey && <div className="portal-error" role="alert">Bot verification has not been configured for this domain. Sign-in is unavailable.</div>}
       {notice && <div className="portal-success" role="status">{notice}</div>}
       <form onSubmit={submit} className="portal-form">
         {["login","register","forgot"].includes(mode) && <label>Email address<input type="email" name="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>}
         {["login","register","reset"].includes(mode) && <label>Password
           <span className="portal-password"><input type={showPassword ? "text" : "password"} autoComplete={mode==="login"?"current-password":"new-password"} minLength={mode==="login"?undefined:12} maxLength={128} required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password"/><button type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?"Hide":"Show"}</button></span>
         </label>}
-        {mode !== "verify" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} />}
-        <button type="submit" disabled={busy || (mode !== "verify" && !turnstileToken)} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":"Verify email"}</button>
+        {mode !== "verify" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} siteKey={authConfig?.turnstileSiteKey || ""} />}
+        <button type="submit" disabled={busy || !!configError || (mode !== "verify" && (!turnstileToken || !authConfig?.emailPasswordReady))} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":"Verify email"}</button>
       </form>
-      {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
+      {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy || !authConfig?.googleReady} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
       <div className="portal-login-links">
         {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button></> : <button onClick={()=>{setMode("login");setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
       </div>
