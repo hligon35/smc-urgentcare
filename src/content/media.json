@@ -63,10 +63,10 @@
     "source": "assets/healthcareB1.jpg"
   },
   "conversation": {
-    "src": "/images/care-conversation-v1.webp",
-    "alt": "A care professional listens to an older adult during a conversation",
+    "src": "/images/perspective-care-v1.jpg",
+    "alt": "A care professional supports a patient",
     "width": 800,
     "height": 613,
-    "source": "assets/healthcareB2.webp"
+    "source": "assets/care-approach.jpg"
   }
 }
