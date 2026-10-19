@@ -1,4 +1,4 @@
-import { requestAuthOrigin } from "./portal-origins.mjs";
+import { googleRedirectUri, requestAuthOrigin } from "./portal-origins.mjs";
 import { validatePortalTurnstile } from "./portal-turnstile.mjs";
 // Authentication is intentionally isolated from the static patient experience.
 // No PHI is processed here. Do not turn on clinical APIs without a separate review.
@@ -73,7 +73,7 @@ export async function resolveSession(req, env) {
   if (!token) return null;
   const digest = await sha(token + env.AUTH_PEPPER);
   const row = await env.AUTH_DB.prepare(
-    "SELECT u.id, u.email, u.display_name, u.email_verified FROM portal_sessions s JOIN portal_users u ON u.id=s.user_id WHERE s.id=? AND s.expires_at>? AND u.disabled_at IS NULL"
+    "SELECT u.id, u.email, u.display_name, u.email_verified, u.role FROM portal_sessions s JOIN portal_users u ON u.id=s.user_id WHERE s.id=? AND s.expires_at>? AND u.disabled_at IS NULL"
   ).bind(digest, clock()).first();
   return row || null;
 }
@@ -119,7 +119,7 @@ async function googleStart(req, env, origin) {
   ).bind(await sha(state + env.AUTH_PEPPER), verifier, nonce, clock() + 600).run();
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", env.GOOGLE_CLIENT_ID);
-  url.searchParams.set("redirect_uri", origin + "/api/portal/auth/google/callback");
+  url.searchParams.set("redirect_uri", googleRedirectUri(origin));
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "openid email profile");
   url.searchParams.set("state", state);
@@ -168,21 +168,25 @@ async function googleCallback(req, env, origin) {
     const response = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: env.AUTH_ORIGIN + "/api/portal/auth/google/callback", grant_type: "authorization_code",
+        redirect_uri: googleRedirectUri(origin), grant_type: "authorization_code",
         code, code_verifier: attempt.verifier })
     });
     if (!response.ok) throw Error("OAuth exchange failed");
     const tokens = await response.json();
     const identity = await verifyGoogleIdToken(tokens.id_token, env, attempt.nonce);
     const email = cleanEmail(identity.email);
-    let user = await env.AUTH_DB.prepare("SELECT id, google_sub, disabled_at FROM portal_users WHERE email=?").bind(email).first();
-    if (user && (user.disabled_at || user.google_sub !== identity.sub)) {
+    let user = await env.AUTH_DB.prepare("SELECT id, google_sub, disabled_at, email_verified, role, password_hash FROM portal_users WHERE email=?").bind(email).first();
+    if (user && (user.disabled_at || (user.google_sub && user.google_sub !== identity.sub) || (!user.google_sub && user.password_hash))) {
       throw Error("Account exists under a different sign-in method");
+    }
+    if (user && !user.google_sub) {
+      // Provisioned, unclaimed accounts can only be linked after Google verifies email ownership.
+      await env.AUTH_DB.prepare("UPDATE portal_users SET google_sub=?, email_verified=1 WHERE id=? AND google_sub IS NULL AND password_hash IS NULL AND disabled_at IS NULL").bind(identity.sub, user.id).run();
     }
     if (!user) {
       const id = crypto.randomUUID();
       await env.AUTH_DB.prepare(
-        "INSERT INTO portal_users (id,email,display_name,google_sub,email_verified,created_at) VALUES (?,?,?,?,1,?)"
+        "INSERT INTO portal_users (id,email,display_name,google_sub,email_verified,created_at,role) VALUES (?,?,?,?,1,?,\'patient\')"
       ).bind(id, email, String(identity.name || "").slice(0, 90) || null, identity.sub, clock()).run();
       user = { id };
     }
@@ -230,7 +234,7 @@ export async function handlePortalAuth(req, env) {
   if (route === "google/callback" && req.method === "GET") return googleCallback(req, env, origin);
   if (route === "session" && req.method === "GET") {
     const user = await resolveSession(req, env);
-    return user ? json({ user: { email: user.email, displayName: user.display_name } }) : fail("Not authenticated.", 401);
+    return user ? json({ user: { email: user.email, displayName: user.display_name, role: user.role || "patient" } }) : fail("Not authenticated.", 401);
   }
   if (req.method !== "POST") return fail("Method not allowed.", 405);
   if (req.headers.get("Origin") !== origin) return fail("Invalid request origin.", 403);
