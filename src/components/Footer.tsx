@@ -1,5 +1,5 @@
 import { Link, type Href } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { clinic, routes } from "../config/site";
 import Brand from "./Brand";
 import SocialLinks from "./SocialLinks";
@@ -19,8 +19,10 @@ export default function Footer() {
       />
       <View style={styles.nav}>
         {routes.slice(5).map((route) => (
-          <Link style={styles.link} key={route.id} href={route.path as Href}>
-            {route.label}
+          <Link asChild key={route.id} href={route.path as Href}>
+            <Pressable style={styles.link} accessibilityRole="link">
+              <Text style={styles.label}>{route.label}</Text>
+            </Pressable>
           </Link>
         ))}
       </View>
@@ -40,6 +42,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   text: { color: colors.muted, fontSize: 12, lineHeight: 20, marginBottom: 15 },
-  nav: { flexDirection: "row", gap: 25, marginVertical: 15 },
-  link: { color: colors.primary, fontSize: 12, paddingVertical: 10 },
+  nav: { flexDirection: "row", flexWrap: "wrap", columnGap: 24, rowGap: 8, marginVertical: 15 },
+  link: { minHeight: 44, maxWidth: "100%", justifyContent: "center", paddingVertical: 10 },
+  label: { color: colors.primary, fontSize: 14, flexShrink: 1 },
 });

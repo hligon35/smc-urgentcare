@@ -141,8 +141,8 @@ export default function Portal({ screen = "login" }: { screen?: string }) {
       <div className="portal-side-bottom"><p>Need help? <a href="tel:+13178523505"><Icon name="phone" /> Call the clinic</a></p><button onClick={logout}><Icon name="logout" /> Sign out</button></div>
     </aside>
     <div className="portal-shell">
-      <header className="portal-top"><div><span className="portal-top-title">{current.label}</span><span className="portal-demo-tag">Clinical demo only</span></div><div className="portal-top-user"><span>{user?.email}</span><span className="portal-avatar" aria-hidden="true">{(user?.email||"P").charAt(0).toUpperCase()}</span></div></header>
-      <nav className="portal-mobile-nav" aria-label="Portal sections">{portalSections.map(item=><a key={item.id} href={"/portal/"+item.id} aria-current={item.id===current.id?"page":undefined}><Icon name={item.icon} />{item.label}</a>)}</nav>
+      <header className="portal-top"><div className="portal-top-heading"><span className="portal-top-title">{current.label}</span><span className="portal-demo-tag">Clinical demo only</span></div><div className="portal-top-user"><span>{user?.email}</span><span className="portal-avatar" aria-hidden="true">{(user?.email||"P").charAt(0).toUpperCase()}</span><button type="button" className="portal-mobile-logout" onClick={logout}><Icon name="logout" /> Sign out</button></div></header>
+      <nav className="portal-mobile-nav" aria-label="Portal sections" tabIndex={0}>{portalSections.map(item=><a key={item.id} href={"/portal/"+item.id} aria-current={item.id===current.id?"page":undefined}><Icon name={item.icon} />{item.label}</a>)}</nav>
       <main className="portal-content">
         <div className="portal-eyebrow">{screen==="dashboard"?"PATIENT DASHBOARD":"YOUR CARE"}</div>
         <h1>{screen==="dashboard"?"Welcome to CareConnect.":current.label}</h1><p className="portal-muted">{screen==="dashboard"?"Your care, organized in one place.":current.description}</p>

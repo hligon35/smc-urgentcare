@@ -44,6 +44,7 @@ export default function SocialLinks() {
 const styles = StyleSheet.create({
   links: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginVertical: 14 },
   link: {
+    maxWidth: "100%",
     flexDirection: "row",
     alignItems: "center",
     gap: 9,
@@ -56,5 +57,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
   },
   icon: { width: 24, height: 24 },
-  label: { color: colors.primary, fontWeight: "600", fontSize: 13 },
+  label: { color: colors.primary, fontWeight: "600", fontSize: 13, flexShrink: 1 },
 });

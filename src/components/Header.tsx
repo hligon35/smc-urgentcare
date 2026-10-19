@@ -1,5 +1,5 @@
 import { Link, usePathname, type Href } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Brand from "./Brand";
 import { clinic, routes } from "../config/site";
 import { colors } from "../styles/theme";
@@ -15,9 +15,13 @@ export default function Header() {
             key={route.id}
             href={route.path as Href}
             accessibilityState={{ selected: path === route.path }}
-            style={[styles.link, path === route.path && styles.active]}
+            asChild
           >
-            {route.label}
+            <Pressable style={styles.link} accessibilityRole="link">
+              <Text style={[styles.label, path === route.path && styles.active]}>
+                {route.label}
+              </Text>
+            </Pressable>
           </Link>
         ))}
       </View>
@@ -31,9 +35,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     columnGap: 18,
-    rowGap: 2,
+    rowGap: 6,
     marginTop: 16,
   },
-  link: { color: colors.ink, paddingVertical: 10, fontSize: 13 },
+  link: { minHeight: 44, justifyContent: "center", maxWidth: "100%", paddingVertical: 10 },
+  label: { color: colors.ink, fontSize: 14, flexShrink: 1 },
   active: { color: colors.accent, textDecorationLine: "underline" },
 });
