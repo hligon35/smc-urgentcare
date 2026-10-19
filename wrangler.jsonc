@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "smc-urgentcare-sandbox",
+  "name": "smc-urgentcare",
   "main": "worker/index.mjs",
   "compatibility_date": "2026-10-18",
   "workers_dev": true,
@@ -20,7 +20,7 @@
   },
   "env": {
     "sandbox": {
-      "name": "smc-urgentcare-sandbox",
+      "name": "smc-urgentcare",
       "vars": {
         "ENVIRONMENT": "sandbox"
       },
@@ -28,7 +28,7 @@
         {
           "binding": "AUTH_DB",
           "database_name": "smc-portal-auth-sandbox",
-          "database_id": "REPLACE_WITH_SANDBOX_D1_ID",
+          "database_id": "ab638b4b-b5b5-4376-a705-cf18729bb6a8",
           "migrations_dir": "migrations"
         }
       ]
@@ -42,7 +42,7 @@
         {
           "binding": "AUTH_DB",
           "database_name": "smc-portal-auth",
-          "database_id": "REPLACE_WITH_PRODUCTION_D1_ID",
+          "database_id": "a0683519-7e25-432c-80b7-dc9f7a231412",
           "migrations_dir": "migrations"
         }
       ]
@@ -52,7 +52,7 @@
     {
       "binding": "AUTH_DB",
       "database_name": "smc-portal-auth-sandbox",
-      "database_id": "REPLACE_WITH_SANDBOX_D1_ID",
+      "database_id": "ab638b4b-b5b5-4376-a705-cf18729bb6a8",
       "migrations_dir": "migrations"
     }
   ]
