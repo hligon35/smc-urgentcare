@@ -112,3 +112,23 @@ for (const { file, html } of pages) {
 console.log(
   "PASS: supplied SMC logo, favicon, and all 10 care photos are in rendered pages.",
 );
+
+// Every shared location section must carry the configured, accessible Google Maps embed.
+for (const { file, html } of pages.filter((page) =>
+  page.html.includes('class="location"'),
+)) {
+  const iframe = html.match(/<iframe[^>]+>/)?.[0];
+  assert.ok(iframe, `${file}: interactive location map`);
+  assert.ok(
+    iframe.includes(clinic.mapEmbedUrl.replaceAll("&", "&amp;")),
+    `${file}: supplied map URL`,
+  );
+  assert.ok(
+    iframe.includes('loading="lazy"') &&
+      iframe.includes('title="SMC Urgent Care location'),
+    `${file}: labelled lazy map`,
+  );
+}
+console.log(
+  "PASS: configured interactive map in every shared location section.",
+);

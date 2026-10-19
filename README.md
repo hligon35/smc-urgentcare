@@ -35,7 +35,7 @@ The mobile shell uses native controls, shared clinic/service content, device cal
 
 `src/app/_layout.tsx` owns the shared shell. `src/components/Header.web.tsx` and `Footer.web.tsx` render on **every web page**; native uses the corresponding base components. Active navigation changes with the route, while the component structure, links, and branding stay consistent.
 
-`src/config/clinic.json` is the authority for phone, address, portal, directions, and operating notices. `src/content/care.ts` contains shared service, FAQ, and visit content. `src/content/routes.json` drives navigation, route metadata, and sitemap generation. `src/content/media.json` records supplied photo placements and descriptions. `src/styles/palette.json` is shared by native styles and generated web color tokens (`npm run build` refreshes `palette.css`). Web-specific semantic HTML and native views use the same configuration.
+`src/config/clinic.json` is the authority for phone, address, portal, directions, the supplied Google Maps embed URL, and operating notices. The shared location section embeds that interactive map responsively, with lazy loading and a Google-only frame policy. `src/content/care.ts` contains shared service, FAQ, and visit content. `src/content/routes.json` drives navigation, route metadata, and sitemap generation. `src/content/media.json` records supplied photo placements and descriptions. `src/styles/palette.json` is shared by native styles and generated web color tokens (`npm run build` refreshes `palette.css`). Web-specific semantic HTML and native views use the same configuration.
 
 ## Environments
 

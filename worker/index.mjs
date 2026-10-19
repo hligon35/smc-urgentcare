@@ -7,7 +7,7 @@ const securityHeaders = {
   "Strict-Transport-Security": "max-age=31536000",
   // Expo's generated style elements require inline styles; executable scripts remain same-origin only.
   "Content-Security-Policy":
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; frame-src https://www.google.com/maps/embed; base-uri 'self'; form-action 'none'; frame-ancestors 'none'",
 };
 
 /** Apply protections consistently to assets, errors, and future API responses. */

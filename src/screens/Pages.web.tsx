@@ -392,10 +392,27 @@ function Privacy() {
         <h2>Website data</h2>
         <p>
           This implementation does not use advertising trackers, analytics
-          scripts, embedded third-party maps, or browser storage for patient
-          information. Hosting providers process technical request information,
-          such as IP addresses and browser details, to deliver and protect the
-          website. The clinic’s hosting configuration determines log retention.
+          scripts or browser storage for patient information. Hosting providers
+          process technical request information, such as IP addresses and
+          browser details, to deliver and protect the website. The clinic’s
+          hosting configuration determines log retention.
+        </p>
+        <h2>Interactive Google Maps</h2>
+        <p>
+          The location section contains an interactive map supplied by Google.
+          When the map loads, your browser connects to Google and sends
+          technical information such as your IP address, browser details, and
+          the referring website origin. Google may use cookies or similar
+          technologies under its own privacy practices. See{" "}
+          <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <u>Google’s Privacy Policy</u>
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>{" "}
+          for details.
         </p>
         <h2>Patient portal and other websites</h2>
         <p>
