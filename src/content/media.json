@@ -36,7 +36,7 @@
   },
   "injury": {
     "src": "/images/minor-injury-care-v1.webp",
-    "alt": "A clinician examines a patient\u2019s upper arm",
+    "alt": "A clinician examines a patient’s upper arm",
     "width": 602,
     "height": 301,
     "source": "assets/healthcare7.jpg"
@@ -63,10 +63,10 @@
     "source": "assets/healthcareB1.jpg"
   },
   "conversation": {
-    "src": "/images/perspective-care-v1.jpg",
-    "alt": "A care professional supports a patient",
+    "src": "/images/perspective-care-v2.jpg",
+    "alt": "A clinician shares a reassuring smile with a young patient",
     "width": 800,
     "height": 613,
-    "source": "assets/care-approach.jpg"
+    "source": "assets/caring-visit.jpg"
   }
 }
