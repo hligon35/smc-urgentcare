@@ -118,11 +118,14 @@ console.log(
 // Check that every supplied care photo has a real page placement and the shared identity is present.
 const media = JSON.parse(await readFile("src/content/media.json", "utf8"));
 const rendered = pages.map((page) => page.html).join("\n");
-for (const photo of Object.values(media))
+for (const photo of Object.values(media)) {
   assert.ok(
     rendered.includes(`src="${photo.src}"`),
     `Unused care photo: ${photo.source}`,
   );
+  await stat(photo.source);
+  await stat(path.join("public", photo.src.slice(1)));
+}
 for (const { file, html } of pages) {
   assert.ok(
     html.includes('src="/images/smc-logo-v1.png"'),
