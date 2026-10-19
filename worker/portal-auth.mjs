@@ -199,6 +199,7 @@ export async function handlePortalAuth(req, env) {
   const url = new URL(req.url);
   const route = url.pathname.replace("/api/portal/auth/", "");
   if (route === "config" && req.method === "GET") {
+    if (!requestAuthOrigin(req, env)) return fail("Invalid origin.", 403);
     // Public capability flags and the public widget key only; never expose
     // secrets, database IDs, access tokens, or provider error details.
     const baseReady = configured(env) &&
