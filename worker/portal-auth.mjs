@@ -95,7 +95,7 @@ async function createEmailToken(env, user, purpose, origin) {
     "INSERT INTO portal_email_tokens (id, user_id, purpose, expires_at) VALUES (?,?,?,?)"
   ).bind(await sha(token + env.AUTH_PEPPER), user.id, purpose, clock() + 1800).run();
   const url = origin + "/portal?mode=" + encodeURIComponent(purpose) + "&token=" + encodeURIComponent(token);
-  const delivered = await sendMail(env, user.email, purpose === "verify" ? "Confirm your SMC CareConnect email" : "Reset your SMC CareConnect password", url);
+  const delivered = await sendMail(env, user.email, purpose === "verify" ? "Confirm your SMC CareConnect email" : purpose === "activate" ? "Activate your SMC CareConnect account" : "Reset your SMC CareConnect password", url);
   if (!delivered) throw Error("Email delivery unavailable");
 }
 async function consumeToken(env, token, purpose) {
@@ -110,6 +110,28 @@ async function consumeToken(env, token, purpose) {
   ).bind(digest, purpose, clock()).run();
   return result.meta.changes === 1 ? row.user_id : null;
 }
+/**
+ * Set the first password only when a valid, unexpired activation token exists
+ * and the account has no existing password. D1 batch commits the update and
+ * token deletion together; concurrent replays cannot overwrite a password.
+ * Existing role and any verified Google identity are preserved.
+ */
+async function completeActivation(env, token, password) {
+  if (typeof token !== "string" || token.length < 30 || token.length > 150) return false;
+  const digest = await sha(token + env.AUTH_PEPPER);
+  const salt = random(24);
+  const hash = await hashPassword(password, salt, env.AUTH_PEPPER);
+  const outcomes = await env.AUTH_DB.batch([
+    env.AUTH_DB.prepare(
+      "UPDATE portal_users SET password_salt=?, password_hash=?, email_verified=1 " +
+      "WHERE id=(SELECT user_id FROM portal_email_tokens WHERE id=? AND purpose='activate' AND expires_at>?) " +
+      "AND password_hash IS NULL AND disabled_at IS NULL"
+    ).bind(salt, hash, digest, clock()),
+    env.AUTH_DB.prepare("DELETE FROM portal_email_tokens WHERE id=? AND purpose='activate'").bind(digest),
+  ]);
+  return outcomes[0]?.meta?.changes === 1;
+}
+
 async function googleStart(req, env, origin) {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return fail("Google sign-in is not configured.", 503);
   const state = random(32), nonce = random(32), verifier = random(64);
@@ -238,16 +260,24 @@ export async function handlePortalAuth(req, env) {
   }
   if (req.method !== "POST") return fail("Method not allowed.", 405);
   if (req.headers.get("Origin") !== origin) return fail("Invalid request origin.", 403);
-  if (!["register", "login", "logout", "verify", "forgot", "reset"].includes(route)) return fail("Not found.", 404);
+  if (!["register", "login", "logout", "verify", "forgot", "reset", "activate/request", "activate/complete"].includes(route)) return fail("Not found.", 404);
   if (route === "logout") {
     const token = getCookie(req, SESSION);
     if (token) await env.AUTH_DB.prepare("DELETE FROM portal_sessions WHERE id=?").bind(await sha(token + env.AUTH_PEPPER)).run();
     return json({ ok: true }, 200, { "Set-Cookie": clearSession() });
   }
   const data = await payload(req);
-  if (!["logout", "verify"].includes(route) &&
+  if (!["logout", "verify", "activate/complete"].includes(route) &&
       !await validatePortalTurnstile(req, env, data.turnstileToken))
     return fail("Bot verification failed. Please complete the security check again.", 403);
+  if (route === "activate/complete") {
+    if (typeof data.password !== "string" || data.password.length < 12 || data.password.length > 128)
+      return fail("Use a password between 12 and 128 characters.");
+    if (!await limit(req, env, "activation-complete", 8))
+      return fail("Too many attempts. Try again later.", 429);
+    const activated = await completeActivation(env, data.token, data.password);
+    return activated ? json({ ok: true }) : fail("Activation link is invalid, expired, or already used.");
+  }
   const email = cleanEmail(data.email);
   if (route === "verify") {
     const user = await consumeToken(env, data.token, "verify");
@@ -268,6 +298,25 @@ export async function handlePortalAuth(req, env) {
   }
   if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("Enter a valid email address.");
   if (!await limit(req, env, "login:" + route, 8)) return fail("Too many attempts. Try again later.", 429);
+  if (route === "activate/request") {
+    // The same generic response is returned for unknown, activated, disabled,
+    // and Google-only accounts. Only an inbox owner can complete activation.
+    const response = { ok: true, message: "If the account is eligible, an activation link will be emailed." };
+    if (env.RESEND_API_KEY && env.RESEND_FROM &&
+        await limit(req, env, "activation-recipient:" + email, 3)) {
+      const user = await env.AUTH_DB.prepare(
+        "SELECT id,email FROM portal_users WHERE email=? AND password_hash IS NULL AND disabled_at IS NULL"
+      ).bind(email).first();
+      if (user) {
+        try {
+          await createEmailToken(env, user, "activate", origin);
+        } catch {
+          // Delivery failures must not reveal whether an account exists.
+        }
+      }
+    }
+    return json(response);
+  }
   if (route === "forgot") {
     const user = await env.AUTH_DB.prepare("SELECT id,email FROM portal_users WHERE email=? AND password_hash IS NOT NULL AND disabled_at IS NULL").bind(email).first();
     if (user && env.RESEND_API_KEY && env.RESEND_FROM) await createEmailToken(env, user, "reset", origin);
