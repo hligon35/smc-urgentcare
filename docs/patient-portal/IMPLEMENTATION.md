@@ -31,6 +31,39 @@ The repository includes `.env.production.example` and `.env.sandbox.example` wit
 
 **Deployment distinction:** `scripts/build.mjs` reads the ignored local environment files for static build settings. This **does not** upload private variables to Cloudflare. Configure each Worker environment independently using Cloudflare secrets and variables (for example, `npx wrangler secret put AUTH_PEPPER --env sandbox`), and make sure `AUTH_ORIGIN` matches that deployed hostname. Do not put private values in `EXPO_PUBLIC_*` keys or tracked example files.
 
+### Production testing domain and Turnstile
+
+The approved production-compatible testing origin is **https://smcuc.alphazonelabs.com**. The eventual SMC hostname remains **https://smc-urgentcare.com**. The app supports either in `EXPO_PUBLIC_SITE_URL` when built for production; this does not automatically attach or configure DNS/custom domains. The test domain is intentionally **noindex**. Keep the clinical PrognoCIS link available.
+
+Set the local **gitignored** `.env.production` values from the updated template:
+
+- `EXPO_PUBLIC_SITE_URL=https://smcuc.alphazonelabs.com` for test-domain builds (or `https://smc-urgentcare.com` for approved final builds).
+- `AUTH_ORIGIN=https://smcuc.alphazonelabs.com` and `AUTH_ALLOWED_ORIGINS=https://smc-urgentcare.com` to explicitly permit both hostnames **in the same Worker deployment**, if both resolve there. You may switch the two values at final cutover. The Worker derives the OAuth callback and email verification/reset link from the validated **request origin**, and host-only Secure cookies remain isolated per hostname. Sessions are not magically shared between domains.
+- `EXPO_PUBLIC_TURNSTILE_SITE_KEY` is public and embedded in the Expo bundle. It must correspond to a Cloudflare Turnstile widget configured to allow **both hostnames** (and any actual sandbox hostname you want to test).
+- `TURNSTILE_SECRET_KEY` is sensitive, must be set as a Worker secret, and never as an `EXPO_PUBLIC_` value. Sandbox should use its own widget/secret.
+- `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` belong to a Google OAuth Web application that explicitly authorizes both exact origins **and** these redirect URLs:
+  `https://smcuc.alphazonelabs.com/api/portal/auth/google/callback` and `https://smc-urgentcare.com/api/portal/auth/google/callback`.
+- `RESEND_API_KEY`, `RESEND_FROM` and `AUTH_PEPPER` still need private per-environment configuration, D1 migration and deployment. Locally saved `.env` values are **not** automatically Cloudflare deployed secrets.
+- Siteverify runs **server-side** for email/password registration and login, password recovery/reset, and Google sign-in start, validating challenge success, intended action and actual request hostname. Verification fails closed. Email-link confirmation consumes a single-use email token rather than prompting another challenge. Turnstile tokens are not placed in query strings.
+- Ensure the testing domain is connected to the correct Worker in Cloudflare, TLS/DNS are ready, the D1 `AUTH_DB` binding is provisioned, and both Google and Turnstile approve its hostname. Run a complete sandbox-like test on the production-compatible hostname before public exposure.
+
+```sh
+# Local build origin must match the test hostname:
+npm run build
+npm test
+npm run deploy:dry-run
+
+# Configure Worker secrets securely (repeat for production and sandbox as needed):
+npx wrangler secret put AUTH_PEPPER --env production
+npx wrangler secret put TURNSTILE_SECRET_KEY --env production
+npx wrangler secret put GOOGLE_CLIENT_SECRET --env production
+npx wrangler secret put RESEND_API_KEY --env production
+# Add AUTH_ORIGIN, AUTH_ALLOWED_ORIGINS, GOOGLE_CLIENT_ID, RESEND_FROM as
+# Worker vars/secrets using your approved deployment configuration.
+```
+
+**Release caveat:** These are source/configuration changes, not proof of a working deployed login. Real-email tests, Google callback tests, siteverify challenge tests, token expiry/replay tests, redirects, production session protection, and domain DNS/TLS verification are still required. Clinical data stays disconnected.
+
 ### Configuration (required before real sign-in works)
 
 1. Have a clinician/owner approve use of the SMC CareConnect name, registration policy, account issuance, external auth providers, data flows and exact production deployment. Confirm whether account enrollment should be restricted to invited/verified patients; **self-registration is currently allowed for UI-only accounts** and does not verify a patient relationship.

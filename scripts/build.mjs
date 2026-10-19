@@ -32,8 +32,8 @@ if (
   throw new Error(
     "EXPO_PUBLIC_SITE_URL must be an HTTPS origin without a path, credentials, or query.",
   );
-if (environment === "production" && url.origin !== "https://smc-urgentcare.com")
-  throw new Error("Production origin must be https://smc-urgentcare.com.");
+if (environment === "production" && !["https://smc-urgentcare.com", "https://smcuc.alphazonelabs.com"].includes(url.origin))
+  throw new Error("Production origin must be an approved SMC domain.");
 if (
   environment === "sandbox" &&
   ["smc-urgentcare.com", "www.smc-urgentcare.com"].includes(url.hostname)

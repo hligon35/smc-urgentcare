@@ -1,3 +1,5 @@
+import { requestAuthOrigin } from "./portal-origins.mjs";
+import { validatePortalTurnstile } from "./portal-turnstile.mjs";
 // Authentication is intentionally isolated from the static patient experience.
 // No PHI is processed here. Do not turn on clinical APIs without a separate review.
 const SESSION = "__Host-smc_session";
@@ -108,7 +110,7 @@ async function consumeToken(env, token, purpose) {
   ).bind(digest, purpose, clock()).run();
   return result.meta.changes === 1 ? row.user_id : null;
 }
-async function googleStart(req, env) {
+async function googleStart(req, env, origin) {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return fail("Google sign-in is not configured.", 503);
   const state = random(32), nonce = random(32), verifier = random(64);
   const challenge = await sha(verifier);
@@ -117,7 +119,7 @@ async function googleStart(req, env) {
   ).bind(await sha(state + env.AUTH_PEPPER), verifier, nonce, clock() + 600).run();
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", env.GOOGLE_CLIENT_ID);
-  url.searchParams.set("redirect_uri", env.AUTH_ORIGIN + "/api/portal/auth/google/callback");
+  url.searchParams.set("redirect_uri", origin + "/api/portal/auth/google/callback");
   url.searchParams.set("response_type", "code");
   url.searchParams.set("scope", "openid email profile");
   url.searchParams.set("state", state);
@@ -125,7 +127,7 @@ async function googleStart(req, env) {
   url.searchParams.set("code_challenge", challenge);
   url.searchParams.set("code_challenge_method", "S256");
   url.searchParams.set("prompt", "select_account");
-  return new Response(null, { status: 302, headers: { Location: url.href, "Set-Cookie": cookie(OAUTH, state, 600) } });
+  return json({ redirect: url.href }, 200, { "Set-Cookie": cookie(OAUTH, state, 600) });
 }
 async function verifyGoogleIdToken(jwt, env, expectedNonce) {
   if (typeof jwt !== "string") throw Error("Missing identity token");
@@ -149,7 +151,7 @@ async function verifyGoogleIdToken(jwt, env, expectedNonce) {
   }
   return claims;
 }
-async function googleCallback(req, env) {
+async function googleCallback(req, env, origin) {
   const url = new URL(req.url);
   const state = url.searchParams.get("state");
   const code = url.searchParams.get("code");
@@ -197,18 +199,24 @@ export async function handlePortalAuth(req, env) {
   const url = new URL(req.url);
   const route = url.pathname.replace("/api/portal/auth/", "");
   if (!configured(env)) return fail("Patient sign-in is not configured yet.", 503);
-  if (url.origin !== env.AUTH_ORIGIN) return fail("Invalid origin.", 403);
-  if (route === "google/start" && req.method === "GET") {
-    if (!await limit(req, env, "google-start", 15)) return fail("Too many attempts. Try again later.", 429);
-    return googleStart(req, env);
+  const origin = requestAuthOrigin(req, env);
+  if (!origin) return fail("Invalid origin.", 403);
+  if (route === "google/start" && req.method === "POST") {
+    if (req.headers.get("Origin") !== origin) return fail("Invalid request origin.", 403);
+    const data = await payload(req);
+    if (!await validatePortalTurnstile(req, env, data.turnstileToken))
+      return fail("Bot verification failed.", 403);
+    if (!await limit(req, env, "google-start", 15))
+      return fail("Too many attempts. Try again later.", 429);
+    return googleStart(req, env, origin);
   }
-  if (route === "google/callback" && req.method === "GET") return googleCallback(req, env);
+  if (route === "google/callback" && req.method === "GET") return googleCallback(req, env, origin);
   if (route === "session" && req.method === "GET") {
     const user = await resolveSession(req, env);
     return user ? json({ user: { email: user.email, displayName: user.display_name } }) : fail("Not authenticated.", 401);
   }
   if (req.method !== "POST") return fail("Method not allowed.", 405);
-  if (req.headers.get("Origin") !== env.AUTH_ORIGIN) return fail("Invalid request origin.", 403);
+  if (req.headers.get("Origin") !== origin) return fail("Invalid request origin.", 403);
   if (!["register", "login", "logout", "verify", "forgot", "reset"].includes(route)) return fail("Not found.", 404);
   if (route === "logout") {
     const token = getCookie(req, SESSION);
@@ -216,6 +224,9 @@ export async function handlePortalAuth(req, env) {
     return json({ ok: true }, 200, { "Set-Cookie": clearSession() });
   }
   const data = await payload(req);
+  if (!["logout", "verify"].includes(route) &&
+      !await validatePortalTurnstile(req, env, data.turnstileToken))
+    return fail("Bot verification failed. Please complete the security check again.", 403);
   const email = cleanEmail(data.email);
   if (route === "verify") {
     const user = await consumeToken(env, data.token, "verify");
@@ -238,7 +249,7 @@ export async function handlePortalAuth(req, env) {
   if (!await limit(req, env, "login:" + route, 8)) return fail("Too many attempts. Try again later.", 429);
   if (route === "forgot") {
     const user = await env.AUTH_DB.prepare("SELECT id,email FROM portal_users WHERE email=? AND password_hash IS NOT NULL AND disabled_at IS NULL").bind(email).first();
-    if (user && env.RESEND_API_KEY && env.RESEND_FROM) await createEmailToken(env, user, "reset", env.AUTH_ORIGIN);
+    if (user && env.RESEND_API_KEY && env.RESEND_FROM) await createEmailToken(env, user, "reset", origin);
     return json({ ok: true, message: "If the account exists, recovery instructions will be sent." });
   }
   if (typeof data.password !== "string" || data.password.length < 12 || data.password.length > 128) return fail("Password must be between 12 and 128 characters.");
@@ -251,7 +262,7 @@ export async function handlePortalAuth(req, env) {
       await env.AUTH_DB.prepare(
         "INSERT INTO portal_users (id,email,password_hash,password_salt,email_verified,created_at) VALUES (?,?,?,?,0,?)"
       ).bind(id, email, hash, salt, clock()).run();
-      await createEmailToken(env, { id, email }, "verify", env.AUTH_ORIGIN);
+      await createEmailToken(env, { id, email }, "verify", origin);
     }
     return json({ ok: true, message: "If eligible, check your email for a verification link." });
   }
