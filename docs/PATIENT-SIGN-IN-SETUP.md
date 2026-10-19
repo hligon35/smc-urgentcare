@@ -125,3 +125,27 @@ Use a clean browser session with an account **outside** the Access allowlist:
 Repository tests simulate Google/Resend; they do not change or prove the live
 Cloudflare policy, Google audience, or sender verification. Configure those account
 settings and perform these live checks after deploying.
+
+## Set the sample account password
+
+After deploying the password-provisioning change, run `npm run sample-user:password`
+from the repository root. It prompts twice for a hidden password. For the agreed
+sample credential, enter the password provided privately by the operator; no
+password is embedded in this repository. The command accepts 8–128 characters for
+this sample account only. Public password creation/reset still requires 12+.
+
+The existing Worker AUTH_PEPPER must be available in `.env.production` or a private
+environment variable; this command cannot retrieve a Cloudflare secret. Do not
+rotate it. Wrangler must be authenticated to the correct Cloudflare account.
+The default target is the remote production AUTH_DB from wrangler.jsonc. Use
+`npm run sample-user:password -- sandbox` only for the separate sandbox database.
+
+The command creates the `user@test.com` sample patient if missing, or updates the\nexisting enabled patient account.
+The command sets its password hash and marks this operator-owned sample verified,
+clears its old sessions/email tokens, and verifies the stored hash. It does not\nenable disabled users, change existing roles, or modify the admin account.
+It hashes with the same salt/pepper/600,000-iteration format as the Worker and
+removes its private temporary SQL file afterward. Neither passwords nor peppers
+are passed as command-line arguments or printed in Wrangler output.
+
+Then use the email/password form at `/portal` with `user@test.com` and the password
+you entered. Running the command is required: merging the code does not change D1.

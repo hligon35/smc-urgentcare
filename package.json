@@ -1,7 +1,7 @@
 {
   "name": "smc-urgentcare",
   "version": "1.0.0",
-  "description": "SMC Urgent Care \u2014 Expo web and mobile, deployed to Cloudflare Workers",
+  "description": "SMC Urgent Care — Expo web and mobile, deployed to Cloudflare Workers",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
@@ -22,7 +22,8 @@
     "smoke": "node scripts/smoke.mjs",
     "deploy": "npm run deploy:production",
     "auth:check:production": "node scripts/check-auth.mjs",
-    "db:migrate:production": "wrangler d1 migrations apply smc-db --env production --remote"
+    "db:migrate:production": "wrangler d1 migrations apply smc-db --env production --remote",
+    "sample-user:password": "node scripts/set-sample-password.mjs"
   },
   "keywords": [],
   "dependencies": {
