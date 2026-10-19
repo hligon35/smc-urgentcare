@@ -14,7 +14,7 @@ export default function Footer() {
             Here in Indianapolis.
           </p>
           <nav className="footer-links" aria-label="Footer navigation">
-            {routes.slice(1, 5).map((route) => (
+            {routes.slice(0, 5).map((route) => (
               <a href={route.path} key={route.id}>
                 {route.label}
               </a>

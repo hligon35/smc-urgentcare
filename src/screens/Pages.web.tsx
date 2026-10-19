@@ -63,65 +63,7 @@ function Home() {
             </div>
           </div>
         </div>
-        <div className="quick-strip">
-          <div className="quick-item">
-            <Icon name="clock" />
-            <div>
-              <strong>Before you head over</strong>
-              <small>{clinic.hoursNote}</small>
-            </div>
-            <PhoneLink aria-label="Call to confirm hours">
-              <Icon name="arrow" />
-            </PhoneLink>
-          </div>
-          <div className="quick-item">
-            <Icon name="pin" />
-            <div>
-              <strong>{clinic.address.street}</strong>
-              <small>
-                {clinic.address.city}, {clinic.address.region}{" "}
-                {clinic.address.postalCode} · Near US 67
-              </small>
-            </div>
-            <a href="/contact" aria-label="Find SMC Urgent Care">
-              <Icon name="arrow" />
-            </a>
-          </div>
-          <div className="quick-item">
-            <Icon name="bag" />
-            <div>
-              <strong>Insurance & self-pay</strong>
-              <small>Let’s talk through your options</small>
-            </div>
-            <a href="/visit#payment" aria-label="Read about payment options">
-              <Icon name="arrow" />
-            </a>
-          </div>
-        </div>
       </div>
-      <section className="services wrap">
-        <div className="section-head">
-          <div>
-            <div className="eyebrow">Everyday needs. Thoughtful care.</div>
-            <h2>Let’s help you feel better.</h2>
-          </div>
-          <p>
-            From an unexpected illness to a work physical, find a starting point
-            for the care you need.
-          </p>
-        </div>
-        <ServiceCards />
-      </section>
-      <Approach />
-      <section className="wrap">
-        <div className="eyebrow">A little preparation. More peace of mind.</div>
-        <h2>Your visit, made a little easier.</h2>
-        <div className="visit-grid">
-          <VisitSteps />
-          <PaymentCard />
-        </div>
-      </section>
-      <FAQs />
       <LocationCTA />
     </>
   );
@@ -280,25 +222,26 @@ function Visit() {
           </div>
           <div>
             <p>
-              Already a patient? Access the existing portal for the services
-              available through your account. For help signing in, call the
-              clinic.
+              Sign in to SMC CareConnect to explore your new patient dashboard.
+              Clinical records and communications are not connected to CareConnect yet.
             </p>
             <PortalLink className="btn">
-              Open existing patient portal
-              <Icon name="external" />
+              Open CareConnect
+              <Icon name="arrow" />
             </PortalLink>
             <p className="care-note">
-              Explore the new CareConnect experience separately. Clinical data is not connected yet.
+              For actual medical records, messages, or other clinical services,
+              use the clinic’s existing secure portal.
             </p>
-            <a className="btn btn-outline" href="/portal">
-              Explore CareConnect
-              <Icon name="arrow" />
+            <a
+              className="text-link"
+              href={clinic.portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open existing clinical portal ↗
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            <p className="care-note">
-              Opens the clinic’s external portal in a new tab. Please keep
-              health information within the clinic’s designated care channels.
-            </p>
           </div>
         </div>
       </section>

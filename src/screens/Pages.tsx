@@ -35,7 +35,7 @@ function FAQs() {
                   }
                   href={
                     faq.link === "portal"
-                      ? clinic.portalUrl
+                      ? "/portal"
                       : clinic.facebookUrl
                   }
                   secondary
@@ -114,7 +114,7 @@ function Visit() {
         </View>
         <NativeButton
           label="Open patient portal ↗"
-          href={clinic.portalUrl}
+          href="/portal"
           secondary
         />
       </NativeSection>
@@ -207,8 +207,11 @@ export default function Page({ page }: { page: string }) {
           source={require("../../assets/caring-visit.jpg")}
           accessibilityLabel="A clinician shares a reassuring smile with a young patient"
         />
-        <About />
-        <Contact />
+        <NativeSection title="Your neighborhood urgent care">
+          <Text style={s.body}>Find your way to feeling better.</Text>
+          <Text style={s.body}>{clinic.address.street}, {clinic.address.city}, {clinic.address.region} {clinic.address.postalCode}</Text>
+          <NativeButton label="Get directions" href={clinic.directionsUrl} secondary />
+        </NativeSection>
       </>
     );
   if (page === "services") return <Services />;
