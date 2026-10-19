@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { allowedAuthOrigins, requestAuthOrigin } from "../worker/portal-origins.mjs";
+import { allowedAuthOrigins, requestAuthOrigin, googleRedirectUri } from "../worker/portal-origins.mjs";
 import { validatePortalTurnstile } from "../worker/portal-turnstile.mjs";
 import { handlePortalAuth } from "../worker/portal-auth.mjs";
 
@@ -42,4 +42,11 @@ test("config endpoint returns 403 for unapproved origin and safe readiness for a
  const denied = await handlePortalAuth(new Request("https://unapproved.example.com/api/portal/auth/config"), env);
  assert.equal(denied.status, 403);
  assert.deepEqual(await denied.json(), {error:"Invalid origin."});
+});
+
+test("Google redirect URI stays bound to the originating allowed host", () => {
+ for (const hostname of ["smcuc.alphazonelabs.com", "smc-urgentcare.com"]) {
+   const origin = "https://" + hostname;
+   assert.equal(googleRedirectUri(origin), origin + "/api/portal/auth/google/callback");
+ }
 });

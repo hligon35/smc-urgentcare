@@ -31,6 +31,16 @@ The repository includes `.env.production.example` and `.env.sandbox.example` wit
 
 **Deployment distinction:** `scripts/build.mjs` reads the ignored local environment files for static build settings. This **does not** upload private variables to Cloudflare. Configure each Worker environment independently using Cloudflare secrets and variables (for example, `npx wrangler secret put AUTH_PEPPER --env sandbox`), and make sure `AUTH_ORIGIN` matches that deployed hostname. Do not put private values in `EXPO_PUBLIC_*` keys or tracked example files.
 
+### Google sign-in and requested test account provisioning
+
+The OAuth authorization and token-exchange requests now use the **same host-specific callback**, fixing mismatches when starting at `smcuc.alphazonelabs.com` instead of `AUTH_ORIGIN`. The Google OAuth Web application must list the exact callback `https://smcuc.alphazonelabs.com/api/portal/auth/google/callback`. Existing password accounts are not silently linked to Google; verified Google ownership may claim an explicitly provisioned account only when it has neither a password nor a previous Google identity.
+
+The optional role migration adds `patient` and `admin_developer` to the account database. These currently only label an account; **they do not create clinical staff permissions or an administrative interface**. Any actual admin APIs must enforce authorization on the server.
+
+To prepare the requested **synthetic-only** accounts, **first** review migration state and apply both existing auth migrations to the database attached to the active Worker. Run `node scripts/provision-portal-test-users.mjs` locally, inspect the emitted INSERT statements, and execute approved statements with Wrangler D1 against the intended database. The script is intentionally not wired to deploy. No password, email verification bypass, or Google identity is invented. The records are unclaimed until the corresponding Google account successfully authenticates with verified email. If `user@test.com` is not a controlled Google account, use ordinary registration and email verification (or a separately designed admin-approved invitation flow) instead. **Never publish common test passwords or grant account access on an unverified email assertion.**
+
+Before deployment: check the Google Cloud OAuth consent screen/testing-users list, client ID/secret pairing, the exact registered redirect URL, Turnstile public/secret keys, D1 migration state, and the return URL in the OAuth authorization request. Avoid logging tokens, authorization codes, or patient details.
+
 ### Authentication troubleshooting on smcuc.alphazonelabs.com
 
 The login and Google buttons are **intentionally disabled until a Turnstile challenge succeeds**. A private `TURNSTILE_SECRET_KEY` alone cannot render a challenge. Configure the matching **public** `TURNSTILE_SITE_KEY` as a Worker text variable. The login UI now reads the public key and capability flags from same-origin `/api/portal/auth/config` at runtime, rather than relying only on the old `EXPO_PUBLIC_TURNSTILE_SITE_KEY` build variable. The key is public; never place the Turnstile secret in this endpoint or an `EXPO_PUBLIC_*` setting.

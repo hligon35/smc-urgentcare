@@ -25,3 +25,8 @@ export function requestAuthOrigin(request, env) {
   const origin = new URL(request.url).origin;
   return allowedAuthOrigins(env).has(origin) ? origin : null;
 }
+
+/** A Google OAuth code must be exchanged using the same redirect_uri it received at authorization. */
+export function googleRedirectUri(origin) {
+  return origin + "/api/portal/auth/google/callback";
+}
