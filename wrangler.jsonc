@@ -26,7 +26,7 @@
       },
       "d1_databases": [
         {
-          "binding": "AUTH_DB",
+          "binding": "",
           "database_name": "smc-sandbox",
           "database_id": "ab638b4b-b5b5-4376-a705-cf18729bb6a8",
           "migrations_dir": "migrations"
