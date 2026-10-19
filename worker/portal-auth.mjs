@@ -350,7 +350,9 @@ export async function handlePortalAuth(req, env) {
     if (user && env.RESEND_API_KEY && env.RESEND_FROM) await createEmailToken(env, user, "reset", origin);
     return json({ ok: true, message: "If the account exists, recovery instructions will be sent." });
   }
-  if (typeof data.password !== "string" || data.password.length < 12 || data.password.length > 128) return fail("Password must be between 12 and 128 characters.");
+  // Password creation stays 12+ characters; login checks the stored hash for existing credentials.
+  if (typeof data.password !== "string" || data.password.length > 128 || data.password.length < (route === "login" ? 1 : 12))
+    return fail(route === "login" ? "Enter a valid password." : "Password must be between 12 and 128 characters.");
   if (route === "register") {
     const pending=data.googleRegistration === "1" ? await pendingGoogleRegistration(req,env) : null;
     if (data.googleRegistration === "1" && (!pending || pending.email !== email))
@@ -405,4 +407,5 @@ export async function handlePortalAuth(req, env) {
   headers.append("Set-Cookie",await createSession(user,env));
   return json({ok:true},200,headers);
 }
+
 
