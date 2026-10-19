@@ -55,7 +55,14 @@ for (const { file, html } of pages) {
     const pathname = href === "/" ? "index.html" : href.slice(1);
     const resolved = path.join("dist", pathname);
     if (path.extname(resolved)) await stat(resolved);
-    else await stat(`${resolved}.html`);
+    else {
+      // Expo emits directory index pages for routes that also have child routes.
+      try { await stat(`${resolved}.html`); }
+      catch (error) {
+        if (error.code !== "ENOENT") throw error;
+        await stat(path.join(resolved, "index.html"));
+      }
+    }
   }
   for (const [, id] of html.matchAll(/href="#([^"\s]+)"/g))
     assert.ok(ids.has(id), `${file}: missing #${id}`);
@@ -188,3 +195,4 @@ for await (const file of exportedHtmlFiles("dist")) {
 }
 assert.ok(checkedHtml > routes.length, "Expected patient portal HTML exports");
 console.log(`PASS: strict CSP in all ${checkedHtml} exported HTML pages.`);
+

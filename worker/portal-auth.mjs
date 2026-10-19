@@ -1,5 +1,7 @@
 import { googleRedirectUri, requestAuthOrigin } from "./portal-origins.mjs";
 import { validatePortalTurnstile } from "./portal-turnstile.mjs";
+import { AuthRequestError, describeAuthFailure, logAuthFailure } from "./portal-errors.mjs";
+import { portalDatabaseStatus } from "./portal-database.mjs";
 // Authentication is intentionally isolated from the static patient experience.
 // No PHI is processed here. Do not turn on clinical APIs without a separate review.
 const SESSION = "__Host-smc_session";
@@ -29,12 +31,14 @@ const clock = () => Math.floor(Date.now() / 1000);
 const configured = (env) => Boolean(env.AUTH_DB && env.AUTH_PEPPER && env.AUTH_ORIGIN);
 const fail = (message, status = 400) => json({ error: message }, status);
 async function payload(req) {
-  if (!req.headers.get("Content-Type")?.startsWith("application/json")) throw Error("JSON required.");
-  if (Number(req.headers.get("Content-Length") || 0) > 8192) throw Error("Request too large.");
+  if (!req.headers.get("Content-Type")?.startsWith("application/json")) throw new AuthRequestError("JSON required.");
+  if (Number(req.headers.get("Content-Length") || 0) > 8192) throw new AuthRequestError("Request too large.");
   const raw = await req.text();
-  if (raw.length > 8192) throw Error("Request too large.");
-  const obj = JSON.parse(raw);
-  if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw Error("Invalid request.");
+  if (raw.length > 8192) throw new AuthRequestError("Request too large.");
+  let obj;
+  try { obj = JSON.parse(raw); }
+  catch { throw new AuthRequestError("Invalid JSON."); }
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) throw new AuthRequestError("Invalid request.");
   return obj;
 }
 async function hashPassword(password, salt, pepper) {
@@ -217,7 +221,9 @@ async function googleCallback(req, env, origin) {
     headers.append("Set-Cookie", cookie(OAUTH, "", 0));
     headers.append("Set-Cookie", authenticated);
     return new Response(null, { status: 302, headers });
-  } catch {
+  } catch (error) {
+    const failure = describeAuthFailure(error);
+    logAuthFailure({ code: failure.code === "AUTH_INTERNAL_ERROR" ? "AUTH_GOOGLE_CALLBACK_FAILED" : failure.code }, req);
     return new Response(null, { status: 302, headers: { Location: "/portal?error=google", ...cookies } });
   }
 }
@@ -228,13 +234,16 @@ export async function handlePortalAuth(req, env) {
     if (!requestAuthOrigin(req, env)) return fail("Invalid origin.", 403);
     // Public capability flags and the public widget key only; never expose
     // secrets, database IDs, access tokens, or provider error details.
-    const baseReady = configured(env) &&
+    const database = await portalDatabaseStatus(env, req);
+    const baseReady = configured(env) && database.ready &&
       Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY);
     const emailPasswordReady = baseReady;
     const recoveryReady = baseReady &&
       Boolean(env.RESEND_API_KEY && env.RESEND_FROM);
     return json({
       turnstileSiteKey: String(env.TURNSTILE_SITE_KEY || ""),
+      databaseReady: database.ready,
+      ...(database.code ? { configurationCode: database.code, requestId: database.requestId } : {}),
       emailPasswordReady,
       recoveryReady,
       googleReady: baseReady &&
@@ -344,3 +353,4 @@ export async function handlePortalAuth(req, env) {
   if (!user?.password_hash || !equal(calculated, user.password_hash) || !user.email_verified) return fail("Invalid credentials or email not verified.", 401);
   return json({ ok: true }, 200, { "Set-Cookie": await createSession(user, env) });
 }
+

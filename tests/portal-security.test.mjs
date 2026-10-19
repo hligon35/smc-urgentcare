@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { allowedAuthOrigins, requestAuthOrigin, googleRedirectUri } from "../worker/portal-origins.mjs";
 import { validatePortalTurnstile } from "../worker/portal-turnstile.mjs";
+import { testDatabase } from "./helpers/d1.mjs";
 import { handlePortalAuth } from "../worker/portal-auth.mjs";
 
 const env = {
@@ -28,8 +29,9 @@ test("Turnstile verifies expected action and request hostname", async () => {
 });
 
 test("config endpoint returns 403 for unapproved origin and safe readiness for approved origin", async () => {
+ const {db,sqlite} = testDatabase();
  const allowed = await handlePortalAuth(new Request("https://smcuc.alphazonelabs.com/api/portal/auth/config"), {
-   ...env, TURNSTILE_SITE_KEY: "public-test-key", AUTH_PEPPER: "test-pepper", AUTH_DB: {},
+   ...env, TURNSTILE_SITE_KEY: "public-test-key", AUTH_PEPPER: "test-pepper", AUTH_DB: db,
    GOOGLE_CLIENT_ID: "client-id", GOOGLE_CLIENT_SECRET: "secret"
  });
  assert.equal(allowed.status, 200);
@@ -42,6 +44,7 @@ test("config endpoint returns 403 for unapproved origin and safe readiness for a
  const denied = await handlePortalAuth(new Request("https://unapproved.example.com/api/portal/auth/config"), env);
  assert.equal(denied.status, 403);
  assert.deepEqual(await denied.json(), {error:"Invalid origin."});
+ sqlite.close();
 });
 
 test("Google redirect URI stays bound to the originating allowed host", () => {
@@ -50,3 +53,4 @@ test("Google redirect URI stays bound to the originating allowed host", () => {
    assert.equal(googleRedirectUri(origin), origin + "/api/portal/auth/google/callback");
  }
 });
+

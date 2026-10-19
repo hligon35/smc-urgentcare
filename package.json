@@ -19,7 +19,10 @@
     "verify:build": "node scripts/check-build.mjs",
     "build:sandbox": "node scripts/build.mjs sandbox",
     "deploy:dry-run": "npm run build && wrangler deploy --env production --dry-run",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "deploy": "npm run deploy:production",
+    "auth:check:production": "node scripts/check-auth.mjs",
+    "db:migrate:production": "wrangler d1 migrations apply smc-db --env production --remote"
   },
   "keywords": [],
   "dependencies": {
