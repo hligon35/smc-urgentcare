@@ -2,6 +2,7 @@ import { Link, type Href } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { clinic, routes } from "../config/site";
 import Brand from "./Brand";
+import SocialLinks from "./SocialLinks";
 import { NativeButton } from "./NativeUI";
 import { colors } from "../styles/theme";
 export default function Footer() {
@@ -9,6 +10,7 @@ export default function Footer() {
     <View style={styles.footer}>
       <Brand />
       <Text style={styles.text}>Thoughtful care for the unexpected.</Text>
+      <SocialLinks />
       <NativeButton label={`Call ${clinic.phone}`} href={clinic.phoneHref} />
       <NativeButton
         label="Patient portal ↗"
