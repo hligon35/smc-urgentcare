@@ -84,6 +84,20 @@ for (const url of [clinic.facebookUrl, clinic.linkedinUrl]) {
     `Find Us includes a profile link in addition to the shared footer: ${url}`,
   );
 }
+// The homepage intentionally contains only the original hero, location CTA, and shared footer.
+const homepage = pages.find((page) => page.file === "index.html")?.html || "";
+assert.match(homepage, /A little care\./, "Homepage preserves original hero");
+assert.match(homepage, /Your neighborhood urgent care/, "Homepage retains location");
+assert.doesNotMatch(homepage, /class="quick-strip"/, "Homepage omits quick information strip");
+assert.doesNotMatch(homepage, /class="services wrap"/, "Homepage omits services grid");
+assert.doesNotMatch(homepage, /class="faq"/, "Homepage omits FAQs");
+assert.match(homepage, /href="\/portal"/, "Homepage patient access points to CareConnect");
+const sharedHeader = homepage.match(/<header>[\s\S]*?<\/header>/)?.[0] || "";
+assert.match(sharedHeader, /href="\/"[^>]*>Home<\/a>/, "Header includes Home navigation");
+assert.match(sharedHeader, /href="\/portal"/, "Header opens local patient portal");
+for (const { file, html } of pages) {
+  assert.match(html, /href="\/portal"/, `${file}: portal link is internal`);
+}
 assert.ok(headers[0] && footers[0], "Shell contains header and footer");
 assert.equal(
   new Set(headers).size,
