@@ -1,3 +1,4 @@
+import Turnstile from "./Turnstile.web";
 import { useEffect, useState } from "react";
 import { portalSections } from "./config";
 import { portalSamples } from "./mock";
@@ -23,14 +24,16 @@ function Entrance() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState(params.has("error") ? "Google sign-in was not completed. Contact the clinic if the problem continues." : "");
   const token = params.get("token") || "";
   async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();setBusy(true);setError("");setNotice("");
+    e.preventDefault();if (mode !== "verify" && !turnstileToken) {setError("Complete the security check first.");return;}setBusy(true);setError("");setNotice("");
     try {
       await request(mode === "register" ? "register" : mode === "forgot" ? "forgot" : mode === "reset" ? "reset" : mode === "verify" ? "verify" : "login",
-        mode === "verify" ? { token } : mode === "reset" ? { token, password } : mode === "forgot" ? { email } : { email, password });
+        mode === "verify" ? { token } : mode === "reset" ? { token, password, turnstileToken } : mode === "forgot" ? { email, turnstileToken } : { email, password, turnstileToken });
       if (mode === "login") window.location.assign("/portal/dashboard");
       else {
         setNotice(mode === "register" ? "If registration is eligible, check your email to verify your account." : mode === "forgot" ? "If that email is registered, you will receive a reset link." : "Request completed. You can now sign in.");
@@ -38,7 +41,7 @@ function Entrance() {
         if (mode === "verify" || mode === "reset") setMode("login");
       }
     } catch (err) { setError(err instanceof Error ? err.message : "Something went wrong."); }
-    finally { setBusy(false); }
+    finally { setBusy(false);setTurnstileToken("");setTurnstileReset(k=>k+1); }
   }
   const label = mode === "register" ? "Create account" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : mode === "verify" ? "Confirm your email" : "Welcome back";
   return <div className="portal-entry">
@@ -59,11 +62,12 @@ function Entrance() {
         {["login","register","reset"].includes(mode) && <label>Password
           <span className="portal-password"><input type={showPassword ? "text" : "password"} autoComplete={mode==="login"?"current-password":"new-password"} minLength={mode==="login"?undefined:12} maxLength={128} required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password"/><button type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?"Hide":"Show"}</button></span>
         </label>}
-        <button type="submit" disabled={busy} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":"Verify email"}</button>
+        {mode !== "verify" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} />}
+        <button type="submit" disabled={busy || (mode !== "verify" && !turnstileToken)} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":"Verify email"}</button>
       </form>
-      {mode==="login" && <><div className="portal-or">or continue with</div><a className="portal-google" href="/api/portal/auth/google/start"><span className="portal-g">G</span> Google</a></>}
+      {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy} onClick={()=>{ if(turnstileToken) window.location.assign("/api/portal/auth/google/start?turnstile="+encodeURIComponent(turnstileToken)); }}><span className="portal-g">G</span> Google</button></>}
       <div className="portal-login-links">
-        {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");}}>Create an account</button></> : <button onClick={()=>{setMode("login");setError("");}}>Back to sign in</button>}
+        {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button></> : <button onClick={()=>{setMode("login");setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
       </div>
       <p className="portal-disclaimer">Your account is for this new interface only. Clinical results, messages, billing and insurance are demonstration screens until approved integrations are available. <a href="https://sarepta.prognocis.com/prognocis/sareptaClinicIndex.html" target="_blank" rel="noopener noreferrer">Open existing clinical portal ↗</a></p>
     </div></main>
