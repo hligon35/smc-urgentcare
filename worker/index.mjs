@@ -1,3 +1,4 @@
+import { handlePortalAuth, resolveSession } from "./portal-auth.mjs";
 const securityHeaders = {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -17,7 +18,7 @@ export function secureResponse(response, request, environment = "sandbox") {
     headers.set(name, value);
   const path = new URL(request.url).pathname;
   const type = headers.get("Content-Type") || "";
-  if (response.status >= 400 || path.startsWith("/api/"))
+  if (response.status >= 400 || path.startsWith("/api/") || path.startsWith("/portal"))
     headers.set("Cache-Control", "no-store");
   else if (
     response.status === 200 &&
@@ -34,6 +35,7 @@ export function secureResponse(response, request, environment = "sandbox") {
       new URL(request.url).hostname,
     ) ||
     response.status >= 400 ||
+    path.startsWith("/portal") ||
     path === "/+not-found"
   )
     headers.set("X-Robots-Tag", "noindex, nofollow");
@@ -48,7 +50,21 @@ export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
     let response;
-    if (!["GET", "HEAD"].includes(request.method)) {
+    if (path.startsWith("/api/portal/auth/")) {
+      try {
+        response = await handlePortalAuth(request, env);
+      } catch {
+        response = Response.json({ error: "Authentication request failed." }, { status: 400 });
+      }
+    } else if (path.startsWith("/portal/") && path !== "/portal/") {
+      const session = await resolveSession(request, env);
+      if (!session) {
+        response = Response.redirect(new URL("/portal", request.url), 302);
+      } else {
+        try { response = await env.ASSETS.fetch(request); }
+        catch { response = new Response("Unavailable", { status: 503 }); }
+      }
+    } else if (!["GET", "HEAD"].includes(request.method)) {
       response = new Response("Method not allowed", {
         status: 405,
         headers: {
