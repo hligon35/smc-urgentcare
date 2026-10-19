@@ -57,7 +57,7 @@ export default function Header() {
             id="navigation"
             aria-label="Main navigation"
           >
-            {routes.slice(1, 5).map((route) => (
+            {routes.slice(0, 5).map((route) => (
               <a
                 key={route.id}
                 href={route.path}
