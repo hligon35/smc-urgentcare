@@ -1,0 +1,2 @@
+INSERT INTO portal_users (id,email,display_name,role,email_verified,created_at) VALUES ('69203519-6071-46a8-936b-6300a31586ed','user@test.com','Sample User','patient',0,1792385491) ON CONFLICT(email) DO NOTHING;
+INSERT INTO portal_users (id,email,display_name,role,email_verified,created_at) VALUES ('17efe7e3-7be1-4225-8521-39a8d7d92a53','hligon@getsparqd.com',NULL,'admin_developer',0,1792385491) ON CONFLICT(email) DO NOTHING;
