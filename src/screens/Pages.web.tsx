@@ -1,3 +1,4 @@
+import LocationMap from "../components/LocationMap.web";
 import { CareImage } from "../components/CareImage.web";
 import { clinic } from "../config/site";
 import { Icon } from "../components/Icon";
@@ -338,6 +339,7 @@ function Contact() {
             {clinic.address.postalCode}
           </address>
           <p>{clinic.address.landmark}.</p>
+          <LocationMap className="contact-map" />
           <DirectionsLink className="btn">
             Get directions
             <Icon name="external" />

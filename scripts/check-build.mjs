@@ -114,8 +114,10 @@ console.log(
 );
 
 // Every shared location section must carry the configured, accessible Google Maps embed.
-for (const { file, html } of pages.filter((page) =>
-  page.html.includes('class="location"'),
+for (const { file, html } of pages.filter(
+  (page) =>
+    page.html.includes('class="location"') ||
+    page.html.includes('class="contact-panel location-panel"'),
 )) {
   const iframe = html.match(/<iframe[^>]+>/)?.[0];
   assert.ok(iframe, `${file}: interactive location map`);
@@ -130,5 +132,5 @@ for (const { file, html } of pages.filter((page) =>
   );
 }
 console.log(
-  "PASS: configured interactive map in every shared location section.",
+  "PASS: configured interactive map in every shared location section and the Find Us panel.",
 );
