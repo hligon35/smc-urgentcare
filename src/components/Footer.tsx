@@ -14,7 +14,7 @@ export default function Footer() {
       <NativeButton label={`Call ${clinic.phone}`} href={clinic.phoneHref} />
       <NativeButton
         label="Patient portal ↗"
-        href={clinic.portalUrl}
+        href="/portal"
         secondary
       />
       <View style={styles.nav}>
