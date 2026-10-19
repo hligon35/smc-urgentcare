@@ -17,6 +17,7 @@ export default function Shell({ children }: PropsWithChildren) {
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
   }, [path]);
+  if (path === "/portal" || path.startsWith("/portal/")) return <>{children}</>;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.cream }}>
       <StatusBar style="dark" />
