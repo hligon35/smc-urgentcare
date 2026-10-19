@@ -127,7 +127,7 @@ function About() {
     <NativeSection title="You deserve to feel heard, not hurried.">
       <Image
         style={s.image}
-        source={require("../../assets/care-approach.jpg")}
+        source={require("../../assets/healthcare1.jpg")}
         accessibilityLabel="A care professional listens during a conversation"
       />
       <Text style={s.body}>
