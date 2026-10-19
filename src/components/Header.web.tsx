@@ -45,7 +45,7 @@ export default function Header() {
             <i className="dot" />
             Walk-in care in Indianapolis · {clinic.hoursNote}
           </span>
-          <PortalLink className="utility-portal">Patient portal ↗</PortalLink>
+          <PortalLink className="utility-portal"><Icon name="account" /> Patient portal</PortalLink>
         </div>
       </div>
       <header>
@@ -64,7 +64,7 @@ export default function Header() {
                 aria-current={pathname === route.path ? "page" : undefined}
                 onClick={() => setOpen(false)}
               >
-                {route.label}
+                <Icon name={route.icon} /> {route.label}
               </a>
             ))}
           </nav>
@@ -89,3 +89,4 @@ export default function Header() {
     </>
   );
 }
+

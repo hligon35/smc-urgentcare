@@ -16,10 +16,10 @@ export default function Footer() {
           <nav className="footer-links" aria-label="Footer navigation">
             {routes.slice(0, 5).map((route) => (
               <a href={route.path} key={route.id}>
-                {route.label}
+                <Icon name={route.icon} /> {route.label}
               </a>
             ))}
-            <PortalLink>Patient portal ↗</PortalLink>
+            <PortalLink><Icon name="account" /> Patient portal</PortalLink>
           </nav>
           <SocialLinks />
         </div>
@@ -30,7 +30,7 @@ export default function Footer() {
           <nav className="footer-links" aria-label="Website information">
             {routes.slice(5).map((route) => (
               <a key={route.id} href={route.path}>
-                {route.label}
+                <Icon name={route.icon} /> {route.label}
               </a>
             ))}
           </nav>
@@ -52,3 +52,4 @@ export default function Footer() {
     </>
   );
 }
+

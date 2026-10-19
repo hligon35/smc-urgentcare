@@ -168,7 +168,7 @@ export function PaymentCard() {
         and service.
       </p>
       <PhoneLink className="text-link">
-        Talk with our team · {clinic.phone} ↗
+        <Icon name="phone" /> Talk with our team · {clinic.phone}
       </PhoneLink>
     </aside>
   );
@@ -187,12 +187,12 @@ export function FAQs() {
         <div>
           {faqs.map((faq) => (
             <details key={faq.question}>
-              <summary>{faq.question}</summary>
+              <summary>{faq.question}<Icon name="expand" className="faq-chevron" /></summary>
               <p>{faq.answer}</p>
               {faq.link === "portal" && (
                 <p>
                   <PortalLink>
-                    <u>Open patient portal ↗</u>
+                    <u>Open patient portal <Icon name="login" /></u>
                   </PortalLink>
                 </p>
               )}
@@ -203,7 +203,7 @@ export function FAQs() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <u>SMC on Facebook ↗</u>
+                    <u>SMC on Facebook <Icon name="external" /></u>
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </p>
@@ -248,3 +248,4 @@ export function LocationCTA() {
     </section>
   );
 }
+

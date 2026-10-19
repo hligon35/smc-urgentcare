@@ -15,7 +15,7 @@
 .portal-auth h2{font:normal 42px Georgia,serif;margin:10px 0}.portal-muted{color:var(--p-muted);font-size:14px;line-height:1.8}
 .portal-form{display:grid;gap:19px;margin:28px 0}.portal-form label,.portal-search{font-size:13px;font-weight:700;display:grid;gap:8px}
 .portal-form input,.portal-form textarea,.portal-search input{font:inherit;display:block;border:1px solid #ccd5e3;border-radius:8px;padding:13px 14px;background:white;width:100%;min-width:0;color:var(--p-ink);font-size:15px}
-.portal-form textarea{min-height:110px;resize:vertical}.portal-password{display:flex;position:relative}.portal-password input{padding-right:70px}.portal-password button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;padding:9px;color:var(--p-navy);font-size:12px}
+.portal-form textarea{min-height:110px;resize:vertical}.portal-password{display:flex;position:relative}.portal-password input{padding-right:100px}.portal-password button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;padding:9px;color:var(--p-navy);font-size:12px}
 .portal-primary{background:var(--p-red);color:#fff;border:0;padding:14px 18px;border-radius:8px;font-size:14px;font-weight:700;min-height:46px;cursor:pointer}.portal-primary:disabled{opacity:.6;cursor:wait}
 .portal-or{text-align:center;color:#758195;margin:24px 0;font-size:12px}.portal-google{border:1px solid #cbd5e2;display:flex;justify-content:center;align-items:center;gap:12px;text-align:center;border-radius:8px;padding:13px;font-size:14px;font-weight:700;color:var(--p-ink);text-decoration:none}
 .portal-g{color:#2672ea;font-weight:800;font-size:20px}.portal-login-links{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:24px}.portal-login-links button{border:0;background:none;color:var(--p-navy);text-decoration:underline;padding:6px 0;font-size:13px}.portal-disclaimer{font-size:12px;color:var(--p-muted);line-height:1.8;margin-top:34px}.portal-disclaimer a{text-decoration:underline}.portal-error,.portal-success,.portal-warning{padding:13px 16px;border-radius:8px;margin:17px 0;font-size:13px;line-height:1.65}.portal-error{background:#fff1f1;color:#8c1731}.portal-success{background:#eff9f3;color:#235436}.portal-warning{background:#fff8e9;border-left:4px solid #b91624;color:#66542c}
@@ -29,3 +29,22 @@
 @media(max-width:480px){.portal-cards{grid-template-columns:1fr 1fr;gap:10px}.portal-action{padding:15px;min-height:180px}.portal-row{align-items:flex-start;flex-direction:column}.portal-panel{padding:17px}}
 
 .portal-turnstile{min-height:70px}.portal-turnstile p{font-size:12px;color:var(--p-muted)}.portal-google{width:100%;background:white;cursor:pointer}.portal-google:disabled{opacity:.55;cursor:not-allowed}
+
+
+/* Shared Material icons work in both patient and admin/developer portal sessions. */
+.portal-entry .icon, .portal-app .icon { width: 20px; height: 20px; flex: 0 0 auto; }
+.portal-back, .portal-primary, .portal-password button, .portal-login-links button,
+.portal-side-bottom button, .portal-text-link, .portal-search-caption {
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.portal-primary { justify-content: center; }
+.portal-back, .portal-text-link { display: flex; width: fit-content; max-width: 100%; }
+.portal-nav .icon { width: 23px; height: 23px; }
+.portal-action-icon .icon { width: 26px; height: 26px; }
+.portal-side-bottom a, .portal-disclaimer a { display: inline-flex; align-items: center; gap: 5px; }
+.portal-disclaimer .icon { width: 15px; height: 15px; }
+.portal-warning > .icon { margin-right: 3px; vertical-align: text-bottom; }
+@media(max-width:780px) {
+  .portal-mobile-nav a { display: inline-flex; align-items: center; gap: 6px; }
+  .portal-mobile-nav .icon { width: 18px; height: 18px; }
+}
