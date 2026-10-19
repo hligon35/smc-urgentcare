@@ -16,11 +16,12 @@
     "run_worker_first": true
   },
   "vars": {
-    "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com",
-    "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
-    "ENVIRONMENT": "production",
-    "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
-    "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
+      "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com",
+      "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
+      "ENVIRONMENT": "production",
+      "GOOGLE_CLIENT_ID": "622947551355-rl251sgg3e49i05p5j5gcifau3tucope.apps.googleusercontent.com",
+      "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
+      "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
   },
   "env": {
     "sandbox": {
@@ -43,6 +44,7 @@
         "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com",
         "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
         "ENVIRONMENT": "production",
+        "GOOGLE_CLIENT_ID": "622947551355-rl251sgg3e49i05p5j5gcifau3tucope.apps.googleusercontent.com",
         "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
       },
