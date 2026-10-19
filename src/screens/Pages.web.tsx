@@ -222,25 +222,26 @@ function Visit() {
           </div>
           <div>
             <p>
-              Already a patient? Access the existing portal for the services
-              available through your account. For help signing in, call the
-              clinic.
+              Sign in to SMC CareConnect to explore your new patient dashboard.
+              Clinical records and communications are not connected to CareConnect yet.
             </p>
             <PortalLink className="btn">
-              Open existing patient portal
-              <Icon name="external" />
+              Open CareConnect
+              <Icon name="arrow" />
             </PortalLink>
             <p className="care-note">
-              Explore the new CareConnect experience separately. Clinical data is not connected yet.
+              For actual medical records, messages, or other clinical services,
+              use the clinic’s existing secure portal.
             </p>
-            <a className="btn btn-outline" href="/portal">
-              Explore CareConnect
-              <Icon name="arrow" />
+            <a
+              className="text-link"
+              href={clinic.portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open existing clinical portal ↗
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            <p className="care-note">
-              Opens the clinic’s external portal in a new tab. Please keep
-              health information within the clinic’s designated care channels.
-            </p>
           </div>
         </div>
       </section>
