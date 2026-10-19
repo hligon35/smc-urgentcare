@@ -198,7 +198,10 @@ export async function handlePortalAuth(req, env) {
   const route = url.pathname.replace("/api/portal/auth/", "");
   if (!configured(env)) return fail("Patient sign-in is not configured yet.", 503);
   if (url.origin !== env.AUTH_ORIGIN) return fail("Invalid origin.", 403);
-  if (route === "google/start" && req.method === "GET") return googleStart(req, env);
+  if (route === "google/start" && req.method === "GET") {
+    if (!await limit(req, env, "google-start", 15)) return fail("Too many attempts. Try again later.", 429);
+    return googleStart(req, env);
+  }
   if (route === "google/callback" && req.method === "GET") return googleCallback(req, env);
   if (route === "session" && req.method === "GET") {
     const user = await resolveSession(req, env);
@@ -221,9 +224,9 @@ export async function handlePortalAuth(req, env) {
     return json({ ok: true });
   }
   if (route === "reset") {
+    if (typeof data.password !== "string" || data.password.length < 12 || data.password.length > 128) return fail("Use a password between 12 and 128 characters.");
     const user = await consumeToken(env, data.token, "reset");
     if (!user) return fail("Reset link is invalid or expired.");
-    if (typeof data.password !== "string" || data.password.length < 12 || data.password.length > 128) return fail("Use a password between 12 and 128 characters.");
     const salt = random(24), hash = await hashPassword(data.password, salt, env.AUTH_PEPPER);
     await env.AUTH_DB.batch([
       env.AUTH_DB.prepare("UPDATE portal_users SET password_salt=?, password_hash=? WHERE id=?").bind(salt, hash, user),
