@@ -30,7 +30,7 @@ for (const { file, html } of pages) {
     `${file}: one page heading`,
   );
   assert.match(html, /id="main"/, `${file}: skip link destination`);
-  assert.ok(html.includes(clinic.portalUrl), `${file}: configured portal link`);
+  assert.ok(html.includes('href="/portal"'), `${file}: CareConnect entry link`);
   headers.push(
     html
       .match(/<header>[\s\S]*?<\/header>/)?.[0]
@@ -76,6 +76,8 @@ for (const { file, html } of pages) {
     );
   }
 }
+const visitHtml = pages.find((page) => page.file === "visit.html")?.html || "";
+assert.ok(visitHtml.includes(clinic.portalUrl), "Visit page retains existing clinical portal option");
 const contactHtml = pages.find((page) => page.file === "contact.html")?.html;
 assert.ok(contactHtml, "Find Us page exported");
 for (const url of [clinic.facebookUrl, clinic.linkedinUrl]) {
