@@ -35,7 +35,7 @@ function Entrance() {
   const token = activationToken;
   useEffect(()=>{ if (start === "activate" && token) window.history.replaceState(null, "", "/portal?mode=activate"); }, []);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();if (mode !== "verify" && !turnstileToken) {setError("Complete the security check first.");return;}setBusy(true);setError("");setNotice("");
+    e.preventDefault();if (mode !== "verify" && mode !== "activate" && !turnstileToken) {setError("Complete the security check first.");return;}setBusy(true);setError("");setNotice("");
     try {
       await request(mode === "register" ? "register" : mode === "forgot" ? "forgot" : mode === "reset" ? "reset" : mode === "verify" ? "verify" : mode === "activate" ? "activate/complete" : mode === "activate-request" ? "activate/request" : "login",
         mode === "verify" ? { token } : mode === "activate" ? { token, password } : mode === "activate-request" ? { email, turnstileToken } : mode === "reset" ? { token, password, turnstileToken } : mode === "forgot" ? { email, turnstileToken } : { email, password, turnstileToken });
