@@ -27,7 +27,7 @@ test("public pages receive security headers and revalidation without advertising
   );
   assert.match(
     response.headers.get("Content-Security-Policy"),
-    /script-src 'self';/,
+    /script-src 'self' https:\/\/challenges\.cloudflare\.com;/,
   );
   assert.doesNotMatch(
     response.headers.get("Content-Security-Policy"),
@@ -36,7 +36,7 @@ test("public pages receive security headers and revalidation without advertising
   assert.match(response.headers.get("Permissions-Policy"), /camera=\(\)/);
   assert.match(
     response.headers.get("Content-Security-Policy"),
-    /frame-src https:\/\/www\.google\.com\/maps\/embed;/,
+    /frame-src https:\/\/www\.google\.com\/maps\/embed https:\/\/challenges\.cloudflare\.com;/,
   );
   assert.match(
     response.headers.get("Content-Security-Policy"),
@@ -171,6 +171,14 @@ test("private portal routes redirect unauthenticated users to the sign-in page",
 test("portal entry is public but uncached and excluded from indexing", async () => {
   const response = await worker.fetch(new Request("https://smc-urgentcare.com/portal"), env());
   assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+});
+
+test("approved test-domain portal remains host-scoped and noindex", async () => {
+  const response = await worker.fetch(new Request("https://smcuc.alphazonelabs.com/portal/dashboard"), env());
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("Location"), "https://smcuc.alphazonelabs.com/portal");
   assert.equal(response.headers.get("Cache-Control"), "no-store");
   assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
 });
