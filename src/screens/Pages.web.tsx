@@ -285,9 +285,16 @@ function Visit() {
               clinic.
             </p>
             <PortalLink className="btn">
-              Open patient portal
+              Open existing patient portal
               <Icon name="external" />
             </PortalLink>
+            <p className="care-note">
+              Explore the new CareConnect experience separately. Clinical data is not connected yet.
+            </p>
+            <a className="btn btn-outline" href="/portal">
+              Explore CareConnect
+              <Icon name="arrow" />
+            </a>
             <p className="care-note">
               Opens the clinic’s external portal in a new tab. Please keep
               health information within the clinic’s designated care channels.
