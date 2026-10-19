@@ -2,11 +2,9 @@ import {
   copyFile,
   readFile,
   writeFile,
-  mkdir,
-  readdir,
 } from "node:fs/promises";
-import { createHash } from "node:crypto";
 import path from "node:path";
+import { externalizeInlineScripts } from "./export-scripts.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
 const origin = (
@@ -50,45 +48,21 @@ for (const route of routes) {
     throw new Error(`Missing metadata: ${file}`);
   await writeFile(file, html);
 }
-// Keep Expo's hydration initializer working under a strict same-origin script policy.
-// Externalize executable inline code into content-addressed assets, including the 404 route.
-const scriptsDirectory = "dist/_expo/static/js/web";
-await mkdir(scriptsDirectory, { recursive: true });
-for (const name of (await readdir("dist")).filter((name) =>
-  name.endsWith(".html"),
-)) {
-  const file = path.join("dist", name);
-  const assets = [];
-  let source = await readFile(file, "utf8");
-  // Reserved not-found routes do not resolve generateMetadata in Expo's static exporter.
-  if (name === "+not-found.html") {
-    source = source
-      .replace(/<title>[\s\S]*?<\/title>/g, "")
-      .replace(/<meta name="(?:description|robots)"[^>]*>/g, "");
-    source = source.replace(
-      "</head>",
-      '<title>Page not found | SMC Urgent Care</title><meta name="description" content="Find your way back to SMC Urgent Care’s clinic information."/><meta name="robots" content="noindex, nofollow"/></head>',
-    );
-  }
-  const html = source.replace(
-    /<script([^>]*)>([\s\S]*?)<\/script>/g,
-    (tag, attributes, code) => {
-      if (
-        !code.trim() ||
-        /\bsrc=/.test(attributes) ||
-        /type=["']application\/(ld\+)?json["']/.test(attributes)
-      )
-        return tag;
-      const hash = createHash("sha256").update(code).digest("hex").slice(0, 24);
-      const filename = `init-${hash}.js`;
-      assets.push([filename, code]);
-      return `<script${attributes} src="/_expo/static/js/web/${filename}"></script>`;
-    },
+// Reserved not-found routes do not resolve generateMetadata in Expo's static exporter.
+const notFoundPath = "dist/+not-found.html";
+let notFound = await readFile(notFoundPath, "utf8");
+notFound = notFound
+  .replace(/<title>[\s\S]*?<\/title>/g, "")
+  .replace(/<meta name="(?:description|robots)"[^>]*>/g, "")
+  .replace(
+    "</head>",
+    '<title>Page not found | SMC Urgent Care</title><meta name="description" content="Find your way back to SMC Urgent Care’s clinic information."/><meta name="robots" content="noindex, nofollow"/></head>',
   );
-  for (const [filename, code] of assets)
-    await writeFile(path.join(scriptsDirectory, filename), code);
-  await writeFile(file, html);
-}
+await writeFile(notFoundPath, notFound);
+
+// Transform every HTML route, including nested patient portal pages.
+// Scripts execute from content-addressed same-origin assets under strict CSP.
+const inlineScripts = await externalizeInlineScripts("dist");
 await copyFile("dist/+not-found.html", "dist/404.html");
 await writeFile(
   "dist/robots.txt",
@@ -101,5 +75,5 @@ await writeFile(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${routes.map((route) => `<url><loc>${origin}${route.path}</loc></url>`).join("")}</urlset>\n`,
 );
 console.log(
-  `Prepared ${routes.length} pages, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
+  `Prepared ${routes.length} public routes, ${inlineScripts.pages} exported HTML pages, ${inlineScripts.externalized} externalized scripts, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
 );
