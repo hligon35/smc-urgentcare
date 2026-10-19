@@ -27,7 +27,7 @@ The repository includes `.env.production.example` and `.env.sandbox.example` wit
 | `RESEND_API_KEY` | Resend email API | Worker secret; never commit |
 | `RESEND_FROM` | Domain-verified sender | Worker runtime setting |
 
-`ENVIRONMENT` and the `AUTH_DB` D1 binding are already declared under the two Wrangler environments in `wrangler.jsonc`. Replace the D1 database-ID placeholders after creating separate databases. A plain environment variable cannot replace a D1 binding.
+`ENVIRONMENT` and the `AUTH_DB` D1 binding are already declared under the two Wrangler environments in `wrangler.jsonc`. The existing D1 IDs are set in Wrangler; verify they correspond to Cloudflare databases `smc-db` (production) and `smc-sandbox` (sandbox). A plain environment variable cannot replace a D1 binding.
 
 **Deployment distinction:** `scripts/build.mjs` reads the ignored local environment files for static build settings. This **does not** upload private variables to Cloudflare. Configure each Worker environment independently using Cloudflare secrets and variables (for example, `npx wrangler secret put AUTH_PEPPER --env sandbox`), and make sure `AUTH_ORIGIN` matches that deployed hostname. Do not put private values in `EXPO_PUBLIC_*` keys or tracked example files.
 
@@ -67,8 +67,8 @@ npx wrangler secret put RESEND_API_KEY --env production
 ### Configuration (required before real sign-in works)
 
 1. Have a clinician/owner approve use of the SMC CareConnect name, registration policy, account issuance, external auth providers, data flows and exact production deployment. Confirm whether account enrollment should be restricted to invited/verified patients; **self-registration is currently allowed for UI-only accounts** and does not verify a patient relationship.
-2. Create **two distinct Cloudflare D1 databases**, one sandbox and one production, and replace both `REPLACE_WITH_*_D1_ID` placeholders in `wrangler.jsonc`. A deploy with placeholders must not be treated as a working environment.
-3. Apply `migrations/0001_portal_auth.sql` to each database via Wrangler, using the proper environment and binding; review with `wrangler d1 migrations list` / `apply`.
+2. Use the existing Cloudflare D1 databases `smc-sandbox` and `smc-db`. Their configured UUIDs are preserved; verify each ID matches the intended database in Cloudflare before applying migrations.
+3. Apply `migrations/0001_portal_auth.sql` using `npx wrangler d1 migrations apply smc-sandbox --env sandbox --remote` and `npx wrangler d1 migrations apply smc-db --env production --remote` only after verifying the IDs and reviewing migration impact. **Both Wrangler environments currently name the same Worker `smc-urgentcare`; deploying sandbox may replace the production deployment.** Keep sandbox deployment disabled until its isolation or deployment strategy is corrected.
 4. Set Worker secrets in each environment:
    - `AUTH_PEPPER`: cryptographically random server-only secret, protected in a secret store; changing it invalidates credentials.
    - `AUTH_ORIGIN`: exact HTTPS origin (e.g. `https://smc-urgentcare.com` for production).
