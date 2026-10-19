@@ -27,7 +27,7 @@
       "d1_databases": [
         {
           "binding": "AUTH_DB",
-          "database_name": "smc-portal-auth-sandbox",
+          "database_name": "smc-sandbox",
           "database_id": "ab638b4b-b5b5-4376-a705-cf18729bb6a8",
           "migrations_dir": "migrations"
         }
@@ -41,7 +41,7 @@
       "d1_databases": [
         {
           "binding": "AUTH_DB",
-          "database_name": "smc-portal-auth",
+          "database_name": "smc-db",
           "database_id": "a0683519-7e25-432c-80b7-dc9f7a231412",
           "migrations_dir": "migrations"
         }
@@ -51,7 +51,7 @@
   "d1_databases": [
     {
       "binding": "AUTH_DB",
-      "database_name": "smc-portal-auth-sandbox",
+      "database_name": "smc-sandbox",
       "database_id": "ab638b4b-b5b5-4376-a705-cf18729bb6a8",
       "migrations_dir": "migrations"
     }
