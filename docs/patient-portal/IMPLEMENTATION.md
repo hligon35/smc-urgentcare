@@ -13,6 +13,24 @@
 
 All `/portal*` output has `no-store` and `noindex` response headers. Server session checks protect the private UI route before assets are served. No medical records are ingested or exposed by this code.
 
+### Environment templates
+
+The repository includes `.env.production.example` and `.env.sandbox.example` with every current patient-authentication setting. Copy each to its corresponding ignored local `.env.production` or `.env.sandbox`, enter a matching HTTPS `AUTH_ORIGIN`, and supply non-public values only in your private environment.
+
+| Setting | Purpose | Location |
+| --- | --- | --- |
+| `EXPO_PUBLIC_SITE_URL` | Public Expo build origin and canonical links | Local environment / client build |
+| `AUTH_ORIGIN` | Exact HTTPS origin validated by the authentication Worker | Worker runtime setting |
+| `AUTH_PEPPER` | Secret for credential/session hashes | Worker secret; never commit |
+| `GOOGLE_CLIENT_ID` | Google OAuth Web client | Worker runtime setting |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | Worker secret; never commit |
+| `RESEND_API_KEY` | Resend email API | Worker secret; never commit |
+| `RESEND_FROM` | Domain-verified sender | Worker runtime setting |
+
+`ENVIRONMENT` and the `AUTH_DB` D1 binding are already declared under the two Wrangler environments in `wrangler.jsonc`. Replace the D1 database-ID placeholders after creating separate databases. A plain environment variable cannot replace a D1 binding.
+
+**Deployment distinction:** `scripts/build.mjs` reads the ignored local environment files for static build settings. This **does not** upload private variables to Cloudflare. Configure each Worker environment independently using Cloudflare secrets and variables (for example, `npx wrangler secret put AUTH_PEPPER --env sandbox`), and make sure `AUTH_ORIGIN` matches that deployed hostname. Do not put private values in `EXPO_PUBLIC_*` keys or tracked example files.
+
 ### Configuration (required before real sign-in works)
 
 1. Have a clinician/owner approve use of the SMC CareConnect name, registration policy, account issuance, external auth providers, data flows and exact production deployment. Confirm whether account enrollment should be restricted to invited/verified patients; **self-registration is currently allowed for UI-only accounts** and does not verify a patient relationship.
