@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { clinic, routes } from "../config/site";
+import SocialLinks from "../components/SocialLinks";
 import { faqs, services, values, visitSteps } from "../content/care";
 import {
   NativeButton,
@@ -173,11 +174,8 @@ function Contact() {
         href={clinic.portalUrl}
         secondary
       />
-      <NativeButton
-        label="Clinic updates on Facebook ↗"
-        href={clinic.facebookUrl}
-        secondary
-      />
+      <Text style={s.subheading}>Clinic updates</Text>
+      <SocialLinks />
       <View style={s.mutedCard}>
         <Text style={s.subheading}>
           Your health information deserves care, too.
@@ -227,7 +225,7 @@ export default function Page({ page }: { page: string }) {
         </Text>
         <Text style={s.body}>
           The website hosting provider processes technical request data to serve
-          and protect web pages. The patient portal, maps, and Facebook open
+          and protect web pages. The patient portal, maps, Facebook, and LinkedIn open
           separately and follow their own privacy practices.
         </Text>
         <Text style={s.body}>

@@ -1,4 +1,5 @@
 import LocationMap from "../components/LocationMap.web";
+import SocialLinks from "../components/SocialLinks";
 import { CareImage } from "../components/CareImage.web";
 import { clinic } from "../config/site";
 import { Icon } from "../components/Icon";
@@ -346,16 +347,8 @@ function Contact() {
           </DirectionsLink>
           <div className="divider" />
           <h3>Clinic updates</h3>
-          <p>Check SMC’s Facebook page for posted updates.</p>
-          <a
-            className="text-link"
-            href={clinic.facebookUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Visit SMC on Facebook ↗
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
+          <p>Follow SMC for clinic news and updates.</p>
+          <SocialLinks />
         </div>
       </section>
       <section className="wrap page-section">
@@ -418,7 +411,7 @@ function Privacy() {
         </p>
         <h2>Patient portal and other websites</h2>
         <p>
-          The patient portal, Facebook, and Google Maps are external services
+          The patient portal, Facebook, LinkedIn, and Google Maps are external services
           with their own privacy practices. Information you provide there is
           handled by those services. Opening an external link can share
           technical connection information with its destination.

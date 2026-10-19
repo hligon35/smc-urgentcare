@@ -63,6 +63,27 @@ for (const { file, html } of pages) {
   ))
     await stat(path.join("dist", src.slice(1)));
 }
+// Every exported page shares the social footer; Find Us also exposes both profiles.
+for (const { file, html } of pages) {
+  for (const [name, url] of [
+    ["Facebook", clinic.facebookUrl],
+    ["LinkedIn", clinic.linkedinUrl],
+  ]) {
+    assert.ok(html.includes(url), `${file}: ${name} social profile`);
+    assert.ok(
+      html.includes(`SMC Urgent Care on ${name}`),
+      `${file}: accessible ${name} link`,
+    );
+  }
+}
+const contactHtml = pages.find((page) => page.file === "contact.html")?.html;
+assert.ok(contactHtml, "Find Us page exported");
+for (const url of [clinic.facebookUrl, clinic.linkedinUrl]) {
+  assert.ok(
+    contactHtml.split(url).length >= 3,
+    `Find Us includes a profile link in addition to the shared footer: ${url}`,
+  );
+}
 assert.ok(headers[0] && footers[0], "Shell contains header and footer");
 assert.equal(
   new Set(headers).size,
