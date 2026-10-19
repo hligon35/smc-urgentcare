@@ -67,3 +67,23 @@ returns database IDs or account data. Authentication stays fail closed.
 
 No Cloudflare account settings, secrets, migrations, or deployments can be verified
 from repository tests alone. Verify the deployed flow after applying this repair.
+
+## Access session expires while the portal is open
+
+The preview Access session is separate from the CareConnect patient session.
+An API request redirected to `*.cloudflareaccess.com` is being intercepted before
+it reaches the Worker. Adding that login domain to `connect-src` does not renew
+an Access session or make interactive login work inside a fetch.
+
+Portal config, session and mutation requests now send
+`X-Requested-With: XMLHttpRequest` and same-origin credentials. Access can return
+401 for an expired AJAX session. Requests also use manual redirect handling so
+login redirects cannot be followed as API calls. The page offers a full-page
+"Renew preview access" link; Worker JSON 401/403 responses keep their existing
+meaning. Reopening the preview lets Access perform its login navigation.
+
+If a stale Access session persists, the user can manually visit
+`https://smcuc.alphazonelabs.com/cdn-cgi/access/logout`, then reopen `/portal` and
+complete Access sign-in. Cloudflare documents that this logout revokes Access
+sessions across applications, so it is deliberately not performed automatically.
+Keep the preview gate and CSP enabled.

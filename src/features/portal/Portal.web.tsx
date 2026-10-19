@@ -1,3 +1,4 @@
+import { AccessSessionError, fetchPortalAuth } from "./auth-fetch";
 import Turnstile from "./Turnstile.web";
 import { useEffect, useState } from "react";
 import { portalSections } from "./config";
@@ -8,7 +9,7 @@ type Session = { email: string; displayName?: string | null };
 type Mode = "login" | "register" | "forgot" | "verify" | "reset" | "activate" | "activate-request";
 const title = "SMC CareConnect";
 async function request(action: string, body: Record<string,string> = {}) {
-  const response = await fetch("/api/portal/auth/" + action, {
+  const response = await fetchPortalAuth("/api/portal/auth/" + action, {
     method: "POST", headers: { "Content-Type": "application/json" },
     credentials: "same-origin", body: JSON.stringify(body)
   });
@@ -29,7 +30,8 @@ function Entrance() {
   const [busy, setBusy] = useState(false);
   const [authConfig, setAuthConfig] = useState<{turnstileSiteKey:string;emailPasswordReady:boolean;recoveryReady:boolean;googleReady:boolean;databaseReady?:boolean;configurationCode?:string;requestId?:string}|null>(null);
   const [configError, setConfigError] = useState("");
-  useEffect(()=>{let active=true;fetch("/api/portal/auth/config",{cache:"no-store"}).then(async response=>{const data=await response.json();if(!response.ok)throw Error(typeof data.error === "string" ? data.error : "Authentication service unavailable");return data;}).then(data=>{if(active)setAuthConfig(data);}).catch(err=>{if(active)setConfigError(err instanceof Error ? err.message : "Patient login configuration is unavailable. Please contact the site administrator.");});return()=>{active=false;};},[]);
+  const [accessRequired, setAccessRequired] = useState(false);
+  useEffect(()=>{let active=true;fetchPortalAuth("/api/portal/auth/config",{cache:"no-store"}).then(async response=>{const data=await response.json();if(!response.ok)throw Error(typeof data.error === "string" ? data.error : "Authentication service unavailable");return data;}).then(data=>{if(active)setAuthConfig(data);}).catch(err=>{if(active){setAccessRequired(err instanceof AccessSessionError);setConfigError(err instanceof Error ? err.message : "Patient login configuration is unavailable. Please contact the site administrator.");}});return()=>{active=false;};},[]);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState("");
@@ -48,7 +50,7 @@ function Entrance() {
         setPassword("");
         if (mode === "verify" || mode === "reset" || mode === "activate") setMode("login");
       }
-    } catch (err) { setError(err instanceof Error ? err.message : "Something went wrong."); }
+    } catch (err) { setAccessRequired(err instanceof AccessSessionError);setError(err instanceof Error ? err.message : "Something went wrong."); }
     finally { setBusy(false);setTurnstileToken("");setTurnstileReset(k=>k+1); }
   }
   const label = mode === "register" ? "Create account" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : mode === "verify" ? "Confirm your email" : mode === "activate" ? "Activate your account" : mode === "activate-request" ? "Request activation link" : "Welcome back";
@@ -63,7 +65,7 @@ function Entrance() {
       <span className="portal-eyebrow">Patient access</span>
       <h2>{label}</h2>
       <p className="portal-muted">{mode === "login" ? "Sign in to your patient dashboard." : mode === "register" ? "Create an account for the CareConnect interface. Clinical records are not connected yet." : "Follow the instructions below."}</p>
-      {(error || configError) && <div className="portal-error" role="alert">{error || configError}</div>}
+      {(error || configError) && <div className="portal-error" role="alert">{error || configError}{accessRequired && <> <a href="/portal">Renew preview access</a></>}</div>}
       {authConfig && !authConfig.turnstileSiteKey && <div className="portal-error" role="alert">Bot verification has not been configured for this domain. Sign-in is unavailable.</div>}
       {authConfig?.databaseReady === false && <div className="portal-error" role="alert">Patient sign-in is temporarily unavailable. Contact the site administrator with reference {authConfig.configurationCode}{authConfig.requestId ? ` / ${authConfig.requestId}` : ""}.</div>}
       {notice && <div className="portal-success" role="status">{notice}</div>}
@@ -75,7 +77,7 @@ function Entrance() {
         {mode !== "verify" && mode !== "activate" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} siteKey={authConfig?.turnstileSiteKey || ""} />}
         <button type="submit" disabled={busy || !!configError || (mode !== "verify" && mode !== "activate" && (!turnstileToken || !authConfig?.emailPasswordReady))} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":mode==="activate"?"Set password":mode==="activate-request"?"Email activation link":"Verify email"}</button>
       </form>
-      {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy || !authConfig?.googleReady} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
+      {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy || !authConfig?.googleReady} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setAccessRequired(err instanceof AccessSessionError);setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
       <div className="portal-login-links">
         {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button><button onClick={()=>{setMode("activate-request");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Activate invited account</button></> : <button onClick={()=>{setMode("login");setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
       </div>
@@ -94,7 +96,7 @@ export default function Portal({ screen = "login" }: { screen?: string }) {
   useEffect(()=>{
     if (screen === "login") return;
     let alive=true;
-    fetch("/api/portal/auth/session",{credentials:"same-origin",cache:"no-store"}).then(async r=>{
+    fetchPortalAuth("/api/portal/auth/session",{credentials:"same-origin",cache:"no-store"}).then(async r=>{
       if (!r.ok) { window.location.replace("/portal");return; }
       const data=await r.json();if(alive){setUser(data.user);setLoading(false);}
     }).catch(()=>window.location.replace("/portal"));
