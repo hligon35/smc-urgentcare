@@ -103,7 +103,7 @@ assert.doesNotMatch(homepage, /class="services wrap"/, "Homepage omits services 
 assert.doesNotMatch(homepage, /class="faq"/, "Homepage omits FAQs");
 assert.match(homepage, /href="\/portal"/, "Homepage patient access points to CareConnect");
 const sharedHeader = homepage.match(/<header>[\s\S]*?<\/header>/)?.[0] || "";
-assert.match(sharedHeader, /href="\/"[^>]*>Home<\/a>/, "Header includes Home navigation");
+assert.match(sharedHeader.replace(/<svg[\s\S]*?<\/svg>/g, "").replace(/<!--[\s\S]*?-->/g, ""), /href="\/"[^>]*>\s*Home<\/a>/, "Header includes Home navigation");
 assert.match(sharedHeader, /href="\/portal"/, "Header opens local patient portal");
 for (const { file, html } of pages) {
   assert.match(html, /href="\/portal"/, `${file}: portal link is internal`);
@@ -195,4 +195,5 @@ for await (const file of exportedHtmlFiles("dist")) {
 }
 assert.ok(checkedHtml > routes.length, "Expected patient portal HTML exports");
 console.log(`PASS: strict CSP in all ${checkedHtml} exported HTML pages.`);
+
 

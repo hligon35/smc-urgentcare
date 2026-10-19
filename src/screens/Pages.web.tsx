@@ -173,7 +173,7 @@ function About() {
             help you prepare.
           </p>
           <a className="text-link" href="/visit">
-            See how to prepare for your visit →
+            See how to prepare for your visit <Icon name="arrow" />
           </a>
         </div>
       </section>
@@ -239,7 +239,7 @@ function Visit() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Open existing clinical portal ↗
+              Open existing clinical portal <Icon name="external" />
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
           </div>
@@ -476,3 +476,4 @@ export default function Page({ page }: { page: string }) {
   const Content = pages[page] || NotFound;
   return <Content />;
 }
+

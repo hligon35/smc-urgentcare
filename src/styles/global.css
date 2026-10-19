@@ -42,11 +42,10 @@ a {
 .icon {
   width: 23px;
   height: 23px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: currentColor;
+  stroke: none;
+  display: inline-block;
+  vertical-align: middle;
   flex-shrink: 0;
 }
 .utility {
@@ -549,14 +548,8 @@ summary {
 summary::-webkit-details-marker {
   display: none;
 }
-summary:after {
-  content: "+";
-  font: 24px var(--serif);
-  font-weight: normal;
-}
-details[open] summary:after {
-  content: "−";
-}
+summary .faq-chevron { transition: transform 160ms ease; }
+details[open] summary .faq-chevron { transform: rotate(180deg); }
 details p {
   font-size: 12px;
   color: var(--muted);
@@ -1456,3 +1449,14 @@ details p a {
     width: 100%;
   }
 }
+
+
+/* Material icons keep a predictable footprint alongside responsive text labels. */
+.links a, .footer-links a, .utility-portal, .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.links .icon, .footer-links .icon, .utility-portal .icon { width: 18px; height: 18px; }
+@media (min-width: 1121px) { .links { gap: 20px; } }
+@media (prefers-reduced-motion: reduce) { summary .faq-chevron { transition: none; } }
