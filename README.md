@@ -85,14 +85,15 @@ After sandbox acceptance:
 npm run deploy:production
 ```
 
-The production Worker is named `smc-urgentcare`; sandbox is `smc-urgentcare-sandbox`. The repository intentionally contains **no account IDs or live DNS changes**. Attach `smc-urgentcare.com` and `www.smc-urgentcare.com` as Worker custom domains only after clinic approval and the existing website cleanup. The Worker redirects WWW to the canonical apex. Workers.dev responses are marked noindex. Deployment commands do not automatically alter the current website’s DNS.
+The production Worker is named `smc-urgentcare`; sandbox is `smc-urgentcare-sandbox`. The default Wrangler target matches production so a deployment without `--env` cannot replace live settings with sandbox bindings. The repository intentionally contains **no account IDs or live DNS changes**. Attach `smc-urgentcare.com` and `www.smc-urgentcare.com` as Worker custom domains only after clinic approval and the existing website cleanup. The Worker redirects WWW to the canonical apex. Workers.dev responses are marked noindex. Deployment commands do not automatically alter the current website’s DNS.
 
 `wrangler.jsonc` serves exported routes using `404-page` handling; it does not use a blanket SPA fallback. HTML revalidates, hashed bundles/versioned images cache immutably, and errors/API responses are not cached. All responses receive security headers. Worker observability is enabled. `/api/health` reports service status; there are no medical-data APIs.
 
-No D1, R2, Resend, Turnstile, or authentication integration is added: this scope is an informational site that routes sensitive workflows to the existing portal. Add server-side capabilities behind dedicated adapters if a later requirement needs them.
+The CareConnect interface includes D1-backed authentication, Turnstile, Google OAuth, and Resend email workflows. Clinical screens remain demonstrations; medical records are not connected. See [authentication deployment and troubleshooting](docs/AUTH-TROUBLESHOOTING.md) for runtime bindings, migrations, required secrets, and safe diagnostics.
 
 ## Before replacing the existing website
 
 Confirm phone, address, portal ownership/destination, current services, physical availability, accepted insurance, self-pay policies, and actual hours with SMC. Hours are deliberately displayed as **call to confirm**, with no fabricated wait times, staff credentials, reviews, or opening-hours schema. Confirm image reuse rights. The supplied `assets/smcLogo.png` is used in shared branding, favicon/touch icons, and native icons. See `docs/CONTENT-SOURCES.md`.
 
 The old WordPress page contains unrelated gambling/essay links. This repository does not copy its scripts or third-party embeds. Investigate the existing host, accounts, plugins, files, redirects, and search indexing before cutover; the original installation has not been repaired by this implementation. Preserve domain/email records and arrange the clinic’s legal/privacy review as part of launch acceptance.
+

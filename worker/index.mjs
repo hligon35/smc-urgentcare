@@ -1,4 +1,5 @@
 import { handlePortalAuth, resolveSession } from "./portal-auth.mjs";
+import { authFailureResponse } from "./portal-errors.mjs";
 const securityHeaders = {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -53,8 +54,8 @@ export default {
     if (path.startsWith("/api/portal/auth/")) {
       try {
         response = await handlePortalAuth(request, env);
-      } catch {
-        response = Response.json({ error: "Authentication request failed." }, { status: 400 });
+      } catch (error) {
+        response = authFailureResponse(error, request);
       }
     } else if (path.startsWith("/portal/") && path !== "/portal/") {
       const session = await resolveSession(request, env);
@@ -110,3 +111,4 @@ export default {
     return secureResponse(response, request, env.ENVIRONMENT);
   },
 };
+

@@ -13,7 +13,10 @@ async function request(action: string, body: Record<string,string> = {}) {
     credentials: "same-origin", body: JSON.stringify(body)
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw Error(data.error || "Unable to complete your request.");
+  if (!response.ok) {
+    const reference = data.requestId ? ` Reference: ${data.code || "AUTH_ERROR"} / ${data.requestId}.` : "";
+    throw Error((data.error || "Unable to complete your request.") + reference);
+  }
   return data;
 }
 function Entrance() {
@@ -24,9 +27,9 @@ function Entrance() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [authConfig, setAuthConfig] = useState<{turnstileSiteKey:string;emailPasswordReady:boolean;recoveryReady:boolean;googleReady:boolean}|null>(null);
+  const [authConfig, setAuthConfig] = useState<{turnstileSiteKey:string;emailPasswordReady:boolean;recoveryReady:boolean;googleReady:boolean;databaseReady?:boolean;configurationCode?:string;requestId?:string}|null>(null);
   const [configError, setConfigError] = useState("");
-  useEffect(()=>{let active=true;fetch("/api/portal/auth/config",{cache:"no-store"}).then(async response=>{if(!response.ok)throw Error("Authentication service unavailable");return response.json();}).then(data=>{if(active)setAuthConfig(data);}).catch(()=>{if(active)setConfigError("Patient login configuration is unavailable. Please contact the site administrator.");});return()=>{active=false;};},[]);
+  useEffect(()=>{let active=true;fetch("/api/portal/auth/config",{cache:"no-store"}).then(async response=>{const data=await response.json();if(!response.ok)throw Error(typeof data.error === "string" ? data.error : "Authentication service unavailable");return data;}).then(data=>{if(active)setAuthConfig(data);}).catch(err=>{if(active)setConfigError(err instanceof Error ? err.message : "Patient login configuration is unavailable. Please contact the site administrator.");});return()=>{active=false;};},[]);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState("");
@@ -62,6 +65,7 @@ function Entrance() {
       <p className="portal-muted">{mode === "login" ? "Sign in to your patient dashboard." : mode === "register" ? "Create an account for the CareConnect interface. Clinical records are not connected yet." : "Follow the instructions below."}</p>
       {(error || configError) && <div className="portal-error" role="alert">{error || configError}</div>}
       {authConfig && !authConfig.turnstileSiteKey && <div className="portal-error" role="alert">Bot verification has not been configured for this domain. Sign-in is unavailable.</div>}
+      {authConfig?.databaseReady === false && <div className="portal-error" role="alert">Patient sign-in is temporarily unavailable. Contact the site administrator with reference {authConfig.configurationCode}{authConfig.requestId ? ` / ${authConfig.requestId}` : ""}.</div>}
       {notice && <div className="portal-success" role="status">{notice}</div>}
       <form onSubmit={submit} className="portal-form">
         {["login","register","forgot","activate-request"].includes(mode) && <label>Email address<input type="email" name="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>}
@@ -127,3 +131,4 @@ export default function Portal({ screen = "login" }: { screen?: string }) {
     </div>
   </div>;
 }
+
