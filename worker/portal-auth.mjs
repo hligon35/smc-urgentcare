@@ -127,7 +127,7 @@ async function googleStart(req, env, origin) {
   url.searchParams.set("code_challenge", challenge);
   url.searchParams.set("code_challenge_method", "S256");
   url.searchParams.set("prompt", "select_account");
-  return new Response(null, { status: 302, headers: { Location: url.href, "Set-Cookie": cookie(OAUTH, state, 600) } });
+  return json({ redirect: url.href }, 200, { "Set-Cookie": cookie(OAUTH, state, 600) });
 }
 async function verifyGoogleIdToken(jwt, env, expectedNonce) {
   if (typeof jwt !== "string") throw Error("Missing identity token");
@@ -201,11 +201,13 @@ export async function handlePortalAuth(req, env) {
   if (!configured(env)) return fail("Patient sign-in is not configured yet.", 503);
   const origin = requestAuthOrigin(req, env);
   if (!origin) return fail("Invalid origin.", 403);
-  if (route === "google/start" && req.method === "GET") {
-    if (!await limit(req, env, "google-start", 15)) return fail("Too many attempts. Try again later.", 429);
-    const url = new URL(req.url);
-    const token = url.searchParams.get("turnstile");
-    if (!await validatePortalTurnstile(req, env, token)) return fail("Bot verification failed.", 403);
+  if (route === "google/start" && req.method === "POST") {
+    if (req.headers.get("Origin") !== origin) return fail("Invalid request origin.", 403);
+    const data = await payload(req);
+    if (!await validatePortalTurnstile(req, env, data.turnstileToken))
+      return fail("Bot verification failed.", 403);
+    if (!await limit(req, env, "google-start", 15))
+      return fail("Too many attempts. Try again later.", 429);
     return googleStart(req, env, origin);
   }
   if (route === "google/callback" && req.method === "GET") return googleCallback(req, env, origin);
