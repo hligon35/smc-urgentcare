@@ -5,7 +5,7 @@ import { portalSamples } from "./mock";
 import "../../styles/portal.css";
 
 type Session = { email: string; displayName?: string | null };
-type Mode = "login" | "register" | "forgot" | "verify" | "reset";
+type Mode = "login" | "register" | "forgot" | "verify" | "reset" | "activate" | "activate-request";
 const title = "SMC CareConnect";
 async function request(action: string, body: Record<string,string> = {}) {
   const response = await fetch("/api/portal/auth/" + action, {
@@ -19,7 +19,7 @@ async function request(action: string, body: Record<string,string> = {}) {
 function Entrance() {
   const params = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
   const start = params.get("mode");
-  const [mode, setMode] = useState<Mode>(["register","forgot","verify","reset"].includes(start || "") ? start as Mode : "login");
+  const [mode, setMode] = useState<Mode>(["register","forgot","verify","reset","activate"].includes(start || "") ? start as Mode : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -31,22 +31,24 @@ function Entrance() {
   const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState(params.has("error") ? "Google sign-in was not completed. Contact the clinic if the problem continues." : "");
-  const token = params.get("token") || "";
+  const [activationToken] = useState(() => params.get("token") || "");
+  const token = activationToken;
+  useEffect(()=>{ if (start === "activate" && token) window.history.replaceState(null, "", "/portal?mode=activate"); }, []);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();if (mode !== "verify" && !turnstileToken) {setError("Complete the security check first.");return;}setBusy(true);setError("");setNotice("");
     try {
-      await request(mode === "register" ? "register" : mode === "forgot" ? "forgot" : mode === "reset" ? "reset" : mode === "verify" ? "verify" : "login",
-        mode === "verify" ? { token } : mode === "reset" ? { token, password, turnstileToken } : mode === "forgot" ? { email, turnstileToken } : { email, password, turnstileToken });
+      await request(mode === "register" ? "register" : mode === "forgot" ? "forgot" : mode === "reset" ? "reset" : mode === "verify" ? "verify" : mode === "activate" ? "activate/complete" : mode === "activate-request" ? "activate/request" : "login",
+        mode === "verify" ? { token } : mode === "activate" ? { token, password } : mode === "activate-request" ? { email, turnstileToken } : mode === "reset" ? { token, password, turnstileToken } : mode === "forgot" ? { email, turnstileToken } : { email, password, turnstileToken });
       if (mode === "login") window.location.assign("/portal/dashboard");
       else {
-        setNotice(mode === "register" ? "If registration is eligible, check your email to verify your account." : mode === "forgot" ? "If that email is registered, you will receive a reset link." : "Request completed. You can now sign in.");
+        setNotice(mode === "register" ? "If registration is eligible, check your email to verify your account." : mode === "forgot" ? "If that email is registered, you will receive a reset link." : mode === "activate-request" ? "If the account is eligible, an activation link will be emailed." : "Request completed. You can now sign in.");
         setPassword("");
-        if (mode === "verify" || mode === "reset") setMode("login");
+        if (mode === "verify" || mode === "reset" || mode === "activate") setMode("login");
       }
     } catch (err) { setError(err instanceof Error ? err.message : "Something went wrong."); }
     finally { setBusy(false);setTurnstileToken("");setTurnstileReset(k=>k+1); }
   }
-  const label = mode === "register" ? "Create account" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : mode === "verify" ? "Confirm your email" : "Welcome back";
+  const label = mode === "register" ? "Create account" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : mode === "verify" ? "Confirm your email" : mode === "activate" ? "Activate your account" : mode === "activate-request" ? "Request activation link" : "Welcome back";
   return <div className="portal-entry">
     <div className="portal-entry-aside">
       <a href="/" className="portal-logo"><img src="/images/smc-logo-v1.png" alt="" width="72" height="72"/><span><strong>SMC</strong><small>CareConnect</small></span></a>
@@ -62,16 +64,16 @@ function Entrance() {
       {authConfig && !authConfig.turnstileSiteKey && <div className="portal-error" role="alert">Bot verification has not been configured for this domain. Sign-in is unavailable.</div>}
       {notice && <div className="portal-success" role="status">{notice}</div>}
       <form onSubmit={submit} className="portal-form">
-        {["login","register","forgot"].includes(mode) && <label>Email address<input type="email" name="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>}
-        {["login","register","reset"].includes(mode) && <label>Password
+        {["login","register","forgot","activate-request"].includes(mode) && <label>Email address<input type="email" name="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>}
+        {["login","register","reset","activate"].includes(mode) && <label>Password
           <span className="portal-password"><input type={showPassword ? "text" : "password"} autoComplete={mode==="login"?"current-password":"new-password"} minLength={mode==="login"?undefined:12} maxLength={128} required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password"/><button type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?"Hide":"Show"}</button></span>
         </label>}
-        {mode !== "verify" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} siteKey={authConfig?.turnstileSiteKey || ""} />}
-        <button type="submit" disabled={busy || !!configError || (mode !== "verify" && (!turnstileToken || !authConfig?.emailPasswordReady))} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":"Verify email"}</button>
+        {mode !== "verify" && mode !== "activate" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} siteKey={authConfig?.turnstileSiteKey || ""} />}
+        <button type="submit" disabled={busy || !!configError || (mode !== "verify" && mode !== "activate" && (!turnstileToken || !authConfig?.emailPasswordReady))} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":mode==="activate"?"Set password":mode==="activate-request"?"Email activation link":"Verify email"}</button>
       </form>
       {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy || !authConfig?.googleReady} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
       <div className="portal-login-links">
-        {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button></> : <button onClick={()=>{setMode("login");setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
+        {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button><button onClick={()=>{setMode("activate-request");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Activate invited account</button></> : <button onClick={()=>{setMode("login");setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
       </div>
       <p className="portal-disclaimer">Your account is for this new interface only. Clinical results, messages, billing and insurance are demonstration screens until approved integrations are available. <a href="https://sarepta.prognocis.com/prognocis/sareptaClinicIndex.html" target="_blank" rel="noopener noreferrer">Open existing clinical portal ↗</a></p>
     </div></main>
