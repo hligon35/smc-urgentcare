@@ -153,3 +153,24 @@ test("workers.dev origins stay out of search results even for a production deplo
   );
   assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
 });
+
+
+test("unconfigured patient authentication fails closed and is not cached", async () => {
+  const response = await worker.fetch(new Request("https://smc-urgentcare.com/api/portal/auth/session"), env());
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+});
+test("private portal routes redirect unauthenticated users to the sign-in page", async () => {
+  const response = await worker.fetch(new Request("https://smc-urgentcare.com/portal/dashboard"), env());
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("Location"), "https://smc-urgentcare.com/portal");
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+});
+test("portal entry is public but uncached and excluded from indexing", async () => {
+  const response = await worker.fetch(new Request("https://smc-urgentcare.com/portal"), env());
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("Cache-Control"), "no-store");
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+});
