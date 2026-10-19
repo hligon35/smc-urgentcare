@@ -63,6 +63,7 @@ test("missing migrations disable capability flags and return safe, actionable fa
 
 test("Google callback verifies a signed identity, creates a session and rejects state replay", async () => {
   const { db, sqlite } = testDatabase();
+  sqlite.prepare("INSERT INTO portal_users (id,email,google_sub,email_verified,created_at) VALUES (?,?,?,?,?)").run("existing-user","flow-test@example.com","google-test-sub",1,1);
   const originalFetch = globalThis.fetch;
   const pair = await crypto.subtle.generateKey({ name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1,0,1]), hash: "SHA-256" }, true, ["sign","verify"]);
   const jwk = { ...await crypto.subtle.exportKey("jwk", pair.publicKey), kid: "test-key", use: "sig" };

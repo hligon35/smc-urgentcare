@@ -23,8 +23,10 @@ async function request(action: string, body: Record<string,string> = {}) {
 function Entrance() {
   const params = typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
   const start = params.get("mode");
-  const [mode, setMode] = useState<Mode>(["register","forgot","verify","reset","activate"].includes(start || "") ? start as Mode : "login");
+  const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
+  const [googleProfile,setGoogleProfile]=useState<{email:string;displayName?:string;action:"register"|"link";verifiedEmail:boolean}|null>(null);
+  const [googleLoading,setGoogleLoading]=useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -35,20 +37,39 @@ function Entrance() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReset, setTurnstileReset] = useState(0);
   const [notice, setNotice] = useState("");
-  const [error, setError] = useState(params.has("error") ? "Google sign-in was not completed. Contact the clinic if the problem continues." : "");
-  const [activationToken] = useState(() => params.get("token") || "");
+  useEffect(()=>{
+    if (params.get("provider")!=="google") return;
+    setGoogleLoading(true);
+    let active=true;
+    fetchPortalAuth("/api/portal/auth/google/registration").then(async response=>{
+      const data=await response.json();
+      if(!response.ok)throw Error(data.error || "Google registration is unavailable.");
+      if(active){setGoogleProfile(data);setEmail(data.email);setMode(data.action==="link"?"login":"register");}
+    }).catch(err=>{if(active){setAccessRequired(err instanceof AccessSessionError);setError(err instanceof Error?err.message:"Google registration unavailable.");}})
+      .finally(()=>{if(active)setGoogleLoading(false);});
+    return()=>{active=false;};
+  },[]);
+  const [error, setError] = useState("");
+  const [activationToken,setActivationToken] = useState("");
   const token = activationToken;
-  useEffect(()=>{ if (start === "activate" && token) window.history.replaceState(null, "", "/portal?mode=activate"); }, []);
+  useEffect(()=>{
+    // Query-driven auth screens are applied after hydration of Expo's static HTML.
+    if (["register","forgot","verify","reset","activate"].includes(start || "")) setMode(start as Mode);
+    if (params.has("error")) setError("Google sign-in was not completed. Verify your account email or contact the clinic if the problem continues.");
+    const value=params.get("token") || "";
+    setActivationToken(value);
+    if (value && ["verify","reset","activate"].includes(start || "")) window.history.replaceState(null,"","/portal?mode="+start);
+  },[]);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();if (mode !== "verify" && mode !== "activate" && !turnstileToken) {setError("Complete the security check first.");return;}setBusy(true);setError("");setNotice("");
     try {
-      await request(mode === "register" ? "register" : mode === "forgot" ? "forgot" : mode === "reset" ? "reset" : mode === "verify" ? "verify" : mode === "activate" ? "activate/complete" : mode === "activate-request" ? "activate/request" : "login",
-        mode === "verify" ? { token } : mode === "activate" ? { token, password } : mode === "activate-request" ? { email, turnstileToken } : mode === "reset" ? { token, password, turnstileToken } : mode === "forgot" ? { email, turnstileToken } : { email, password, turnstileToken });
-      if (mode === "login") window.location.assign("/portal/dashboard");
+      const result = await request(mode === "register" ? "register" : mode === "forgot" ? "forgot" : mode === "reset" ? "reset" : mode === "verify" ? "verify" : mode === "activate" ? "activate/complete" : mode === "activate-request" ? "activate/request" : "login",
+        mode === "verify" ? { token } : mode === "activate" ? { token, password } : mode === "activate-request" ? { email, turnstileToken } : mode === "reset" ? { token, password, turnstileToken } : mode === "forgot" ? { email, turnstileToken } : { email, password, turnstileToken, ...(googleProfile ? {googleRegistration:"1"} : {}) });
+      if (mode === "login" || result.signedIn) window.location.assign("/portal/dashboard");
       else {
         setNotice(mode === "register" ? "If registration is eligible, check your email to verify your account." : mode === "forgot" ? "If that email is registered, you will receive a reset link." : mode === "activate-request" ? "If the account is eligible, an activation link will be emailed." : "Request completed. You can now sign in.");
         setPassword("");
-        if (mode === "verify" || mode === "reset" || mode === "activate") setMode("login");
+        if (mode === "register" || mode === "verify" || mode === "reset" || mode === "activate") {setMode("login");setGoogleProfile(null);}
       }
     } catch (err) { setAccessRequired(err instanceof AccessSessionError);setError(err instanceof Error ? err.message : "Something went wrong."); }
     finally { setBusy(false);setTurnstileToken("");setTurnstileReset(k=>k+1); }
@@ -64,23 +85,27 @@ function Entrance() {
       <a href="/" className="portal-back">← Return to SMC Urgent Care</a>
       <span className="portal-eyebrow">Patient access</span>
       <h2>{label}</h2>
-      <p className="portal-muted">{mode === "login" ? "Sign in to your patient dashboard." : mode === "register" ? "Create an account for the CareConnect interface. Clinical records are not connected yet." : "Follow the instructions below."}</p>
+      <p className="portal-muted">{mode === "login" ? "Use your email and password to sign in, or continue with Google." : mode === "register" ? "Create an account for the CareConnect interface. Clinical records are not connected yet." : "Follow the instructions below."}</p>
+      {googleLoading && <p role="status">Loading your verified Google email…</p>}
+      {googleProfile && <div className="portal-success" role="status">{googleProfile.action === "register" ? "Finish creating your account by choosing a password. You can then sign in with email/password or Google." : "Sign in with your existing password once to securely connect this Google account."}</div>}
+      {mode === "register" && !googleProfile?.verifiedEmail && authConfig && !authConfig.recoveryReady && <div className="portal-error" role="alert">Account creation requires email verification, which is currently unavailable. Please contact the site administrator.</div>}
       {(error || configError) && <div className="portal-error" role="alert">{error || configError}{accessRequired && <> <a href="/portal">Renew preview access</a></>}</div>}
       {authConfig && !authConfig.turnstileSiteKey && <div className="portal-error" role="alert">Bot verification has not been configured for this domain. Sign-in is unavailable.</div>}
       {authConfig?.databaseReady === false && <div className="portal-error" role="alert">Patient sign-in is temporarily unavailable. Contact the site administrator with reference {authConfig.configurationCode}{authConfig.requestId ? ` / ${authConfig.requestId}` : ""}.</div>}
       {notice && <div className="portal-success" role="status">{notice}</div>}
       <form onSubmit={submit} className="portal-form">
-        {["login","register","forgot","activate-request"].includes(mode) && <label>Email address<input type="email" name="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>}
+        {["login","register","forgot","activate-request"].includes(mode) && <label>Email address<input type="email" name="email" autoComplete="email" required readOnly={!!googleProfile} value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>}
         {["login","register","reset","activate"].includes(mode) && <label>Password
-          <span className="portal-password"><input type={showPassword ? "text" : "password"} autoComplete={mode==="login"?"current-password":"new-password"} minLength={mode==="login"?undefined:12} maxLength={128} required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password"/><button type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?"Hide":"Show"}</button></span>
+          <span className="portal-password"><input type={showPassword ? "text" : "password"} autoComplete={mode==="login"?"current-password":"new-password"} minLength={mode==="login"?undefined:12} maxLength={128} required value={password} onChange={e=>setPassword(e.target.value)} placeholder={mode==="register" ? "Choose a password (12+ characters)" : "Enter your password"}/><button type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?"Hide":"Show"}</button></span>
         </label>}
         {mode !== "verify" && mode !== "activate" && <Turnstile onToken={setTurnstileToken} resetKey={turnstileReset} siteKey={authConfig?.turnstileSiteKey || ""} />}
-        <button type="submit" disabled={busy || !!configError || (mode !== "verify" && mode !== "activate" && (!turnstileToken || !authConfig?.emailPasswordReady))} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":mode==="activate"?"Set password":mode==="activate-request"?"Email activation link":"Verify email"}</button>
+        <button type="submit" disabled={busy || googleLoading || !!configError || (mode==="register" && !googleProfile?.verifiedEmail && !authConfig?.recoveryReady) || (mode !== "verify" && mode !== "activate" && (!turnstileToken || !authConfig?.emailPasswordReady))} className="portal-primary">{busy?"Processing…":mode==="login"?"Sign in with email":mode==="register"?"Create account":mode==="forgot"?"Send reset link":mode==="reset"?"Update password":mode==="activate"?"Set password":mode==="activate-request"?"Email activation link":"Verify email"}</button>
       </form>
-      {mode==="login" && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy || !authConfig?.googleReady} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setAccessRequired(err instanceof AccessSessionError);setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
+      {mode==="login" && !googleProfile && <><div className="portal-or">or continue with</div><button type="button" className="portal-google" disabled={!turnstileToken || busy || googleLoading || !authConfig?.googleReady} onClick={async()=>{if(!turnstileToken)return;setBusy(true);setError("");try{const result=await request("google/start",{turnstileToken});if(typeof result.redirect !== "string")throw Error("Google login unavailable.");window.location.assign(result.redirect);}catch(err){setAccessRequired(err instanceof AccessSessionError);setError(err instanceof Error?err.message:"Google login unavailable.");setTurnstileToken("");setTurnstileReset(k=>k+1);setBusy(false);}}}><span className="portal-g">G</span> Google</button></>}
       <div className="portal-login-links">
-        {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button><button onClick={()=>{setMode("activate-request");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Activate invited account</button></> : <button onClick={()=>{setMode("login");setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
+        {mode==="login" ? <><button onClick={()=>{setMode("forgot");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Forgot password?</button><button onClick={()=>{setMode("register");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Create an account</button><button onClick={()=>{setMode("activate-request");setError("");setNotice("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Activate invited account</button></> : <button onClick={()=>{setMode("login");setGoogleProfile(null);setError("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Back to sign in</button>}
       </div>
+      {googleProfile?.action==="link" && <button type="button" className="portal-text-link" onClick={()=>{setGoogleProfile(null);setError("");setPassword("");setTurnstileToken("");setTurnstileReset(k=>k+1);}}>Use email and password without connecting Google</button>}
       <p className="portal-disclaimer">Your account is for this new interface only. Clinical results, messages, billing and insurance are demonstration screens until approved integrations are available. <a href="https://sarepta.prognocis.com/prognocis/sareptaClinicIndex.html" target="_blank" rel="noopener noreferrer">Open existing clinical portal ↗</a></p>
     </div></main>
   </div>;

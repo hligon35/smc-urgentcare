@@ -1,3 +1,4 @@
+import { authoritativeGoogleEmail, beginGoogleRegistration, pendingGoogleRegistration, completeGoogleRegistration, clearGoogleRegistration } from "./portal-google-registration.mjs";
 import { googleRedirectUri, requestAuthOrigin } from "./portal-origins.mjs";
 import { validatePortalTurnstile } from "./portal-turnstile.mjs";
 import { AuthRequestError, describeAuthFailure, logAuthFailure } from "./portal-errors.mjs";
@@ -18,8 +19,11 @@ async function sha(value) {
   const bytes = await crypto.subtle.digest("SHA-256", enc.encode(value));
   return b64(new Uint8Array(bytes));
 }
-const json = (data, status = 200, headers = {}) =>
-  Response.json(data, { status, headers: { "Cache-Control": "no-store", ...headers } });
+const json = (data, status = 200, headers = {}) => {
+  const result = new Headers(headers);
+  result.set("Cache-Control", "no-store");
+  return Response.json(data, {status,headers:result});
+};
 const cookie = (name, value, age) =>
   name + "=" + value + "; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=" + age;
 const getCookie = (req, key) =>
@@ -201,24 +205,33 @@ async function googleCallback(req, env, origin) {
     const tokens = await response.json();
     const identity = await verifyGoogleIdToken(tokens.id_token, env, attempt.nonce);
     const email = cleanEmail(identity.email);
-    let user = await env.AUTH_DB.prepare("SELECT id, google_sub, disabled_at, email_verified, role, password_hash FROM portal_users WHERE email=?").bind(email).first();
-    if (user && (user.disabled_at || (user.google_sub && user.google_sub !== identity.sub) || (!user.google_sub && user.password_hash))) {
-      throw Error("Account exists under a different sign-in method");
+    let user = await env.AUTH_DB.prepare(
+      "SELECT id,email,google_sub,disabled_at,email_verified,role,password_hash FROM portal_users WHERE google_sub=? OR email=? ORDER BY CASE WHEN google_sub=? THEN 0 ELSE 1 END LIMIT 1"
+    ).bind(identity.sub,email,identity.sub).first();
+    if (user && (user.disabled_at || (user.google_sub && user.google_sub !== identity.sub)))
+      throw Error("Account unavailable");
+    if (!user || (!user.google_sub && !authoritativeGoogleEmail(identity))) {
+      const handoff = await beginGoogleRegistration(env, identity);
+      const headers = new Headers({ Location: user ? "/portal?provider=google" : "/portal?mode=register&provider=google", "Cache-Control": "no-store" });
+      headers.append("Set-Cookie", cookie(OAUTH,"",0));
+      headers.append("Set-Cookie", handoff);
+      return new Response(null,{status:302,headers});
     }
-    if (user && !user.google_sub) {
-      // Provisioned, unclaimed accounts can only be linked after Google verifies email ownership.
-      await env.AUTH_DB.prepare("UPDATE portal_users SET google_sub=?, email_verified=1 WHERE id=? AND google_sub IS NULL AND password_hash IS NULL AND disabled_at IS NULL").bind(identity.sub, user.id).run();
+    if (!user.google_sub && user.password_hash && !user.email_verified)
+      throw Error("Existing password account must verify email before Google can be connected");
+    if (!user.google_sub) {
+      // Gmail/Workspace proves current email ownership; preserve password and existing role.
+      const linked=await env.AUTH_DB.prepare(
+        "UPDATE portal_users SET google_sub=?, email_verified=1 WHERE id=? AND google_sub IS NULL AND disabled_at IS NULL"
+      ).bind(identity.sub,user.id).run();
+      if (linked.meta.changes!==1) throw Error("Account linking changed concurrently");
+      user.email_verified=1;
     }
-    if (!user) {
-      const id = crypto.randomUUID();
-      await env.AUTH_DB.prepare(
-        "INSERT INTO portal_users (id,email,display_name,google_sub,email_verified,created_at,role) VALUES (?,?,?,?,1,?,\'patient\')"
-      ).bind(id, email, String(identity.name || "").slice(0, 90) || null, identity.sub, clock()).run();
-      user = { id };
-    }
+    if (!user.email_verified) throw Error("Email verification required");
     const authenticated = await createSession(user, env);
     const headers = new Headers({ Location: "/portal/dashboard", "Cache-Control": "no-store" });
     headers.append("Set-Cookie", cookie(OAUTH, "", 0));
+    headers.append("Set-Cookie", clearGoogleRegistration());
     headers.append("Set-Cookie", authenticated);
     return new Response(null, { status: 302, headers });
   } catch (error) {
@@ -263,6 +276,12 @@ export async function handlePortalAuth(req, env) {
     return googleStart(req, env, origin);
   }
   if (route === "google/callback" && req.method === "GET") return googleCallback(req, env, origin);
+  if (route === "google/registration" && req.method === "GET") {
+    const pending=await pendingGoogleRegistration(req,env);
+    if (!pending) return fail("Google registration expired. Choose Google again.",410);
+    const existing=await env.AUTH_DB.prepare("SELECT id FROM portal_users WHERE email=?").bind(pending.email).first();
+    return json({email:pending.email,displayName:pending.display_name,action:existing ? "link" : "register",verifiedEmail:Boolean(pending.authoritative)});
+  }
   if (route === "session" && req.method === "GET") {
     const user = await resolveSession(req, env);
     return user ? json({ user: { email: user.email, displayName: user.display_name, role: user.role || "patient" } }) : fail("Not authenticated.", 401);
@@ -333,24 +352,57 @@ export async function handlePortalAuth(req, env) {
   }
   if (typeof data.password !== "string" || data.password.length < 12 || data.password.length > 128) return fail("Password must be between 12 and 128 characters.");
   if (route === "register") {
-    if (!env.RESEND_API_KEY || !env.RESEND_FROM) return fail("Email verification is not configured.", 503);
-    const existing = await env.AUTH_DB.prepare("SELECT id,email FROM portal_users WHERE email=?").bind(email).first();
+    const pending=data.googleRegistration === "1" ? await pendingGoogleRegistration(req,env) : null;
+    if (data.googleRegistration === "1" && (!pending || pending.email !== email))
+      return fail("Google registration expired or does not match this email. Choose Google again.",410);
+    if ((!pending || !pending.authoritative) && (!env.RESEND_API_KEY || !env.RESEND_FROM))
+      return fail("Email verification is not configured.",503);
+    const existing=await env.AUTH_DB.prepare("SELECT id,email,email_verified,disabled_at FROM portal_users WHERE email=?").bind(email).first();
+    if (pending && existing) return fail("An account already exists. Sign in with your password to connect Google.",409);
     if (!existing) {
-      const salt = random(24), hash = await hashPassword(data.password, salt, env.AUTH_PEPPER);
-      const id = crypto.randomUUID();
+      const salt=random(24), hash=await hashPassword(data.password,salt,env.AUTH_PEPPER);
+      if (pending) {
+        const user=await completeGoogleRegistration(env,pending,hash,salt);
+        if (!user) return fail("Google registration expired. Choose Google again.",410);
+        if (user.email_verified) {
+          const headers=new Headers();
+          headers.append("Set-Cookie",clearGoogleRegistration());
+          headers.append("Set-Cookie",await createSession(user,env));
+          return json({ok:true,signedIn:true},200,headers);
+        }
+        await createEmailToken(env,user,"verify",origin);
+        return json({ok:true},200,{"Set-Cookie":clearGoogleRegistration()});
+      }
+      const id=crypto.randomUUID();
       await env.AUTH_DB.prepare(
         "INSERT INTO portal_users (id,email,password_hash,password_salt,email_verified,created_at) VALUES (?,?,?,?,0,?)"
-      ).bind(id, email, hash, salt, clock()).run();
-      await createEmailToken(env, { id, email }, "verify", origin);
+      ).bind(id,email,hash,salt,clock()).run();
+      await createEmailToken(env,{id,email},"verify",origin);
+    } else if (!existing.email_verified && !existing.disabled_at && await limit(req,env,"verify-recipient:"+email,3)) {
+      // A retry can recover failed delivery without replacing an existing password.
+      await createEmailToken(env,existing,"verify",origin);
     }
-    return json({ ok: true, message: "If eligible, check your email for a verification link." });
+    return json({ok:true,message:"If eligible, check your email for a verification link."});
   }
   const user = await env.AUTH_DB.prepare(
-    "SELECT id, password_salt, password_hash, email_verified FROM portal_users WHERE email=? AND disabled_at IS NULL"
+    "SELECT id, password_salt, password_hash, email_verified, google_sub FROM portal_users WHERE email=? AND disabled_at IS NULL"
   ).bind(email).first();
   const fakeSalt = "VGVzdFN0YXRpY1NhbHRGb3JUaW1pbmc";
   const calculated = await hashPassword(data.password, user?.password_salt || fakeSalt, env.AUTH_PEPPER);
   if (!user?.password_hash || !equal(calculated, user.password_hash) || !user.email_verified) return fail("Invalid credentials or email not verified.", 401);
-  return json({ ok: true }, 200, { "Set-Cookie": await createSession(user, env) });
+  const headers=new Headers();
+  if (data.googleRegistration === "1") {
+    const pending=await pendingGoogleRegistration(req,env);
+    if (!pending || pending.email!==email || (user.google_sub && user.google_sub!==pending.google_sub))
+      return fail("Google connection expired or does not match this account. Choose Google again.",410);
+    const results=await env.AUTH_DB.batch([
+      env.AUTH_DB.prepare("UPDATE portal_users SET google_sub=? WHERE id=? AND (google_sub IS NULL OR google_sub=?) AND disabled_at IS NULL").bind(pending.google_sub,user.id,pending.google_sub),
+      env.AUTH_DB.prepare("DELETE FROM portal_google_registrations WHERE id=?").bind(pending.id),
+    ]);
+    if (results[0]?.meta?.changes!==1) return fail("Google connection could not be completed.",409);
+    headers.append("Set-Cookie",clearGoogleRegistration());
+  }
+  headers.append("Set-Cookie",await createSession(user,env));
+  return json({ok:true},200,headers);
 }
 
