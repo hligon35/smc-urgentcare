@@ -1,6 +1,7 @@
 import { clinic, routes } from "../config/site";
 import { Brand, PhoneLink, PortalLink } from "./Links";
 import { Icon } from "./Icon";
+import SocialLinks from "./SocialLinks";
 export default function Footer() {
   return (
     <>
@@ -20,6 +21,7 @@ export default function Footer() {
             ))}
             <PortalLink>Patient portal ↗</PortalLink>
           </nav>
+          <SocialLinks />
         </div>
         <div className="footer-bottom">
           <span>
