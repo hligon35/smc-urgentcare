@@ -36,7 +36,9 @@
     "production": {
       "name": "smc-urgentcare",
       "vars": {
-        "ENVIRONMENT": "production"
+        "ENVIRONMENT": "production",
+        "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
+        "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com"
       },
       "d1_databases": [
         {
