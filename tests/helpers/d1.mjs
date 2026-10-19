@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 export function testDatabase(migrated = true) {
   const sqlite = new DatabaseSync(":memory:");
   if (migrated) {
-    for (const name of ["0001_portal_auth.sql", "0002_portal_roles.sql"])
+    for (const name of ["0001_portal_auth.sql", "0002_portal_roles.sql", "0003_google_registration.sql"])
       sqlite.exec(readFileSync(new URL(`../../migrations/${name}`, import.meta.url), "utf8"));
   }
   const db = {
@@ -16,10 +16,15 @@ export function testDatabase(migrated = true) {
         async run() { const result = sqlite.prepare(sql).run(...this.values); return { success: true, meta: { changes: Number(result.changes) } }; },
         async first() { return sqlite.prepare(sql).get(...this.values) || null; },
         async all() { return { results: sqlite.prepare(sql).all(...this.values) }; },
+        execute() { const result=sqlite.prepare(sql).run(...this.values); return {success:true,meta:{changes:Number(result.changes)}}; },
       };
       return statement;
     },
-    async batch(statements) { return Promise.all(statements.map(s => s.all())); },
+    async batch(statements) {
+      sqlite.exec("BEGIN");
+      try { const result=statements.map(s=>s.execute());sqlite.exec("COMMIT");return result; }
+      catch(error) {sqlite.exec("ROLLBACK");throw error;}
+    },
   };
   return { db, sqlite };
 }

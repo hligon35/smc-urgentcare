@@ -1,6 +1,6 @@
 export class AccessSessionError extends Error {
   constructor() {
-    super("Your secure preview access needs to be renewed. Reopen the preview, complete its access sign-in, then try again.");
+    super("Preview access is unavailable. Your session may have expired, or your account may not have permission. Reopen the preview to sign in.");
   }
 }
 

@@ -87,3 +87,9 @@ If a stale Access session persists, the user can manually visit
 complete Access sign-in. Cloudflare documents that this logout revokes Access
 sessions across applications, so it is deliberately not performed automatically.
 Keep the preview gate and CSP enabled.
+
+## Patient enrollment
+
+See [patient sign-in setup](PATIENT-SIGN-IN-SETUP.md) for email/password enrollment,
+Google registration handoff, the third migration, and public patient-route Access
+policy settings. The Access preview allowlist must not control patient eligibility.
