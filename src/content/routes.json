@@ -7,18 +7,18 @@
     "description": "A caring welcome for the unexpected. Explore SMC Urgent Care’s services, plan your walk-in visit, and find our Indianapolis clinic."
   },
   {
-    "id": "services",
-    "path": "/services",
-    "label": "Our services",
-    "title": "Urgent Care Services",
-    "description": "Explore care for common illnesses, allergies, minor injuries, sports and DOT physicals, and work-related concerns at SMC Urgent Care."
-  },
-  {
     "id": "about",
     "path": "/about",
     "label": "Our approach",
     "title": "Person-Centered Care",
     "description": "Learn about SMC Urgent Care’s person-centered approach: listening, helping you understand your options, and putting your needs first."
+  },
+  {
+    "id": "services",
+    "path": "/services",
+    "label": "Our services",
+    "title": "Urgent Care Services",
+    "description": "Explore care for common illnesses, allergies, minor injuries, sports and DOT physicals, and work-related concerns at SMC Urgent Care."
   },
   {
     "id": "visit",

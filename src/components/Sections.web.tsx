@@ -1,3 +1,4 @@
+import LocationMap from "./LocationMap.web";
 import { useState } from "react";
 import { CareImage } from "./CareImage.web";
 import { clinic } from "../config/site";
@@ -242,17 +243,7 @@ export function LocationCTA() {
           </DirectionsLink>
           <PhoneLink>Call {clinic.phone}</PhoneLink>
         </div>
-        <div className="location-map">
-          <iframe
-            src={clinic.mapEmbedUrl}
-            title={`${clinic.name} location at ${clinic.address.street}, ${clinic.address.city}`}
-            width={400}
-            height={300}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        </div>
+        <LocationMap />
       </div>
     </section>
   );

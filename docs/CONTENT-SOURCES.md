@@ -40,4 +40,4 @@ No unrelated outbound links, WordPress scripts, testimonials, or unverified clin
 
 ## Interactive location map
 
-The Google Maps embed URL in `src/config/clinic.json` was supplied by the user on October 18, 2026. It is used only in the shared “Your neighborhood urgent care” location section, retaining Google’s interactive controls and attribution. The frame is labelled, lazily loaded, and restricted by the parent page’s content security policy to Google’s map embed endpoint. The website privacy page describes the external map connection.
+The Google Maps embed URL in `src/config/clinic.json` was supplied by the user on October 18, 2026. It is used in the shared “Your neighborhood urgent care” location section and the Find Us location panel through one reusable map component, retaining Google’s interactive controls and attribution. The frame is labelled, lazily loaded, and restricted by the parent page’s content security policy to Google’s map embed endpoint. The website privacy page describes the external map connection.
