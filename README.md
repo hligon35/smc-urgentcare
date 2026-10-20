@@ -39,9 +39,9 @@ The mobile shell uses native controls, shared clinic/service content, device cal
 
 ## Environments
 
-Copy `.env.production.example` to `.env.production`. Production defaults to `https://smc-urgentcare.com` when the file is absent.
+Copy `.env.production.example` to `.env.production`. Production defaults to `https://smcurgentcareindy.com` when the file is absent.
 
-Copy `.env.sandbox.example` to `.env.sandbox` and set the **actual HTTPS sandbox Worker origin** before building or deploying that environment. Example origins must be replaced. The explicit build wrapper loads `.env.sandbox` or `.env.production`; these local files are ignored by Git. Only the public canonical origin is required. No passwords or provider secrets belong in `EXPO_PUBLIC_*` values.
+Copy `.env.sandbox.example` to `.env.sandbox`; sandbox uses `https://smc-urgentcare-sandbox.hligon.workers.dev` (verify that `hligon` is the active Workers subdomain for the deploying Cloudflare account). The explicit build wrapper loads `.env.sandbox` or `.env.production`; these local files are ignored by Git. Only the public canonical origin is required. No passwords or provider secrets belong in `EXPO_PUBLIC_*` values.
 
 ```sh
 npm run build
@@ -85,7 +85,7 @@ After sandbox acceptance:
 npm run deploy:production
 ```
 
-The production Worker is named `smc-urgentcare`; sandbox is `smc-urgentcare-sandbox`. The default Wrangler target matches production so a deployment without `--env` cannot replace live settings with sandbox bindings. The repository intentionally contains **no account IDs or live DNS changes**. Attach `smc-urgentcare.com` and `www.smc-urgentcare.com` as Worker custom domains only after clinic approval and the existing website cleanup. The Worker redirects WWW to the canonical apex. Workers.dev responses are marked noindex. Deployment commands do not automatically alter the current website’s DNS.
+The production Worker is named `smc-urgentcare`; sandbox is `smc-urgentcare-sandbox`. The default Wrangler target matches production so a deployment without `--env` cannot replace live settings with sandbox bindings. The repository intentionally contains **no account IDs or live DNS changes**. Production is configured with Cloudflare custom-domain routes for `smcurgentcareindy.com` and `www.smcurgentcareindy.com`. Confirm that this domain is an active zone in the deploying Cloudflare account and approve the cutover before deploying. The production Worker redirects WWW to the canonical `smcurgentcareindy.com` apex; sandbox remains on the `hligon.workers.dev` subdomain. The OAuth provider's authorized origins/callbacks, Turnstile hostnames, production environment secrets, and `.env.production` must be updated for the new domain. Workers.dev responses are marked noindex. Deployment commands do not automatically alter the current website’s DNS.
 
 `wrangler.jsonc` serves exported routes using `404-page` handling; it does not use a blanket SPA fallback. HTML revalidates, hashed bundles/versioned images cache immutably, and errors/API responses are not cached. All responses receive security headers. Worker observability is enabled. `/api/health` reports service status; there are no medical-data APIs.
 
