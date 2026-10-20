@@ -3,9 +3,24 @@
   "compilerOptions": {
     "strict": true,
     "resolveJsonModule": true,
-    "types": ["react", "react-dom"],
-    "paths": { "@/*": ["./src/*"] }
+    "types": [
+      "react",
+      "react-dom"
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "app.config.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules", "dist", "dist-native"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "app.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-native"
+  ]
 }
