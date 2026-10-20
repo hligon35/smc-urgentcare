@@ -17,6 +17,7 @@ function FAQs() {
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ expanded: expanded === i }}
+            style={{ minHeight: 48, justifyContent: "center" }}
             onPress={() => setExpanded(expanded === i ? null : i)}
           >
             <Text style={s.subheading}>

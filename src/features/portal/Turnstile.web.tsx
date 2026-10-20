@@ -6,6 +6,7 @@ type WidgetOptions = {
   sitekey: string;
   action: string;
   theme: "light";
+  size: "compact" | "flexible";
   callback: (token: string) => void;
   "expired-callback": () => void;
   "error-callback": () => void;
@@ -33,6 +34,7 @@ export default function Turnstile({
   const node = useRef<HTMLDivElement>(null);
   const widget = useRef<string | null>(null);
   const callback = useRef(onToken);
+  const [size, setSize] = useState<"compact" | "flexible" | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     siteKey ? "loading" : "error",
   );
@@ -42,7 +44,17 @@ export default function Turnstile({
   }, [onToken]);
 
   useEffect(() => {
-    if (!siteKey || !node.current) return;
+    if (!node.current) return;
+    // Flexible widgets require 300px; compact keeps security checks usable at zoomed widths.
+    const measure = () => setSize(node.current!.getBoundingClientRect().width < 300 ? "compact" : "flexible");
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!siteKey || !node.current || !size) return;
     let active = true;
     let script = document.querySelector<HTMLScriptElement>("script[data-smc-turnstile]");
     const render = () => {
@@ -52,6 +64,7 @@ export default function Turnstile({
           sitekey: siteKey,
           action: "patient_auth",
           theme: "light",
+          size,
           callback: (token) => callback.current(token),
           "expired-callback": () => callback.current(""),
           "error-callback": () => {
@@ -88,7 +101,7 @@ export default function Turnstile({
       }
       callback.current("");
     };
-  }, [siteKey]);
+  }, [siteKey, size]);
 
   useEffect(() => {
     if (!resetKey || !widget.current || !window.turnstile) return;
@@ -98,7 +111,7 @@ export default function Turnstile({
   }, [resetKey]);
 
   return (
-    <div className="portal-turnstile" aria-label="Bot verification">
+    <div className="portal-turnstile" data-size={size || undefined} aria-label="Bot verification">
       <div ref={node} />
       {status === "loading" && <p role="status">Loading security check…</p>}
       {status === "error" && (

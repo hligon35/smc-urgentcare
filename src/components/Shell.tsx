@@ -17,15 +17,15 @@ export default function Shell({ children }: PropsWithChildren) {
   useEffect(() => {
     scroll.current?.scrollTo({ y: 0, animated: false });
   }, [path]);
-  if (path === "/portal" || path.startsWith("/portal/")) return <>{children}</>;
+  const isPortal = path === "/portal" || path.startsWith("/portal/");
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.cream }}>
       <StatusBar style="dark" />
-      <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <View style={{ width: "100%", maxWidth: 720, alignSelf: "center" }}>
-          <Header />
+          {!isPortal && <Header />}
           <View style={{ padding: 24 }}>{children}</View>
-          <Footer />
+          {!isPortal && <Footer />}
         </View>
       </ScrollView>
     </SafeAreaView>

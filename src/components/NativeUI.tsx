@@ -21,7 +21,7 @@ export function NativeButton({
   );
   return href.startsWith("/") ? (
     <Link href={href as Href} asChild>
-      <Pressable accessibilityRole="link" accessibilityLabel={label}>
+      <Pressable accessibilityRole="link" accessibilityLabel={label} style={styles.buttonTarget}>
         {content}
       </Pressable>
     </Link>
@@ -29,6 +29,7 @@ export function NativeButton({
     <Pressable
       accessibilityRole="link"
       accessibilityLabel={label}
+      style={styles.buttonTarget}
       onPress={() => openExternal(href)}
     >
       {content}
@@ -86,9 +87,10 @@ export const nativeStyles = StyleSheet.create({
     padding: 22,
     marginVertical: 14,
   },
-  image: { width: "100%", height: 200, borderRadius: 16, marginVertical: 22 },
+  image: { width: "100%", aspectRatio: 1.6, borderRadius: 16, marginVertical: 22 },
 });
 const styles = StyleSheet.create({
+  buttonTarget: { width: "100%", minHeight: 48 },
   button: {
     backgroundColor: colors.primary,
     paddingVertical: 15,
@@ -102,6 +104,7 @@ const styles = StyleSheet.create({
   },
   secondary: { backgroundColor: "transparent" },
   buttonText: {
+    flexShrink: 1,
     color: colors.paper,
     fontSize: 15,
     fontWeight: "600",

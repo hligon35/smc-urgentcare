@@ -15,7 +15,7 @@ export default function Brand() {
           style={styles.logo}
           accessibilityIgnoresInvertColors
         />
-        <View>
+        <View style={styles.wordmark}>
           <Text style={styles.name}>SMC</Text>
           <Text style={styles.description}>URGENT CARE</Text>
         </View>
@@ -25,12 +25,14 @@ export default function Brand() {
 }
 const styles = StyleSheet.create({
   brand: {
+    maxWidth: "100%",
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     marginBottom: 10,
   },
-  logo: { width: 70, height: 70 },
+  logo: { width: 70, height: 70, flexShrink: 0 },
+  wordmark: { flexShrink: 1 },
   name: { fontSize: 27, fontWeight: "700", color: colors.primary },
   description: { color: colors.ink, fontSize: 11, letterSpacing: 1.5 },
 });
