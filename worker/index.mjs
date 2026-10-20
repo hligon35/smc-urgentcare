@@ -32,7 +32,7 @@ export function secureResponse(response, request, environment = "sandbox") {
   else headers.set("Cache-Control", "public, max-age=3600");
   if (
     environment !== "production" ||
-    !["smc-urgentcare.com", "www.smc-urgentcare.com"].includes(
+    !["smcurgentcareindy.com", "www.smcurgentcareindy.com"].includes(
       new URL(request.url).hostname,
     ) ||
     response.status >= 400 ||
@@ -75,10 +75,10 @@ export default {
       });
     } else if (
       env.ENVIRONMENT === "production" &&
-      new URL(request.url).hostname === "www.smc-urgentcare.com"
+      new URL(request.url).hostname === "www.smcurgentcareindy.com"
     ) {
       const target = new URL(request.url);
-      target.hostname = "smc-urgentcare.com";
+      target.hostname = "smcurgentcareindy.com";
       response = Response.redirect(target.href, 308);
     } else if (path === "/api/health") {
       response = Response.json({
