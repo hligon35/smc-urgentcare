@@ -10,6 +10,7 @@ const config: ExpoConfig = {
   runtimeVersion: { policy: "appVersion" },
   updates: {
     enabled: true,
+    url: "https://u.expo.dev/34c4c00b-c13a-4322-86ca-522b12e9d920",
     checkAutomatically: "ON_LOAD",
     fallbackToCacheTimeout: 0,
   },
@@ -18,6 +19,8 @@ const config: ExpoConfig = {
   icon: "./assets/icon.png",
   platforms: ["ios", "android", "web"],
   plugins: [["expo-router", { sitemap: false }], "expo-splash-screen"],
+  extra: { eas: { projectId: "34c4c00b-c13a-4322-86ca-522b12e9d920" } },
+  owner: "azlabsllc",
   ios: { supportsTablet: true },
   android: {
     adaptiveIcon: {
