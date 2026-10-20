@@ -21,8 +21,9 @@ const config: ExpoConfig = {
   plugins: [["expo-router", { sitemap: false }], "expo-splash-screen"],
   extra: { eas: { projectId: "34c4c00b-c13a-4322-86ca-522b12e9d920" } },
   owner: "azlabsllc",
-  ios: { supportsTablet: true },
+  ios: { supportsTablet: true, bundleIdentifier: "com.azlabsllc.smcurgentcare" },
   android: {
+    package: "com.azlabsllc.smcurgentcare",
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: colors.paper,
