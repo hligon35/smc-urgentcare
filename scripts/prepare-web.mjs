@@ -8,9 +8,9 @@ import { externalizeInlineScripts } from "./export-scripts.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
 const origin = (
-  process.env.EXPO_PUBLIC_SITE_URL || "https://smc-urgentcare.com"
+  process.env.EXPO_PUBLIC_SITE_URL || "https://smcurgentcareindy.com"
 ).replace(/\/$/, "");
-const production = origin === "https://smc-urgentcare.com";
+const production = origin === "https://smcurgentcareindy.com";
 const schema = {
   "@context": "https://schema.org",
   "@type": "MedicalClinic",
