@@ -19,7 +19,7 @@ if (environment === "sandbox" && !env.EXPO_PUBLIC_SITE_URL)
   throw new Error(
     "Set EXPO_PUBLIC_SITE_URL to your sandbox origin in .env.sandbox.",
   );
-env.EXPO_PUBLIC_SITE_URL ||= "https://smc-urgentcare.com";
+env.EXPO_PUBLIC_SITE_URL ||= "https://smcurgentcareindy.com";
 const url = new URL(env.EXPO_PUBLIC_SITE_URL);
 if (
   url.protocol !== "https:" ||
@@ -32,11 +32,11 @@ if (
   throw new Error(
     "EXPO_PUBLIC_SITE_URL must be an HTTPS origin without a path, credentials, or query.",
   );
-if (environment === "production" && !["https://smc-urgentcare.com", "https://smcuc.alphazonelabs.com"].includes(url.origin))
+if (environment === "production" && url.origin !== "https://smcurgentcareindy.com")
   throw new Error("Production origin must be an approved SMC domain.");
 if (
   environment === "sandbox" &&
-  ["smc-urgentcare.com", "www.smc-urgentcare.com"].includes(url.hostname)
+  ["smcurgentcareindy.com", "www.smcurgentcareindy.com"].includes(url.hostname)
 )
   throw new Error("Sandbox must use a separate origin.");
 env.EXPO_PUBLIC_SITE_URL = url.origin;
