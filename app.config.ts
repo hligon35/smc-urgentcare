@@ -6,6 +6,13 @@ const config: ExpoConfig = {
   slug: "smc-urgentcare",
   scheme: "smcurgentcare",
   version: "1.0.0",
+  // Keep OTA updates compatible with the native app version.
+  runtimeVersion: { policy: "appVersion" },
+  updates: {
+    enabled: true,
+    checkAutomatically: "ON_LOAD",
+    fallbackToCacheTimeout: 0,
+  },
   orientation: "portrait",
   userInterfaceStyle: "light",
   icon: "./assets/icon.png",
