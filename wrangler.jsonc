@@ -3,7 +3,7 @@
   "name": "smc-urgentcare",
   "main": "worker/index.mjs",
   "compatibility_date": "2026-10-18",
-  "workers_dev": true,
+  "workers_dev": false,
   "preview_urls": false,
   "observability": {
     "enabled": true
@@ -16,18 +16,20 @@
     "run_worker_first": true
   },
   "vars": {
-      "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com",
-      "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
-      "ENVIRONMENT": "production",
-      "GOOGLE_CLIENT_ID": "622947551355-rl251sgg3e49i05p5j5gcifau3tucope.apps.googleusercontent.com",
-      "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
-      "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
+    "AUTH_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
+    "AUTH_ORIGIN": "https://smcurgentcareindy.com",
+    "ENVIRONMENT": "production",
+    "GOOGLE_CLIENT_ID": "622947551355-rl251sgg3e49i05p5j5gcifau3tucope.apps.googleusercontent.com",
+    "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
   },
   "env": {
     "sandbox": {
       "name": "smc-urgentcare-sandbox",
       "vars": {
-        "ENVIRONMENT": "sandbox"
+        "ENVIRONMENT": "sandbox",
+        "AUTH_ORIGIN": "https://smc-urgentcare-sandbox.hligon.workers.dev",
+        "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare-sandbox.hligon.workers.dev"
       },
       "d1_databases": [
         {
@@ -36,13 +38,14 @@
           "database_id": "ab638b4b-b5b5-4376-a705-cf18729bb6a8",
           "migrations_dir": "migrations"
         }
-      ]
+      ],
+      "workers_dev": true
     },
     "production": {
       "name": "smc-urgentcare",
       "vars": {
-        "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.com",
-        "AUTH_ORIGIN": "https://smcuc.alphazonelabs.com",
+        "AUTH_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
+        "AUTH_ORIGIN": "https://smcurgentcareindy.com",
         "ENVIRONMENT": "production",
         "GOOGLE_CLIENT_ID": "622947551355-rl251sgg3e49i05p5j5gcifau3tucope.apps.googleusercontent.com",
         "RESEND_FROM": "testing@smcuc.alphazonelabs.com",
@@ -55,6 +58,17 @@
           "database_id": "a0683519-7e25-432c-80b7-dc9f7a231412",
           "migrations_dir": "migrations"
         }
+      ],
+      "workers_dev": false,
+      "routes": [
+        {
+          "pattern": "smcurgentcareindy.com",
+          "custom_domain": true
+        },
+        {
+          "pattern": "www.smcurgentcareindy.com",
+          "custom_domain": true
+        }
       ]
     }
   },
@@ -64,6 +78,16 @@
       "database_name": "smc-db",
       "database_id": "a0683519-7e25-432c-80b7-dc9f7a231412",
       "migrations_dir": "migrations"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "smcurgentcareindy.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.smcurgentcareindy.com",
+      "custom_domain": true
     }
   ]
 }
