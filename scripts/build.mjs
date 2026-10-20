@@ -20,14 +20,20 @@ if (environment === "sandbox" && !env.EXPO_PUBLIC_SITE_URL)
     "Set EXPO_PUBLIC_SITE_URL to your sandbox origin in .env.sandbox.",
   );
 env.EXPO_PUBLIC_SITE_URL ||= "https://smcurgentcareindy.com";
-const url = new URL(env.EXPO_PUBLIC_SITE_URL);
+const rawOrigin = env.EXPO_PUBLIC_SITE_URL.trim();
+if (rawOrigin.includes(","))
+  throw new Error(`${filename}: EXPO_PUBLIC_SITE_URL must be ONE URL (not a comma-separated list). Use ${environment === "sandbox" ? "https://smc-urgentcare.hligon.workers.dev" : "https://smcurgentcareindy.com"}.`);
+let url;
+try { url = new URL(rawOrigin); }
+catch { throw new Error(`${filename}: Invalid EXPO_PUBLIC_SITE_URL; specify one HTTPS origin.`); }
 if (
   url.protocol !== "https:" ||
   url.pathname !== "/" ||
   url.search ||
   url.hash ||
   url.username ||
-  url.password
+  url.password ||
+  url.origin !== rawOrigin.replace(/\/$/, "")
 )
   throw new Error(
     "EXPO_PUBLIC_SITE_URL must be an HTTPS origin without a path, credentials, or query.",
@@ -36,9 +42,9 @@ if (environment === "production" && url.origin !== "https://smcurgentcareindy.co
   throw new Error("Production origin must be an approved SMC domain.");
 if (
   environment === "sandbox" &&
-  ["smcurgentcareindy.com", "www.smcurgentcareindy.com"].includes(url.hostname)
+  url.origin !== "https://smc-urgentcare.hligon.workers.dev"
 )
-  throw new Error("Sandbox must use a separate origin.");
+  throw new Error("Sandbox origin must match the existing smc-urgentcare.hligon.workers.dev Worker.");
 env.EXPO_PUBLIC_SITE_URL = url.origin;
 // Clear generated output so retired routes and obsolete hashed assets cannot survive a rebuild.
 rmSync("dist", { recursive: true, force: true });
