@@ -12,4 +12,4 @@ After policy correction and deployment, run `npm run audit:live` and test the co
 
 ## Email setup
 
-See [CONTACT-EMAIL.md](CONTACT-EMAIL.md). The recipient is not yet selected. No submission can be accepted until a verified destination and required runtime configuration are present. Configure secrets on the correct Worker/environment; `.env` build files do not provision them. Preserve existing clinic DNS/email services while enabling Cloudflare email capabilities.
+See [CONTACT-EMAIL.md](CONTACT-EMAIL.md). The recipient is not yet selected. No submission can be accepted until a verified destination and required runtime configuration are present. Configure secrets on the correct Worker/environment; build settings do not provision secrets. Preserve existing clinic DNS/email services while enabling Cloudflare email capabilities.

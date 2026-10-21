@@ -2,7 +2,7 @@ import { loadBuildEnvironment } from "./environment.mjs";
 import assert from "node:assert/strict";
 import { readFile, stat, readdir } from "node:fs/promises";
 import path from "node:path";
-import { exportedHtmlFiles, isInertScript } from "./export-scripts.mjs";
+import { exportedHtmlFiles, isInertScript } from "./public-export.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
 const pages = await Promise.all(
@@ -190,8 +190,6 @@ for await (const file of exportedHtmlFiles("dist")) {
   const html = await readFile(file, "utf8");
   for (const [, attrs, code] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
     assert.ok(!code.trim() || isInertScript(attrs), `${file}: executable inline script violates CSP`);
-    const match = attrs.match(/\bsrc\s*=\s*["\x27](\/_expo\/static\/js\/web\/init-[^"\x27]+\.js)["\x27]/i);
-    if (match) await stat(path.join("dist", match[1].slice(1)));
   }
   checkedHtml++;
 }

@@ -5,9 +5,6 @@ dist-native/
 .wrangler/
 .env*
 .dev.vars*
-!.env.production.example
-!.env.sandbox.example
-!.dev.vars.production.example
 !.dev.vars.sandbox.example
 *.tsbuildinfo
 .DS_Store

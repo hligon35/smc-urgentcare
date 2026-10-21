@@ -38,6 +38,4 @@ test('deployment targets preserve domain ownership and isolate contact configura
   const sandboxOrigin = 'https://' + config.env.sandbox.name + '.hligon.workers.dev';
   assert.equal(config.env.sandbox.vars.SITE_ORIGIN, sandboxOrigin);
   assert.equal(config.env.sandbox.vars.CONTACT_ALLOWED_ORIGINS, sandboxOrigin);
-  const template = await readFile(new URL('../.env.sandbox.example', import.meta.url), 'utf8');
-  assert.ok(template.includes('EXPO_PUBLIC_SITE_URL=' + sandboxOrigin));
 });

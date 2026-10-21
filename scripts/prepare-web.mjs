@@ -4,8 +4,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
-import { preparePublicRuntime, prepareContactRuntime, staticPublicHtml, pruneApplicationScripts } from "./public-export.mjs";
-import { externalizeInlineScripts, exportedHtmlFiles } from "./export-scripts.mjs";
+import { preparePublicRuntime, prepareContactRuntime, staticPublicHtml, pruneApplicationScripts, exportedHtmlFiles } from "./public-export.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
 const origin = (
@@ -102,14 +101,13 @@ await writeFile(notFoundPath, staticPublicHtml(notFound, publicRuntime));
 
 // A newly exported public route must be represented in the sitemap registry.
 const covered = new Set(["index.html", "+not-found.html", "404.html", ...routes.filter(route => route.id !== "home").map(route => `${route.id}.html`)]);
+let exportedPages = 0;
 for await (const file of exportedHtmlFiles("dist")) {
+  exportedPages++;
   const relative = path.relative("dist", file).split(path.sep).join("/");
   if (!covered.has(relative))
     throw new Error(`Public HTML is missing from the route registry/sitemap: ${relative}`);
 }
-// Transform every exported page. No account or clinical routes are exported.
-// Scripts execute from content-addressed same-origin assets under strict CSP.
-const inlineScripts = await externalizeInlineScripts("dist");
 await copyFile("dist/+not-found.html", "dist/404.html");
 const prunedScripts = await pruneApplicationScripts("dist");
 await writeFile(
@@ -123,5 +121,5 @@ await writeFile(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${sitemapEntries.join("\n")}\n</urlset>\n`,
 );
 console.log(
-  `Prepared ${routes.length} public routes, ${inlineScripts.pages} exported HTML pages, ${inlineScripts.externalized} externalized scripts, ${prunedScripts} unused application scripts removed, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
+  `Prepared ${routes.length} public routes, ${exportedPages} exported HTML pages, ${prunedScripts} unused application scripts removed, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
 );

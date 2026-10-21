@@ -1,7 +1,18 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { isInertScript, exportedHtmlFiles } from './export-scripts.mjs';
+export async function* exportedHtmlFiles(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const file = path.join(directory, entry.name);
+    if (entry.isDirectory()) yield* exportedHtmlFiles(file);
+    else if (entry.isFile() && entry.name.endsWith(".html")) yield file;
+  }
+}
+
+export function isInertScript(attributes) {
+  const type = attributes.match(/\btype\s*=\s*["']([^"']+)["']/i)?.[1]?.toLowerCase();
+  return type === "application/json" || type === "application/ld+json";
+}
 
 // Preserve static content, styles, image preloads and structured data. Public routes
 // use a small enhancer and a contact-only form script.
