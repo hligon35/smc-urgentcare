@@ -44,7 +44,7 @@ export function Brand() {
         alt=""
       />
       <span>
-        <b>SMC</b>
+        <b><span className="brand-initial">S</span>MC</b>
         <small>Urgent Care</small>
       </span>
     </a>
