@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "smc-urgentcare-production",
+  "name": "smc-urgentcare",
   "main": "worker/index.mjs",
   "compatibility_date": "2026-10-18",
   "workers_dev": true,
@@ -25,11 +25,11 @@
   },
   "env": {
     "sandbox": {
-      "name": "smc-urgentcare",
+      "name": "smc-urgentcare-sandbox",
       "vars": {
         "ENVIRONMENT": "sandbox",
-        "AUTH_ORIGIN": "https://smc-urgentcare.hligon.workers.dev",
-        "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare.hligon.workers.dev"
+        "AUTH_ORIGIN": "https://smc-urgentcare-sandbox.hligon.workers.dev",
+        "AUTH_ALLOWED_ORIGINS": "https://smc-urgentcare-sandbox.hligon.workers.dev"
       },
       "d1_databases": [
         {
@@ -39,10 +39,11 @@
           "migrations_dir": "migrations"
         }
       ],
-      "workers_dev": true
+      "workers_dev": true,
+      "routes": []
     },
     "production": {
-      "name": "smc-urgentcare-production",
+      "name": "smc-urgentcare",
       "vars": {
         "AUTH_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
         "AUTH_ORIGIN": "https://smcurgentcareindy.com",
@@ -91,4 +92,3 @@
     }
   ]
 }
-
