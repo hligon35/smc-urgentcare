@@ -3,12 +3,15 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import worker from '../worker/index.mjs';
 
-test('public website serves custom and workers.dev hosts without patient authentication', async () => {
+test('production custom domain and sandbox workers.dev serve public website without patient authentication', async () => {
   const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
-  assert.equal(config.workers_dev, true);
-  assert.equal(config.env.production.workers_dev, true);
+  assert.equal(config.workers_dev, false);
+  assert.equal(config.preview_urls, false);
+  assert.equal(config.env.production.workers_dev, false);
+  assert.equal(config.env.production.preview_urls, false);
   assert.equal(config.env.sandbox.workers_dev, true);
-  for (const [host, environment] of [['smcurgentcareindy.com', 'production'], ['smc-urgentcare.hligon.workers.dev', 'production'], ['smc-urgentcare-sandbox.hligon.workers.dev', 'sandbox']]) {
+  assert.equal(config.env.sandbox.preview_urls, false);
+  for (const [host, environment] of [['smcurgentcareindy.com', 'production'], ['smc-urgentcare-sandbox.hligon.workers.dev', 'sandbox']]) {
     for (const path of ['/', '/services', '/contact']) {
       const response = await worker.fetch(new Request('https://' + host + path), { ENVIRONMENT: environment, ASSETS: { fetch: async () => new Response('Public website', { headers: { 'Content-Type': 'text/html' } }) } });
       assert.equal(response.status, 200);
@@ -25,7 +28,7 @@ test('deployment targets preserve domain ownership and isolate contact configura
   assert.equal(config.env.production.name, config.name);
   assert.equal(config.env.sandbox.name, 'smc-urgentcare-sandbox');
   assert.deepEqual(config.env.production.routes, config.routes);
-  assert.deepEqual(config.routes.map(route => route.pattern).sort(), ['smcurgentcareindy.com', 'www.smcurgentcareindy.com']);
+  assert.deepEqual(config.routes.map(route => route.pattern).sort(), ['smcurgentcareindy.com']);
   assert.ok(config.routes.every(route => route.custom_domain === true));
   assert.deepEqual(config.env.sandbox.routes, []);
   assert.equal(config.d1_databases, undefined);
