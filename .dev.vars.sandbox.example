@@ -1,7 +1,0 @@
-# Optional local sandbox Worker secrets. Copy to .dev.vars.sandbox only when testing contact delivery.
-# Leave empty until a test destination is named and verified in Cloudflare Email Routing.
-CONTACT_TO=
-TURNSTILE_SECRET_KEY=
-
-# Configure the matching sandbox TURNSTILE_SITE_KEY in wrangler.jsonc.
-# Deployed secrets are set separately with wrangler secret put --env sandbox.

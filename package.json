@@ -4,16 +4,15 @@
   "description": "SMC Urgent Care public website and Cloudflare contact email",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "node scripts/web.mjs",
     "web": "node scripts/web.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
-    "build": "node scripts/build.mjs production",
     "check": "npm run typecheck && npm test && npm run build",
     "preview": "npm run build:sandbox && wrangler dev --env sandbox",
+    "build": "node scripts/build.mjs production",
+    "build:sandbox": "node scripts/build.mjs sandbox",
     "deploy:sandbox": "npm run build:sandbox && wrangler deploy --env sandbox",
     "deploy:production": "npm run build && wrangler deploy --env production",
-    "build:sandbox": "node scripts/build.mjs sandbox",
     "deploy:dry-run": "npm run build && wrangler deploy --env production --dry-run",
     "smoke": "node scripts/smoke.mjs",
     "audit:live": "node scripts/audit-live.mjs"
