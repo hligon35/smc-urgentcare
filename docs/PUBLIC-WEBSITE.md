@@ -1,6 +1,6 @@
 # Public clinic website
 
-Production: `https://smcurgentcareindy.com` and WWW (redirected to apex), served by the existing `smc-urgentcare` Worker. The production `smc-urgentcare.hligon.workers.dev` alias is noindex. Sandbox is `smc-urgentcare-sandbox.hligon.workers.dev`, has no custom-domain routes and uses separate contact secrets/rate limits.
+Production: `https://smcurgentcareindy.com`, served by `smc-urgentcare-production` with a single apex custom-domain route. `workers_dev` and preview URLs are disabled. Sandbox: `https://smc-urgentcare.hligon.workers.dev`, served by `smc-urgentcare` with `workers_dev` enabled, preview URLs disabled, no custom-domain routes, and separate contact secrets/rate limits. WWW is not included as a Worker custom domain; set up any required WWW redirect separately.
 
 The clinic uses its existing external PrognoCIS portal. This repository implements no patient authentication or clinical records. Vital Check remains a separate application/repository and is unchanged by this work.
 
