@@ -90,7 +90,8 @@ export default function Header() {
               aria-label={open ? "Close navigation" : "Open navigation"}
               onClick={() => setOpen(!open)}
             >
-              <Icon name={open ? "close" : "menu"} />
+              <span className="menu-open-icon"><Icon name="menu" /></span>
+              <span className="menu-close-icon"><Icon name="close" /></span>
             </button>
           </div>
         </div>

@@ -4,7 +4,8 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
-import { externalizeInlineScripts } from "./export-scripts.mjs";
+import { preparePublicRuntime, staticPublicHtml } from "./public-export.mjs";
+import { externalizeInlineScripts, exportedHtmlFiles } from "./export-scripts.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
 const origin = (
@@ -35,11 +36,14 @@ const xmlEscape = (value) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt
 const jsonScript = (id, data) => `<script id="${id}" type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`;
 const sitemapEntries = [];
 const seenPaths = new Set();
+const seenIds = new Set();
+const publicRuntime = await preparePublicRuntime("dist");
 // No invented opening hours, reviews, or provider credentials in structured data.
 for (const route of routes) {
-  if (seenPaths.has(route.path) || !route.path.startsWith("/") || route.path.startsWith("/portal"))
+  if (seenPaths.has(route.path) || seenIds.has(route.id) || !/^[a-z][a-z0-9-]*$/.test(route.id) || ["api", "portal"].includes(route.id) || route.path !== (route.id === "home" ? "/" : `/${route.id}`))
     throw new Error(`Invalid or duplicate public route: ${route.path}`);
   seenPaths.add(route.path);
+  seenIds.add(route.id);
   const file = path.join(
     "dist",
     route.id === "home" ? "index.html" : `${route.id}.html`,
@@ -81,7 +85,7 @@ for (const route of routes) {
   // Expo metadata is generated per route; this guard stops an SEO regression before deployment.
   if (!html.includes("<title>") || !html.includes('name="description"'))
     throw new Error(`Missing metadata: ${file}`);
-  await writeFile(file, html);
+  await writeFile(file, staticPublicHtml(html, publicRuntime));
 }
 // Reserved not-found routes do not resolve generateMetadata in Expo's static exporter.
 const notFoundPath = "dist/+not-found.html";
@@ -93,8 +97,15 @@ notFound = notFound
     "</head>",
     '<title>Page not found | SMC Urgent Care</title><meta name="description" content="Find your way back to SMC Urgent Care’s clinic information."/><meta name="robots" content="noindex, nofollow"/></head>',
   );
-await writeFile(notFoundPath, notFound);
+await writeFile(notFoundPath, staticPublicHtml(notFound, publicRuntime));
 
+// A newly exported public route must be represented in the sitemap registry.
+const covered = new Set(["index.html", "+not-found.html", "404.html", ...routes.filter(route => route.id !== "home").map(route => `${route.id}.html`)]);
+for await (const file of exportedHtmlFiles("dist")) {
+  const relative = path.relative("dist", file).split(path.sep).join("/");
+  if (!relative.startsWith("portal/") && relative !== "portal.html" && !covered.has(relative))
+    throw new Error(`Public HTML is missing from the route registry/sitemap: ${relative}`);
+}
 // Transform every HTML route, including nested patient portal pages.
 // Scripts execute from content-addressed same-origin assets under strict CSP.
 const inlineScripts = await externalizeInlineScripts("dist");

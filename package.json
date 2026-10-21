@@ -20,7 +20,8 @@
     "deploy": "npm run deploy:production",
     "auth:check:production": "node scripts/check-auth.mjs",
     "db:migrate:production": "wrangler d1 migrations apply smc-db --env production --remote",
-    "sample-user:password": "node scripts/set-sample-password.mjs"
+    "sample-user:password": "node scripts/set-sample-password.mjs",
+    "audit:live": "node scripts/audit-live.mjs"
   },
   "keywords": [],
   "dependencies": {
