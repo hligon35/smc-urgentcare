@@ -1,12 +1,5 @@
 import { Slot } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import Shell from "../components/Shell";
+import Shell from "../components/Shell.web";
 export default function RootLayout() {
-  return (
-    <SafeAreaProvider>
-      <Shell>
-        <Slot />
-      </Shell>
-    </SafeAreaProvider>
-  );
+  return <Shell><Slot /></Shell>;
 }

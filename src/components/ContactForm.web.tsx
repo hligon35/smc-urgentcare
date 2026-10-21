@@ -1,5 +1,5 @@
 import { clinic } from '../config/site';
-import { PhoneLink, PortalLink } from './Links';
+import { PhoneLink, PortalLink } from './Links.web';
 
 export default function ContactForm() {
   return (

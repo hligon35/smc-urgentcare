@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "expo-router";
 import { clinic, routes } from "../config/site";
-import { Brand, CallButton, PortalLink } from "./Links";
+import { Brand, CallButton, PortalLink } from "./Links.web";
 import { Icon } from "./Icon";
 
 export default function Header() {

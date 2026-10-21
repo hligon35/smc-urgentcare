@@ -1,5 +1,6 @@
+import { loadBuildEnvironment } from "./environment.mjs";
 import assert from "node:assert/strict";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, readdir } from "node:fs/promises";
 import path from "node:path";
 import { exportedHtmlFiles, isInertScript } from "./export-scripts.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
@@ -71,7 +72,7 @@ for (const { file, html } of pages) {
   ))
     await stat(path.join("dist", src.slice(1)));
 }
-// Every exported page shares the social footer; Find Us also exposes both profiles.
+// Every exported page shares the social footer; Find Us repeats enabled profiles.
 for (const { file, html } of pages) {
   for (const [name, url] of [
     ["Facebook", clinic.facebookUrl],
@@ -198,12 +199,14 @@ assert.equal(checkedHtml, routes.length + 2, "Only public routes and the two bra
 console.log(`PASS: strict CSP in all ${checkedHtml} exported HTML pages.`);
 
 // Search eligibility and route discovery must agree with the production origin.
-const origin = 'https://smcurgentcareindy.com';
+const environment = process.argv[2] || "production";
+const { EXPO_PUBLIC_SITE_URL: origin } = loadBuildEnvironment(environment);
+const production = environment === "production";
 const sitemap = await readFile('dist/sitemap.xml', 'utf8');
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 assert.deepEqual(sitemapUrls.sort(), routes.map(route => origin + route.path).sort(), 'Sitemap includes exactly every public route');
 assert.equal(new Set(sitemapUrls).size, routes.length, 'Sitemap contains no duplicates');
-assert.doesNotMatch(sitemap, /\/portal|\/api\/|\.html<|workers\.dev/, 'No private or duplicate URLs in sitemap');
+assert.doesNotMatch(sitemap, /\/portal|\/api\/|\.html</, 'No private or duplicate URLs in sitemap');
 assert.match(sitemap, /xmlns:image=/, 'Image sitemap namespace');
 for (const [, src] of sitemap.matchAll(/<image:loc>([^<]+)<\/image:loc>/g)) {
   assert.ok(src.startsWith(origin + '/images/'));
@@ -213,7 +216,7 @@ const titles = new Set();
 const descriptions = new Set();
 for (const route of routes) {
   const { html } = pages.find(page => page.file === (route.id === 'home' ? 'index.html' : `${route.id}.html`));
-  assert.match(html, /name="robots" content="index, follow, max-image-preview:large"/, `${route.path}: production indexing enabled`);
+  assert.ok(html.includes(`name="robots" content="${production ? "index, follow, max-image-preview:large" : "noindex, nofollow"}"`), `${route.path}: environment indexing policy`);
   assert.ok(html.includes(`rel="canonical" href="${origin}${route.path}"`), `${route.path}: exact canonical`);
   titles.add(html.match(/<title>([^<]+)<\/title>/)[1]);
   descriptions.add(html.match(/name="description" content="([^"]+)"/)[1]);
@@ -225,10 +228,14 @@ for (const route of routes) {
 assert.equal(titles.size, routes.length, 'Unique page titles');
 assert.equal(descriptions.size, routes.length, 'Unique descriptions');
 const robots = await readFile('dist/robots.txt', 'utf8');
-assert.match(robots, /Allow: \/\n/);
-assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
-assert.doesNotMatch(robots, /Disallow: \/\n/, 'Production crawling allowed');
-console.log('PASS: production indexing, unique metadata, canonical URLs, structured data, brand initials and complete public/image sitemap.');
+if (production) {
+  assert.match(robots, /Allow: \/\n/);
+  assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
+  assert.doesNotMatch(robots, /Disallow: \/\n/, 'Production crawling allowed');
+} else {
+  assert.equal(robots, "User-agent: *\nDisallow: /\n", 'Sandbox crawling disabled');
+}
+console.log(`PASS: ${environment} indexing, unique metadata, canonical URLs, structured data, brand initials and complete public/image sitemap.`);
 
 // Public content must not download the portal/application hydration bundles.
 let publicScriptBytes = 0;
@@ -258,3 +265,8 @@ for (const retired of ['dist/portal', 'dist/portal.html']) {
   await assert.rejects(stat(retired), { code: 'ENOENT' }, 'Retired portal cannot survive the build');
 }
 console.log('PASS: general contact form, external clinical portal only, and no retired portal export.');
+
+const packagedScripts = await readdir("dist/_expo/static/js/web");
+assert.equal(packagedScripts.length, 2, "Only the public and contact scripts are packaged");
+assert.ok(packagedScripts.every(file => /^(?:public|contact)-[a-f0-9]{24}\.js$/.test(file)), "No unused application chunks or source maps");
+console.log("PASS: unused Expo hydration scripts excluded from the deployment package.");

@@ -18,3 +18,5 @@ References:
 - https://developers.google.com/search/docs/appearance/structured-data/sd-policies
 - https://web.dev/learn/images/performance-issues
 - https://developers.cloudflare.com/cloudflare-one/access-controls/policies/app-paths/
+
+Build cleanup also removes unused Expo hydration chunks from the deployment package after all static pages have been transformed. Required CSS, image preloads, JSON-LD and the two small standalone scripts remain. Production and sandbox output checks enforce their own canonical origins and indexing policies.

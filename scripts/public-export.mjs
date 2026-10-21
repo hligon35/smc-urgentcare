@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { isInertScript } from './export-scripts.mjs';
+import { isInertScript, exportedHtmlFiles } from './export-scripts.mjs';
 
 // Preserve static content, styles, image preloads and structured data. Public routes
 // use a small enhancer and a contact-only form script.
@@ -25,3 +25,23 @@ async function prepareRuntime(directory, file, prefix) {
 
 export const preparePublicRuntime = directory => prepareRuntime(directory, './public-site.js', 'public');
 export const prepareContactRuntime = directory => prepareRuntime(directory, './contact-form.js', 'contact');
+
+// The final static pages use standalone enhancers. Expo's now-unreferenced
+// hydration chunks must not be packaged with the public Worker assets.
+export async function pruneApplicationScripts(directory) {
+  const scriptDirectory = path.join(directory, "_expo/static/js/web");
+  const used = new Set();
+  for await (const file of exportedHtmlFiles(directory)) {
+    const html = await readFile(file, "utf8");
+    for (const [, source] of html.matchAll(/<script\b[^>]*\bsrc="(\/_expo\/static\/js\/web\/[^"?#]+)"/gi))
+      used.add(path.basename(source));
+  }
+  let removed = 0;
+  for (const entry of await readdir(scriptDirectory, { withFileTypes: true })) {
+    if (entry.isFile() && /\.(?:js|js\.map)$/.test(entry.name) && !used.has(entry.name)) {
+      await rm(path.join(scriptDirectory, entry.name));
+      removed++;
+    }
+  }
+  return removed;
+}

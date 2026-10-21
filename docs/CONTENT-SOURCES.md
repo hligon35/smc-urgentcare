@@ -15,9 +15,9 @@ The source homepage advertises seven-day service but refers visitors to Facebook
 
 ## Supplied brand and photos — October 18, 2026
 
-`assets/smcLogo.png` is the supplied logo. Its white circular field and transparent outer area are preserved in web header/footer branding, favicon, touch icon, and native header/footer branding. Native launch icons use the same logo with platform-appropriate sizing and an opaque white background for iOS.
+`assets/smcLogo.png` is the supplied logo. Its white circular field and transparent outer area are preserved in web header/footer branding, favicon and touch icon. Unused native launch icons and native-only derivatives have been removed; original supplied artwork is retained.
 
-The palette uses the logo’s navy, red, and white with warm off-white surfaces. A darker red is used for readable small text. `src/styles/palette.json` is authoritative; native imports it and the web build generates CSS custom properties from it.
+The palette uses the logo’s navy, red, and white with warm off-white surfaces. A darker red is used for readable small text. `src/styles/palette.json` is authoritative; HTML metadata imports it and the web build generates CSS custom properties from it.
 
 All ten supplied healthcare photos are used on the website. Original uploads remain unchanged. Optimized derivatives, dimensions, descriptions, and source mappings are recorded in `src/content/media.json`:
 
@@ -34,7 +34,7 @@ All ten supplied healthcare photos are used on the website. Original uploads rem
 | healthcareB1.jpg  | Visit preparation section          |
 | healthcareB2.webp | About conversation section         |
 
-Native views use optimized local derivatives for service cards, approach, visits, and contact. The photos are illustrative; they are not identified as actual SMC staff, patients, or premises. Confirm reuse rights with the clinic before launch.
+The photos are illustrative; they are not identified as actual SMC staff, patients, or premises. Confirm reuse rights with the clinic before launch.
 
 No unrelated outbound links, WordPress scripts, testimonials, or unverified clinical credentials were imported. Newly written copy remains subject to clinic approval.
 
