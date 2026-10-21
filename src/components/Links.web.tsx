@@ -14,7 +14,7 @@ export function PortalLink({ children, ...props }: Props) {
   return (
     <a
       {...props}
-      href="/portal"
+      href={clinic.portalUrl}
     >
       {children || "Patient portal"}
     </a>

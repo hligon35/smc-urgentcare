@@ -15,5 +15,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
-      - run: npm run build:mobile
       - run: npx wrangler deploy --env production --dry-run

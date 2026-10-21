@@ -13,6 +13,12 @@ export default function Header() {
     setOpen(false);
   }, [pathname]);
   useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1281px)");
+    const reset = () => { if (desktop.matches) setOpen(false); };
+    desktop.addEventListener("change", reset);
+    return () => desktop.removeEventListener("change", reset);
+  }, []);
+  useEffect(() => {
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape" && open) {
         setOpen(false);
@@ -67,6 +73,9 @@ export default function Header() {
                 <Icon name={route.icon} /> {route.label}
               </a>
             ))}
+            <PortalLink className="menu-portal" onClick={() => setOpen(false)}>
+              <Icon name="account" /> Patient portal
+            </PortalLink>
           </nav>
           <div className="nav-actions">
             <PortalLink className="portal">
@@ -89,4 +98,3 @@ export default function Header() {
     </>
   );
 }
-

@@ -14,7 +14,12 @@ const production = origin === "https://smcurgentcareindy.com";
 const schema = {
   "@context": "https://schema.org",
   "@type": "MedicalClinic",
+  "@id": `${origin}/#clinic`,
   name: clinic.name,
+  logo: `${origin}/images/smc-logo-v1.png`,
+  image: `${origin}/images/caring-visit-v1.webp`,
+  sameAs: [clinic.facebookUrl, ...(clinic.linkedinEnabled ? [clinic.linkedinUrl] : [])],
+  hasMap: clinic.directionsUrl,
   url: origin,
   telephone: clinic.phone,
   address: {
@@ -26,13 +31,20 @@ const schema = {
     addressCountry: clinic.address.country,
   },
 };
+const xmlEscape = (value) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
+const jsonScript = (id, data) => `<script id="${id}" type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`;
+const sitemapEntries = [];
+const seenPaths = new Set();
 // No invented opening hours, reviews, or provider credentials in structured data.
 for (const route of routes) {
+  if (seenPaths.has(route.path) || !route.path.startsWith("/") || route.path.startsWith("/portal"))
+    throw new Error(`Invalid or duplicate public route: ${route.path}`);
+  seenPaths.add(route.path);
   const file = path.join(
     "dist",
     route.id === "home" ? "index.html" : `${route.id}.html`,
   );
-  let html = await readFile(file, "utf8");
+  let html = (await readFile(file, "utf8")).replace(/<script id="page-schema"[^>]*>[\s\S]*?<\/script>/g, "");
   if (route.id === "home") {
     html = html.replace(
       /<script id="clinic-schema"[^>]*>[\s\S]*?<\/script>/g,
@@ -43,6 +55,29 @@ for (const route of routes) {
       `<script id="clinic-schema" type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script></head>`,
     );
   }
+  const canonical = `${origin}${route.path}`;
+  const breadcrumb = {
+    "@type": "BreadcrumbList", "@id": `${canonical}#breadcrumb`,
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${origin}/` },
+      ...(route.id === "home" ? [] : [{ "@type": "ListItem", position: 2, name: route.label, item: canonical }]),
+    ],
+  };
+  const pageSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": `${origin}/#website`, url: `${origin}/`, name: clinic.name, publisher: { "@id": `${origin}/#clinic` }, inLanguage: "en-US" },
+      { "@type": route.id === "about" ? "AboutPage" : route.id === "contact" ? "ContactPage" : "WebPage",
+        "@id": `${canonical}#webpage`, url: canonical, name: `${route.title} | ${clinic.name}`,
+        description: route.description, inLanguage: "en-US", isPartOf: { "@id": `${origin}/#website` },
+        about: { "@id": `${origin}/#clinic` }, breadcrumb: { "@id": breadcrumb["@id"] } },
+      breadcrumb,
+      ...(route.id === "home" ? [] : [schema]),
+    ],
+  };
+  html = html.replace("</head>", `${jsonScript("page-schema", pageSchema)}</head>`);
+  const images = [...new Set([...html.matchAll(/<img[^>]+src="(\/images\/[^"?#]+)"/g)].map(match => match[1]))];
+  sitemapEntries.push(`  <url>\n    <loc>${xmlEscape(canonical)}</loc>${images.map(src => `\n    <image:image><image:loc>${xmlEscape(origin + src)}</image:loc></image:image>`).join("")}\n  </url>`);
   // Expo metadata is generated per route; this guard stops an SEO regression before deployment.
   if (!html.includes("<title>") || !html.includes('name="description"'))
     throw new Error(`Missing metadata: ${file}`);
@@ -72,7 +107,7 @@ await writeFile(
 );
 await writeFile(
   "dist/sitemap.xml",
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${routes.map((route) => `<url><loc>${origin}${route.path}</loc></url>`).join("")}</urlset>\n`,
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${sitemapEntries.join("\n")}\n</urlset>\n`,
 );
 console.log(
   `Prepared ${routes.length} public routes, ${inlineScripts.pages} exported HTML pages, ${inlineScripts.externalized} externalized scripts, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
