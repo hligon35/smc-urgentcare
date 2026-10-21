@@ -5,12 +5,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { externalizeInlineScripts, exportedHtmlFiles } from "../scripts/export-scripts.mjs";
 
-test("nested patient portal scripts become same-origin assets without changing inert JSON", async () => {
+test("nested scripts become same-origin assets without changing inert JSON", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "smc-csp-"));
   try {
-    await mkdir(path.join(dir,"portal","dashboard"),{recursive:true});
+    await mkdir(path.join(dir,"nested","example"),{recursive:true});
     const sample = '<html><head><script type="application/ld+json">{"a":1}</script></head><body><script>window.__expo=1;</script><script src="/_expo/entry.js"></script></body></html>';
-    const input = path.join(dir,"portal","dashboard","index.html");
+    const input = path.join(dir,"nested","example","index.html");
     await writeFile(input,sample);
     await writeFile(path.join(dir,"index.html"),'<script>window.main=1;</script>');
     const result = await externalizeInlineScripts(dir);

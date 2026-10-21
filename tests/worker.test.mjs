@@ -155,31 +155,20 @@ test("workers.dev origins stay out of search results even for a production deplo
 });
 
 
-test("unconfigured patient authentication fails closed and is not cached", async () => {
-  const response = await worker.fetch(new Request("https://smc-urgentcare.com/api/portal/auth/session"), env());
-  assert.equal(response.status, 503);
-  assert.equal(response.headers.get("Cache-Control"), "no-store");
-  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+test("retired portal links redirect to the clinic without forwarding account tokens", async () => {
+  for (const path of ["/portal", "/portal/dashboard?token=old-secret", "/portal/"]) {
+    const response = await worker.fetch(new Request("https://smcurgentcareindy.com" + path), env());
+    assert.equal(response.status, 308);
+    assert.equal(response.headers.get("Location"), "https://sarepta.prognocis.com/prognocis/sareptaClinicIndex.html");
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+    assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+  }
 });
-test("private portal routes redirect unauthenticated users to the sign-in page", async () => {
-  const response = await worker.fetch(new Request("https://smc-urgentcare.com/portal/dashboard"), env());
-  assert.equal(response.status, 302);
-  assert.equal(response.headers.get("Location"), "https://smc-urgentcare.com/portal");
-  assert.equal(response.headers.get("Cache-Control"), "no-store");
-  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
+test("retired account APIs cannot create accounts, issue sessions, or load assets", async () => {
+  for (const method of ["GET", "POST"]) {
+    const response = await worker.fetch(new Request("https://smcurgentcareindy.com/api/portal/auth/login", { method }), { ...env(), ASSETS: { fetch() { throw Error("Must not load retired assets"); } } });
+    assert.equal(response.status, 410);
+    assert.equal(response.headers.has("Set-Cookie"), false);
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+  }
 });
-test("portal entry is public but uncached and excluded from indexing", async () => {
-  const response = await worker.fetch(new Request("https://smc-urgentcare.com/portal"), env());
-  assert.equal(response.status, 200);
-  assert.equal(response.headers.get("Cache-Control"), "no-store");
-  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
-});
-
-test("approved test-domain portal remains host-scoped and noindex", async () => {
-  const response = await worker.fetch(new Request("https://smcuc.alphazonelabs.com/portal/dashboard"), env());
-  assert.equal(response.status, 302);
-  assert.equal(response.headers.get("Location"), "https://smcuc.alphazonelabs.com/portal");
-  assert.equal(response.headers.get("Cache-Control"), "no-store");
-  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
-});
-

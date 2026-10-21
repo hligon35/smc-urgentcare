@@ -1,5 +1,5 @@
-import { handlePortalAuth, resolveSession } from "./portal-auth.mjs";
-import { authFailureResponse } from "./portal-errors.mjs";
+import { handleContact } from "./contact.mjs";
+import clinic from "../src/config/clinic.json" with { type: "json" };
 const securityHeaders = {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -9,7 +9,7 @@ const securityHeaders = {
   "Strict-Transport-Security": "max-age=31536000",
   // Expo's generated style elements require inline styles; executable scripts remain same-origin only.
   "Content-Security-Policy":
-    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; object-src 'none'; frame-src https://www.google.com/maps/embed https://challenges.cloudflare.com; base-uri 'self'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; object-src 'none'; frame-src https://www.google.com/maps/embed https://challenges.cloudflare.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
 };
 
 /** Apply protections consistently to assets, errors, and future API responses. */
@@ -52,20 +52,12 @@ export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
     let response;
-    if (path.startsWith("/api/portal/auth/")) {
-      try {
-        response = await handlePortalAuth(request, env);
-      } catch (error) {
-        response = authFailureResponse(error, request);
-      }
-    } else if (path.startsWith("/portal/") && path !== "/portal/") {
-      const session = await resolveSession(request, env);
-      if (!session) {
-        response = Response.redirect(new URL("/portal", request.url), 302);
-      } else {
-        try { response = await env.ASSETS.fetch(request); }
-        catch { response = new Response("Unavailable", { status: 503 }); }
-      }
+    if (path === "/api/portal" || path.startsWith("/api/portal/")) {
+      response = Response.json({ error: "This service has been removed. Use the clinic's existing patient portal." }, { status: 410 });
+    } else if ((path === "/portal" || path.startsWith("/portal/")) && ["GET", "HEAD"].includes(request.method)) {
+      response = Response.redirect(clinic.portalUrl, 308);
+    } else if (path === "/api/contact" || path.startsWith("/api/contact/")) {
+      response = await handleContact(request, env);
     } else if (!["GET", "HEAD"].includes(request.method)) {
       response = new Response("Method not allowed", {
         status: 405,

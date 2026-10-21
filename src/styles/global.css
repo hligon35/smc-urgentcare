@@ -1591,3 +1591,27 @@ main p, main li,
 @media (max-height: 500px) and (max-width: 1280px) {
   header { position: sticky; }
 }
+
+/* General contact form: one readable column on phones, two short fields on tablets. */
+.contact-form-panel { max-width: 850px; margin-inline: auto; padding: clamp(22px, 4vw, 40px); border: 1px solid var(--line); border-radius: 9px; background: var(--paper); }
+.contact-form-panel a { text-decoration: underline; text-underline-offset: 3px; }
+.contact-form-panel p { line-height: 1.75; }
+.contact-form-panel [data-contact-status] { padding: 14px; border-radius: 5px; background: var(--soft); }
+.contact-form-panel [data-contact-status][role="alert"] { color: #8a101b; background: var(--blush); }
+.contact-form-panel fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 20px; }
+.contact-form-panel label { display: grid; gap: 8px; font-size: 16px; font-weight: 600; min-width: 0; }
+.contact-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.contact-form-panel input, .contact-form-panel select, .contact-form-panel textarea { width: 100%; min-width: 0; min-height: 48px; padding: 12px; border: 1px solid var(--muted); border-radius: 5px; font: 16px/1.5 var(--sans); color: var(--ink); background: var(--paper); }
+.contact-form-panel textarea { resize: vertical; }
+.contact-form-panel :is(input, select, textarea):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.contact-form-panel .contact-confirm { display: flex; align-items: flex-start; gap: 12px; font-weight: 400; }
+.contact-confirm input { width: 22px; min-height: 22px; height: 22px; flex: 0 0 22px; margin: 3px 0; }
+.contact-form-panel .contact-form-help { font-size: 14px; margin: -10px 0 0; color: var(--muted); }
+.contact-form-panel button { justify-self: start; }
+.contact-form-panel button:disabled { opacity: .6; cursor: not-allowed; }
+.contact-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+[data-contact-challenge] { min-width: 0; min-height: 70px; }
+[data-contact-challenge][data-size="compact"] { min-height: 140px; }
+@media (max-width: 600px) { .contact-form-grid { grid-template-columns: minmax(0, 1fr); } .contact-form-panel button { width: 100%; } }
+
+.contact-form-panel fieldset[hidden] { display: none; }

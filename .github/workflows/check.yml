@@ -1,4 +1,4 @@
-name: Verify website and mobile shell
+name: Verify public website and contact form
 on:
   push:
   pull_request:

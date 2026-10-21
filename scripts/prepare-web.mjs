@@ -4,7 +4,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
-import { preparePublicRuntime, staticPublicHtml } from "./public-export.mjs";
+import { preparePublicRuntime, prepareContactRuntime, staticPublicHtml } from "./public-export.mjs";
 import { externalizeInlineScripts, exportedHtmlFiles } from "./export-scripts.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
@@ -38,6 +38,7 @@ const sitemapEntries = [];
 const seenPaths = new Set();
 const seenIds = new Set();
 const publicRuntime = await preparePublicRuntime("dist");
+const contactRuntime = await prepareContactRuntime("dist");
 // No invented opening hours, reviews, or provider credentials in structured data.
 for (const route of routes) {
   if (seenPaths.has(route.path) || seenIds.has(route.id) || !/^[a-z][a-z0-9-]*$/.test(route.id) || ["api", "portal"].includes(route.id) || route.path !== (route.id === "home" ? "/" : `/${route.id}`))
@@ -85,7 +86,7 @@ for (const route of routes) {
   // Expo metadata is generated per route; this guard stops an SEO regression before deployment.
   if (!html.includes("<title>") || !html.includes('name="description"'))
     throw new Error(`Missing metadata: ${file}`);
-  await writeFile(file, staticPublicHtml(html, publicRuntime));
+  await writeFile(file, staticPublicHtml(html, publicRuntime, route.id === "contact" ? contactRuntime : undefined));
 }
 // Reserved not-found routes do not resolve generateMetadata in Expo's static exporter.
 const notFoundPath = "dist/+not-found.html";
@@ -103,10 +104,10 @@ await writeFile(notFoundPath, staticPublicHtml(notFound, publicRuntime));
 const covered = new Set(["index.html", "+not-found.html", "404.html", ...routes.filter(route => route.id !== "home").map(route => `${route.id}.html`)]);
 for await (const file of exportedHtmlFiles("dist")) {
   const relative = path.relative("dist", file).split(path.sep).join("/");
-  if (!relative.startsWith("portal/") && relative !== "portal.html" && !covered.has(relative))
+  if (!covered.has(relative))
     throw new Error(`Public HTML is missing from the route registry/sitemap: ${relative}`);
 }
-// Transform every HTML route, including nested patient portal pages.
+// Transform every exported page. No account or clinical routes are exported.
 // Scripts execute from content-addressed same-origin assets under strict CSP.
 const inlineScripts = await externalizeInlineScripts("dist");
 await copyFile("dist/+not-found.html", "dist/404.html");

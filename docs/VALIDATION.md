@@ -1,26 +1,25 @@
 # Validation and release acceptance
 
-## Automated checks completed — October 18, 2026
+Run `npm run check` for TypeScript, current Worker/export tests, the production build and rendered-output checks. Run `npm run deploy:dry-run` for Worker package validation. Build checks enforce seven public pages plus branded error pages, no custom portal exports, external clinic portal links, static metadata and complete image sitemap coverage, strict scripts and small public/contact script budgets.
 
-- TypeScript check of web and native source.
-- Static web export of all seven content routes and the branded 404.
-- Branding refresh checks: supplied logo/favicons in every route, all ten healthcare photos placed, shared web/native palette.
-- iOS and Android Metro/Hermes bundle exports.
-- Worker tests: security headers, immutable versioned assets, HTML revalidation, error no-store, sandbox noindex, unsupported POST methods, no API caching, HEAD behavior, canonical alias redirect, and workers.dev noindex.
-- Build checks: page headings, static metadata/canonicals, local routes and assets, shared header/footer, clinic schema without invented hours, no executable inline scripts.
-- Cloudflare production package dry run passed.
-- HTTP smoke passed against the local Cloudflare Worker: all seven pages, branded 404 status/body, response security headers, and health endpoint.
+Contact tests cover configured delivery through a mocked Cloudflare send binding, missing configuration, fixed recipient/sender, safe Reply-To, origin checks, field/size/type validation, consent, honeypot, rate limits, Turnstile host/action/expiry failures, and safe provider errors. No actual email is sent by unit tests.
 
-Real browser interaction and native-device testing were not performed in this environment.
+Browser acceptance includes all public pages at phone/tablet/desktop widths, no horizontal overflow, menu/filters/FAQs, visible focus and readable typography, and contact pending/loading/ready/success/error states. Third-party widgets and email may be mocked for layout checks; local passes do not establish live service delivery or field Core Web Vitals.
 
-## Manual acceptance still required
+Before accepting production:
 
-- Real browser checks at narrow mobile, tablet, and desktop widths, 200% zoom, keyboard-only navigation, and a screen reader.
-- Menu open/close, Escape focus return, service filters, FAQ expansion, and cross-page fragment links.
-- Native real-device checks: safe areas, text scaling, navigation, phone actions, maps, external portal, and back behavior.
-- Clinic confirmation of services, hours, contact details, insurance/payment wording, portal ownership, photo rights, and branding.
-- Clinic review of privacy wording and any required legal notices; this website statement is not a medical Notice of Privacy Practices.
-- Sandbox deployment smoke, observability review, custom-domain cutover, TLS, DNS/email preservation, and WWW redirect.
-- Investigate and clean up the old WordPress installation and compromised outbound links separately before launch.
+- Confirm the clinic’s content, external clinical portal, image rights and website privacy wording.
+- Correct the Cloudflare Access gate for public pages/assets and the general contact endpoints.
+- Name and verify the destination, confirm sender-domain/email setup, configure contact secrets and Turnstile hostnames, then perform one approved nonmedical inbox delivery/reply test.
+- Run `npm run audit:live`, check robots/sitemap/canonical URLs, real 404s, and legacy redirect/retired API behavior.
+- Review and retire unused old account resources separately; the repository cleanup does not drop deployed databases or rewrite Git history.
 
-No Cloudflare deployment, domain changes, native binary signing, or app-store submission are performed by repository implementation alone.
+## Removal/contact implementation verification
+
+- 28 current unit/regression tests passed after removing the obsolete account tests.
+- Production build/export checks passed across nine HTML files (seven pages and two branded error files); no custom portal routes/styles remain.
+- Production Worker packaging dry run passed with send-email/rate-limit/assets bindings and no D1 binding.
+- Chromium passed 160 public-page/viewport combinations without document overflow or JavaScript errors.
+- 264 contact-form assertions passed across 280, 320, 390, 600, 768, 820, 1024 and 1440px, covering pending, configured success, server failure and challenge-load failure. Widget/delivery were mocked; no real email was sent. Failure messages persist after challenge reset and entered text is retained on failure.
+- The Worker handler was also exercised over local HTTP through a Node adapter: public pages, closed/pending contact endpoint, external legacy redirects, retired API 410 and real 404. Wrangler’s local simulator could not start because this host rejects network-interface enumeration; this is not a live Cloudflare email test.
+- Real destination verification, sender setup, Cloudflare challenge execution and inbox/reply delivery remain pending until the recipient is provided.
