@@ -1,9 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "smc-urgentcare",
+  "name": "smc-urgentcare-production",
   "main": "worker/index.mjs",
   "compatibility_date": "2026-10-18",
-  "workers_dev": true,
+  "workers_dev": false,
   "preview_urls": false,
   "observability": {
     "enabled": true
@@ -18,17 +18,17 @@
   "vars": {
     "ENVIRONMENT": "production",
     "SITE_ORIGIN": "https://smcurgentcareindy.com",
-    "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com,https://smc-urgentcare.hligon.workers.dev",
+    "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
     "CONTACT_FROM": "website@smcurgentcareindy.com",
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
   },
   "env": {
     "sandbox": {
-      "name": "smc-urgentcare-sandbox",
+      "name": "smc-urgentcare",
       "vars": {
         "ENVIRONMENT": "sandbox",
-        "SITE_ORIGIN": "https://smc-urgentcare-sandbox.hligon.workers.dev",
-        "CONTACT_ALLOWED_ORIGINS": "https://smc-urgentcare-sandbox.hligon.workers.dev",
+        "SITE_ORIGIN": "https://smc-urgentcare.hligon.workers.dev",
+        "CONTACT_ALLOWED_ORIGINS": "https://smc-urgentcare.hligon.workers.dev",
         "CONTACT_FROM": "website@smcurgentcareindy.com",
         "TURNSTILE_SITE_KEY": ""
       },
@@ -51,25 +51,22 @@
             "period": 60
           }
         }
-      ]
+      ],
+      "preview_urls": false
     },
     "production": {
-      "name": "smc-urgentcare",
+      "name": "smc-urgentcare-production",
       "vars": {
         "ENVIRONMENT": "production",
         "SITE_ORIGIN": "https://smcurgentcareindy.com",
-        "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com,https://smc-urgentcare.hligon.workers.dev",
+        "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
         "CONTACT_FROM": "website@smcurgentcareindy.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
       },
-      "workers_dev": true,
+      "workers_dev": false,
       "routes": [
         {
           "pattern": "smcurgentcareindy.com",
-          "custom_domain": true
-        },
-        {
-          "pattern": "www.smcurgentcareindy.com",
           "custom_domain": true
         }
       ],
@@ -90,16 +87,13 @@
             "period": 60
           }
         }
-      ]
+      ],
+      "preview_urls": false
     }
   },
   "routes": [
     {
       "pattern": "smcurgentcareindy.com",
-      "custom_domain": true
-    },
-    {
-      "pattern": "www.smcurgentcareindy.com",
       "custom_domain": true
     }
   ],
