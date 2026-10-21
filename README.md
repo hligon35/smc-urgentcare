@@ -1,102 +1,53 @@
 # SMC Urgent Care
 
-For the public website hostnames, the required Cloudflare Access change, and the separate Vital Check app boundary, see [Public website](docs/PUBLIC-WEBSITE.md).
+Public clinic website for **https://smcurgentcareindy.com**, built with Expo Router/TypeScript and exported as static HTML on Cloudflare Workers. Patient links open the clinic’s existing [PrognoCIS portal](https://sarepta.prognocis.com/prognocis/sareptaClinicIndex.html). This repository contains no custom patient accounts, authentication, clinical dashboard, medical-record APIs, or database migrations.
 
-A warm, accessible public website and native mobile shell built in one **Expo Router / TypeScript** project. The web build exports a complete HTML page for each route and runs on **Cloudflare Workers with Static Assets**. The visual direction uses the supplied SMC logo’s navy, red, and white, balanced with warm off-white backgrounds.
+## Local development and checks
 
-## Start locally
-
-Use Node **24 LTS** and npm.
+Use Node 24 and npm:
 
 ```sh
 npm ci
 npm run web
-```
-
-For the Expo native experience:
-
-```sh
-npm start
-npm run android
-# macOS with an iOS simulator, or use a device through Expo:
-npm run ios
-```
-
-The mobile shell uses native controls, shared clinic/service content, device call and directions actions, and the external patient portal. It does not implement patient accounts, medical-record storage, or appointment booking. Native exports are verified; store signing, identifiers, real-device acceptance, and submission remain release steps.
-
-## Pages and shared components
-
-- `/` — homepage
-- `/services` — service groups and complete lists, with filters
-- `/about` — person-centered care approach
-- `/visit` — preparation, payment questions, portal, and FAQs
-- `/contact` — clinic phone, location, directions, portal, and updates
-- `/privacy` — website privacy statement, distinct from the clinic’s privacy notice
-- `/accessibility` — accessibility information and assistance
-- Unknown paths — branded page with an HTTP 404 response
-
-`src/app/_layout.tsx` owns the shared shell. `src/components/Header.web.tsx` and `Footer.web.tsx` render on **every web page**; native uses the corresponding base components. Active navigation changes with the route, while the component structure, links, and branding stay consistent.
-
-`src/config/clinic.json` is the authority for phone, address, portal, directions, the supplied Google Maps embed URL, and operating notices. The shared location section and Find Us location panel use one reusable component to embed that interactive map responsively, with lazy loading and a Google-only frame policy. `src/content/care.ts` contains shared service, FAQ, and visit content. `src/content/routes.json` drives navigation, route metadata, and sitemap generation. `src/content/media.json` records supplied photo placements and descriptions. `src/styles/palette.json` is shared by native styles and generated web color tokens (`npm run build` refreshes `palette.css`). Web-specific semantic HTML and native views use the same configuration.
-
-## Environments
-
-Copy `.env.production.example` to `.env.production`. Production defaults to `https://smcurgentcareindy.com` when the file is absent.
-
-Copy `.env.sandbox.example` to `.env.sandbox`; sandbox uses `https://smc-urgentcare-sandbox.hligon.workers.dev` (verify that `hligon` is the active Workers subdomain for the deploying Cloudflare account). The explicit build wrapper loads `.env.sandbox` or `.env.production`; these local files are ignored by Git. Only the public canonical origin is required. No passwords or provider secrets belong in `EXPO_PUBLIC_*` values.
-
-```sh
-npm run build
-npm run build:sandbox
-npm run preview
-```
-
-`preview` serves the current `dist` with the sandbox Worker configuration. Sandbox blocks indexing regardless of the existing static export. Export the matching environment before deploying it.
-
-## Verify
-
-```sh
 npm run check
-npm run build:mobile
 npm run deploy:dry-run
 ```
 
-For a locally running Worker (`npm run preview` in another terminal):
+`npm run web` previews the page components. To exercise the Worker/contact API locally, build and run `npm run preview`; sandbox uses its own runtime configuration. Production exports seven content pages, the branded 404, static metadata, clinic/page structured data, robots.txt and an image sitemap. Public pages use small same-origin scripts; the contact script only loads on `/contact`.
+
+## Pages and configuration
+
+- `/`: clinic welcome and location
+- `/services`: service groups and filters
+- `/about`: approach to care
+- `/visit`: preparation, payment questions and external portal
+- `/contact`: phone, map, external portal, Facebook and general contact form
+- `/privacy` and `/accessibility`: website information
+
+`src/config/clinic.json` owns clinic information and the external portal destination. `src/content/routes.json` drives navigation, metadata and sitemap generation. `src/content/care.ts` owns services, visit steps and FAQs. `src/styles/palette.json` owns brand colors. LinkedIn remains hidden through `linkedinEnabled: false`.
+
+## General contact email
+
+The form uses the Cloudflare `CONTACT_EMAIL` send binding to deliver a general inquiry to a verified Email Routing destination. The recipient is intentionally not configured. Until `CONTACT_TO`, sender-domain/email setup, Turnstile and the rate-limit binding are ready, the UI stays unavailable and the API returns a safe error without accepting messages.
+
+Follow [CONTACT-EMAIL.md](docs/CONTACT-EMAIL.md) after the destination is named. The form is for nonmedical questions, has no attachments or patient intake fields, and does not persist messages in a database or browser storage. No automatic emails are sent to the submitted visitor address. The form’s Reply-To allows the clinic to respond from its inbox.
+
+## Cloudflare environments
+
+Production and default Wrangler settings deploy the existing `smc-urgentcare` Worker and its apex/WWW custom domains. Sandbox deploys `smc-urgentcare-sandbox`, with no custom-domain routes. Runtime variables, email bindings and rate-limit namespaces are declared per environment in `wrangler.jsonc`; there are no D1 bindings.
+
+Copy `.env.production.example` or `.env.sandbox.example` only for build-time canonical URL configuration. Worker secrets are configured separately using Wrangler; local `.env` files do not deploy secrets.
 
 ```sh
-npm run smoke
-# Or check the deployed sandbox:
-npm run smoke -- https://YOUR-SANDBOX-ORIGIN
-```
-
-Checks cover TypeScript, Worker response security, cache policy, errors, sandbox indexing, static route output, metadata, local links/assets, identical shared shells, and compatibility with the script policy. CI also exports both native platforms and dry-runs the Cloudflare package. `docs/VALIDATION.md` records completed verification and remaining acceptance.
-
-## Cloudflare deployment
-
-Authenticate Wrangler to the intended Cloudflare account and verify the account before publishing:
-
-```sh
-npx wrangler login
-npx wrangler whoami
 npm run deploy:sandbox
-```
-
-After sandbox acceptance:
-
-```sh
 npm run deploy:production
+npm run audit:live
 ```
 
-The production Worker is named `smc-urgentcare`; sandbox is `smc-urgentcare-sandbox`. The default Wrangler target matches production so a deployment without `--env` cannot replace live settings with sandbox bindings. The repository intentionally contains **no account IDs or live DNS changes**. Production is configured with Cloudflare custom-domain routes for `smcurgentcareindy.com` and `www.smcurgentcareindy.com`. Confirm that this domain is an active zone in the deploying Cloudflare account and approve the cutover before deploying. The production Worker redirects WWW to the canonical `smcurgentcareindy.com` apex; sandbox remains on the `hligon.workers.dev` subdomain. The OAuth provider's authorized origins/callbacks, Turnstile hostnames, production environment secrets, and `.env.production` must be updated for the new domain. Workers.dev responses are marked noindex. Deployment commands do not automatically alter the current website’s DNS.
+Run `npm run audit:live` after correcting any whole-site Cloudflare Access gate and deploying. Public pages, static assets, `/api/contact/config` and `/api/contact` must be reachable without a staff login. The contact endpoint has its own origin, input, Turnstile and rate-limit controls. Preserve policies for unrelated private/staff systems. See [PUBLIC-WEBSITE.md](docs/PUBLIC-WEBSITE.md).
 
-`wrangler.jsonc` serves exported routes using `404-page` handling; it does not use a blanket SPA fallback. HTML revalidates, hashed bundles/versioned images cache immutably, and errors/API responses are not cached. All responses receive security headers. Worker observability is enabled. `/api/health` reports service status; there are no medical-data APIs.
+Legacy `/portal` links redirect to the external clinical portal without forwarding old tokens/query parameters. Retired `/api/portal/*` endpoints return HTTP 410. Rebuilding clears old output; release cleanup of previously provisioned Cloudflare resources is documented separately from repository deletion.
 
-The CareConnect interface includes D1-backed authentication, Turnstile, Google OAuth, and Resend email workflows. Clinical screens remain demonstrations; medical records are not connected. See [authentication deployment and troubleshooting](docs/AUTH-TROUBLESHOOTING.md) for runtime bindings, migrations, required secrets, and safe diagnostics.
+## Acceptance
 
-## Before replacing the existing website
-
-Confirm phone, address, portal ownership/destination, current services, physical availability, accepted insurance, self-pay policies, and actual hours with SMC. Hours are deliberately displayed as **call to confirm**, with no fabricated wait times, staff credentials, reviews, or opening-hours schema. Confirm image reuse rights. The supplied `assets/smcLogo.png` is used in shared branding, favicon/touch icons, and native icons. See `docs/CONTENT-SOURCES.md`.
-
-The old WordPress page contains unrelated gambling/essay links. This repository does not copy its scripts or third-party embeds. Investigate the existing host, accounts, plugins, files, redirects, and search indexing before cutover; the original installation has not been repaired by this implementation. Preserve domain/email records and arrange the clinic’s legal/privacy review as part of launch acceptance.
-
-
+Confirm clinic services, hours, contact information, external portal, image rights and privacy wording. No fabricated hours, wait times, credentials or ratings are published. [WEB-QUALITY.md](docs/WEB-QUALITY.md) describes search/performance behavior; [VALIDATION.md](docs/VALIDATION.md) lists release checks. DNS/email changes and production delivery need account configuration and verification; a local test does not verify real inbox delivery.

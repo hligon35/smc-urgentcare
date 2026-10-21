@@ -1,3 +1,4 @@
+import ContactForm from "../components/ContactForm.web";
 import LocationMap from "../components/LocationMap.web";
 import SocialLinks from "../components/SocialLinks";
 import { CareImage } from "../components/CareImage.web";
@@ -288,6 +289,7 @@ function Contact() {
           <SocialLinks />
         </div>
       </section>
+      <ContactForm />
       <section className="wrap page-section">
         <div className="notice">
           <Icon name="shield" />
@@ -318,7 +320,7 @@ function Privacy() {
         <h2>About this website</h2>
         <p>
           This public website provides clinic information, services, directions,
-          and links to contact SMC. It does not provide a patient registration
+          and links to contact SMC. A general contact form sends your name, email address, topic, and message to the clinic’s designated inbox through Cloudflare Email Routing when configured. Do not include sensitive health information. This site does not provide a patient registration
           form, accept medical records, or process payments.
         </p>
         <h2>Website data</h2>
@@ -329,6 +331,8 @@ function Privacy() {
           browser details, to deliver and protect the website. The clinic’s
           hosting configuration determines log retention.
         </p>
+        <h2>General contact messages</h2>
+        <p>The contact form is for nonmedical questions. Cloudflare processes the submission for security checks and email delivery to the clinic’s designated inbox. We do not save form contents in an application database, browser storage, or application logs. Email and infrastructure providers may retain delivery and security information; the clinic manages messages received in its inbox. The form remains unavailable until its destination is configured. Use the patient portal or call for care-related questions.</p>
         <h2>Interactive Google Maps</h2>
         <p>
           The location section contains an interactive map supplied by Google.

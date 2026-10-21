@@ -19,7 +19,7 @@ test('public website serves custom and workers.dev hosts without patient authent
   }
 });
 
-test('deployment targets preserve domain ownership and isolate sandbox data and routes', async () => {
+test('deployment targets preserve domain ownership and isolate contact configuration', async () => {
   const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
   assert.equal(config.name, 'smc-urgentcare');
   assert.equal(config.env.production.name, config.name);
@@ -28,11 +28,16 @@ test('deployment targets preserve domain ownership and isolate sandbox data and 
   assert.deepEqual(config.routes.map(route => route.pattern).sort(), ['smcurgentcareindy.com', 'www.smcurgentcareindy.com']);
   assert.ok(config.routes.every(route => route.custom_domain === true));
   assert.deepEqual(config.env.sandbox.routes, []);
-  assert.notEqual(config.env.sandbox.d1_databases[0].database_id, config.env.production.d1_databases[0].database_id);
-  assert.deepEqual(config.d1_databases, config.env.production.d1_databases);
+  assert.equal(config.d1_databases, undefined);
+  assert.equal(config.env.production.d1_databases, undefined);
+  assert.equal(config.env.sandbox.d1_databases, undefined);
+  assert.notEqual(config.env.production.ratelimits[0].namespace_id, config.env.sandbox.ratelimits[0].namespace_id);
+  assert.equal(config.vars.CONTACT_TO, undefined);
+  assert.equal(config.env.sandbox.vars.CONTACT_TO, undefined);
+  assert.equal(config.send_email[0].name, 'CONTACT_EMAIL');
   const sandboxOrigin = 'https://' + config.env.sandbox.name + '.hligon.workers.dev';
-  assert.equal(config.env.sandbox.vars.AUTH_ORIGIN, sandboxOrigin);
-  assert.equal(config.env.sandbox.vars.AUTH_ALLOWED_ORIGINS, sandboxOrigin);
+  assert.equal(config.env.sandbox.vars.SITE_ORIGIN, sandboxOrigin);
+  assert.equal(config.env.sandbox.vars.CONTACT_ALLOWED_ORIGINS, sandboxOrigin);
   const template = await readFile(new URL('../.env.sandbox.example', import.meta.url), 'utf8');
   assert.ok(template.includes('EXPO_PUBLIC_SITE_URL=' + sandboxOrigin));
 });

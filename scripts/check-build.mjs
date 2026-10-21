@@ -183,7 +183,7 @@ for (const { file, html } of pages.filter(
 console.log(
   "PASS: configured interactive map in every shared location section and the Find Us panel.",
 );
-// Check all exported HTML, including nested portal pages, against the Worker CSP.
+// Check every exported public page against the Worker CSP.
 let checkedHtml = 0;
 for await (const file of exportedHtmlFiles("dist")) {
   const html = await readFile(file, "utf8");
@@ -194,7 +194,7 @@ for await (const file of exportedHtmlFiles("dist")) {
   }
   checkedHtml++;
 }
-assert.ok(checkedHtml > routes.length, "Expected patient portal HTML exports");
+assert.equal(checkedHtml, routes.length + 2, "Only public routes and the two branded 404 files are exported");
 console.log(`PASS: strict CSP in all ${checkedHtml} exported HTML pages.`);
 
 // Search eligibility and route discovery must agree with the production origin.
@@ -224,9 +224,6 @@ for (const route of routes) {
 }
 assert.equal(titles.size, routes.length, 'Unique page titles');
 assert.equal(descriptions.size, routes.length, 'Unique descriptions');
-for await (const file of exportedHtmlFiles('dist/portal')) {
-  assert.match(await readFile(file, 'utf8'), /name="robots" content="noindex, nofollow"/, `${file}: private portal excluded from indexing`);
-}
 const robots = await readFile('dist/robots.txt', 'utf8');
 assert.match(robots, /Allow: \/\n/);
 assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
@@ -238,14 +235,26 @@ let publicScriptBytes = 0;
 for (const { file, html } of pages) {
   const scripts = [...html.matchAll(/<script\b([^>]*)>/gi)]
     .filter(([, attrs]) => !isInertScript(attrs));
-  assert.equal(scripts.length, 1, `${file}: one lightweight public enhancer`);
-  const source = scripts[0][1].match(/\bsrc="([^"]+)"/)?.[1];
-  assert.match(source, /^\/_expo\/static\/js\/web\/public-[a-f0-9]{24}\.js$/);
+  assert.equal(scripts.length, file === 'contact.html' ? 2 : 1, `${file}: lightweight page scripts only`);
+  for (const [, attrs] of scripts) {
+  const source = attrs.match(/\bsrc="([^"]+)"/)?.[1];
+  assert.match(source, /^\/_expo\/static\/js\/web\/(?:public|contact)-[a-f0-9]{24}\.js$/);
   const bytes = (await stat(path.join('dist', source.slice(1)))).size;
   assert.ok(bytes <= 6_000, `${file}: 6 KB public JavaScript budget`);
   publicScriptBytes = Math.max(publicScriptBytes, bytes);
+  }
   assert.doesNotMatch(html, /<link[^>]+as="script"/, `${file}: no application script preloads`);
   assert.doesNotMatch(html, /href="[^"]*\/portal-[^"]+\.css/, `${file}: no private portal CSS`);
   assert.match(html, /<noscript data-public-fallback>/, `${file}: navigation without JavaScript`);
 }
-console.log(`PASS: public JavaScript ${publicScriptBytes} bytes/page; portal runtime remains separate.`);
+console.log(`PASS: public JavaScript ${publicScriptBytes} bytes/page; no custom account runtime.`);
+
+const contactPage = pages.find(page => page.file === 'contact.html').html;
+assert.match(contactPage, /data-contact-form/);
+assert.match(contactPage, /action="\/api\/contact"/);
+assert.match(contactPage, /data-contact-fields/);
+for (const page of pages) assert.doesNotMatch(page.html, /CareConnect|href="\/portal(?:["/])/, `${page.file}: no custom portal`);
+for (const retired of ['dist/portal', 'dist/portal.html']) {
+  await assert.rejects(stat(retired), { code: 'ENOENT' }, 'Retired portal cannot survive the build');
+}
+console.log('PASS: general contact form, external clinical portal only, and no retired portal export.');
