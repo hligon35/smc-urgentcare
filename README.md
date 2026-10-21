@@ -1,5 +1,7 @@
 # SMC Urgent Care
 
+For the public website hostnames, the required Cloudflare Access change, and the separate Vital Check app boundary, see [Public website](docs/PUBLIC-WEBSITE.md).
+
 A warm, accessible public website and native mobile shell built in one **Expo Router / TypeScript** project. The web build exports a complete HTML page for each route and runs on **Cloudflare Workers with Static Assets**. The visual direction uses the supplied SMC logo’s navy, red, and white, balanced with warm off-white backgrounds.
 
 ## Start locally
@@ -96,4 +98,5 @@ The CareConnect interface includes D1-backed authentication, Turnstile, Google O
 Confirm phone, address, portal ownership/destination, current services, physical availability, accepted insurance, self-pay policies, and actual hours with SMC. Hours are deliberately displayed as **call to confirm**, with no fabricated wait times, staff credentials, reviews, or opening-hours schema. Confirm image reuse rights. The supplied `assets/smcLogo.png` is used in shared branding, favicon/touch icons, and native icons. See `docs/CONTENT-SOURCES.md`.
 
 The old WordPress page contains unrelated gambling/essay links. This repository does not copy its scripts or third-party embeds. Investigate the existing host, accounts, plugins, files, redirects, and search indexing before cutover; the original installation has not been repaired by this implementation. Preserve domain/email records and arrange the clinic’s legal/privacy review as part of launch acceptance.
+
 
