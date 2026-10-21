@@ -35,13 +35,27 @@ export async function auditLive(origin = 'https://smcurgentcareindy.com') {
     const robots = html.match(/<meta\b[^>]*name="robots"[^>]*content="([^"]+)"/i)?.[1] || '';
     assert.doesNotMatch(robots, /noindex/, `${route.path}: metadata blocks indexing`);
   }
+  const homepage = await get('/');
+  assert.match(homepage, /application\/ld\+json/, 'Homepage provides machine-readable clinic data');
+  assert.match(homepage, /MedicalClinic/, 'Homepage clinic schema exists');
   const robots = await get('/robots.txt');
   assert.doesNotMatch(robots, /^Disallow:\s*\/\s*$/m, 'robots.txt blocks the entire site');
   assert.ok(robots.includes(`Sitemap: ${canonical}/sitemap.xml`), 'robots.txt advertises sitemap');
   const sitemap = await get('/sitemap.xml');
   assert.match(sitemap, /<urlset\b/);
   assert.deepEqual([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]).sort(), routes.map(route => canonical + route.path).sort(), 'All canonical public pages in sitemap');
-  console.log(`PASS: ${routes.length} public pages, canonical/indexability checks, robots.txt and complete sitemap at ${canonical}.`);
+  // A second request with a documented search crawler identity helps detect accidental edge blocks.
+  // A passing response does not prove actual Google/Bing/AI indexing or verified bot identity.
+  for (const [name, agent] of [
+    ['Googlebot', 'Googlebot/2.1 (+http://www.google.com/bot.html)'],
+    ['Bingbot', 'bingbot/2.0 (+http://www.bing.com/bingbot.htm)'],
+    ['OAI-SearchBot', 'OAI-SearchBot/1.0 (+https://platform.openai.com/docs/bots)'],
+  ]) {
+    const response = await fetch(new URL('/', canonical), { redirect: 'manual', signal: AbortSignal.timeout(20000), headers: { 'User-Agent': agent } });
+    await readPublic(response, `/${name}`);
+    assert.doesNotMatch(response.headers.get('X-Robots-Tag') || '', /noindex/i, `${name}: excluded from indexing`);
+  }
+  console.log(`PASS: ${routes.length} public pages, schema, canonical/indexability checks, crawler probes, robots.txt and complete sitemap at ${canonical}.`);
 }
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url)
   auditLive(process.argv[2]).catch(error => { console.error('LIVE AUDIT FAILED: ' + error.message); process.exitCode = 1; });
