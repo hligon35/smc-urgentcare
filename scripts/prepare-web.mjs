@@ -22,6 +22,8 @@ const schema = {
   hasMap: clinic.directionsUrl,
   url: origin,
   telephone: clinic.phone,
+  areaServed: { "@type": "City", name: clinic.address.city, address: { "@type": "PostalAddress", addressRegion: clinic.address.region, addressCountry: clinic.address.country } },
+  contactPoint: { "@type": "ContactPoint", telephone: clinic.phone, contactType: "customer service", availableLanguage: "English" },
   address: {
     "@type": "PostalAddress",
     streetAddress: clinic.address.street,
