@@ -1,7 +1,7 @@
 import { clinic, routes } from "../config/site";
-import { Brand, PhoneLink, PortalLink } from "./Links";
+import { Brand, PhoneLink, PortalLink } from "./Links.web";
 import { Icon } from "./Icon";
-import SocialLinks from "./SocialLinks";
+import SocialLinks from "./SocialLinks.web";
 export default function Footer() {
   return (
     <>
@@ -52,4 +52,3 @@ export default function Footer() {
     </>
   );
 }
-

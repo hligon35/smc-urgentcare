@@ -1,6 +1,6 @@
 import ContactForm from "../components/ContactForm.web";
 import LocationMap from "../components/LocationMap.web";
-import SocialLinks from "../components/SocialLinks";
+import SocialLinks from "../components/SocialLinks.web";
 import { CareImage } from "../components/CareImage.web";
 import { clinic } from "../config/site";
 import { Icon } from "../components/Icon";
@@ -9,7 +9,7 @@ import {
   DirectionsLink,
   PhoneLink,
   PortalLink,
-} from "../components/Links";
+} from "../components/Links.web";
 import {
   Approach,
   EmergencyNote,

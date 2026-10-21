@@ -3,12 +3,11 @@ node_modules/
 dist/
 dist-native/
 .wrangler/
-.env
-.env.local
-.env.sandbox
-.env.production
+.env*
 .dev.vars*
-!.env.sandbox.example
 !.env.production.example
+!.env.sandbox.example
+!.dev.vars.production.example
+!.dev.vars.sandbox.example
 *.tsbuildinfo
 .DS_Store

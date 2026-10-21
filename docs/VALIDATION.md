@@ -16,10 +16,19 @@ Before accepting production:
 
 ## Removal/contact implementation verification
 
-- 28 current unit/regression tests passed after removing the obsolete account tests.
+- 32 current unit/regression tests passed, including environment isolation, secret handling, non-overwriting initialization and generated-script pruning.
 - Production build/export checks passed across nine HTML files (seven pages and two branded error files); no custom portal routes/styles remain.
 - Production Worker packaging dry run passed with send-email/rate-limit/assets bindings and no D1 binding.
 - Chromium passed 160 public-page/viewport combinations without document overflow or JavaScript errors.
 - 264 contact-form assertions passed across 280, 320, 390, 600, 768, 820, 1024 and 1440px, covering pending, configured success, server failure and challenge-load failure. Widget/delivery were mocked; no real email was sent. Failure messages persist after challenge reset and entered text is retained on failure.
 - The Worker handler was also exercised over local HTTP through a Node adapter: public pages, closed/pending contact endpoint, external legacy redirects, retired API 410 and real 404. Wrangler’s local simulator could not start because this host rejects network-interface enumeration; this is not a live Cloudflare email test.
 - Real destination verification, sender setup, Cloudflare challenge execution and inbox/reply delivery remain pending until the recipient is provided.
+
+## Environment and dead-file cleanup
+
+- Updated build templates and added separate local Worker secret templates. `env:init` creates owner-only ignored local files and preserves existing values; `env:check` validates known keys and canonical/Worker alignment without printing secrets. Empty contact secrets are a supported pending state.
+- Production and sandbox builds now run their own output validation. Preview scripts build the matching target first; component development explicitly loads sandbox settings and bypasses implicit dotenv loading.
+- Removed 19 obsolete files: native-only duplicate components/screens/helpers, unused native launch/derivative images, the palette wrapper and OTA guide. Removed unused status/splash dependencies and updated the lockfile; Expo Router’s required peers remain.
+- Removed obsolete quick-strip/section-head/concept CSS. Original artwork/photos, active optimized images, temporarily hidden LinkedIn resources and icon licensing are retained.
+- The static export removes unused Expo application JavaScript after stripping hydration references. Only the public and contact scripts remain in the packaged script directory; both keep their existing 6 KB budgets.
+- Production Chromium regression covered 160 page/viewport combinations from 280 to 1920px, including landscape, without overflow or script errors; menu behavior, typography, red brand initials, hidden LinkedIn and external portal links passed. External map/challenge/email services were not exercised by this layout check.

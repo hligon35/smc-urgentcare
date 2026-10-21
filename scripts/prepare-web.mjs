@@ -4,7 +4,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import path from "node:path";
-import { preparePublicRuntime, prepareContactRuntime, staticPublicHtml } from "./public-export.mjs";
+import { preparePublicRuntime, prepareContactRuntime, staticPublicHtml, pruneApplicationScripts } from "./public-export.mjs";
 import { externalizeInlineScripts, exportedHtmlFiles } from "./export-scripts.mjs";
 const routes = JSON.parse(await readFile("src/content/routes.json", "utf8"));
 const clinic = JSON.parse(await readFile("src/config/clinic.json", "utf8"));
@@ -111,6 +111,7 @@ for await (const file of exportedHtmlFiles("dist")) {
 // Scripts execute from content-addressed same-origin assets under strict CSP.
 const inlineScripts = await externalizeInlineScripts("dist");
 await copyFile("dist/+not-found.html", "dist/404.html");
+const prunedScripts = await pruneApplicationScripts("dist");
 await writeFile(
   "dist/robots.txt",
   production
@@ -122,5 +123,5 @@ await writeFile(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${sitemapEntries.join("\n")}\n</urlset>\n`,
 );
 console.log(
-  `Prepared ${routes.length} public routes, ${inlineScripts.pages} exported HTML pages, ${inlineScripts.externalized} externalized scripts, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
+  `Prepared ${routes.length} public routes, ${inlineScripts.pages} exported HTML pages, ${inlineScripts.externalized} externalized scripts, ${prunedScripts} unused application scripts removed, 404, clinic schema, sitemap, and ${production ? "production" : "sandbox"} robots.txt.`,
 );

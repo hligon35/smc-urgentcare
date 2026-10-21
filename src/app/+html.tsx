@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { colors } from "../styles/theme";
+import colors from "../styles/palette.json";
 import { useServerDocumentContext } from "expo-router/html";
 export default function RootHTML({ children }: PropsWithChildren) {
   const { headNodes, bodyNodes, htmlAttributes, bodyAttributes } =

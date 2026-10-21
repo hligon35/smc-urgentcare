@@ -1,4 +1,4 @@
-import Page from "../screens/Pages";
+import Page from "../screens/Pages.web";
 import { pageMetadata } from "../config/metadata";
 
 export function generateMetadata() {

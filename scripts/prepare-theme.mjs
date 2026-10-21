@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 const colors = JSON.parse(await readFile("src/styles/palette.json", "utf8"));
-// Native and web derive their colors from the same palette.
+// HTML metadata and web CSS derive their colors from the same palette.
 const css =
   "/* Generated from palette.json by scripts/prepare-theme.mjs. */\n:root {\n" +
   Object.entries(colors)

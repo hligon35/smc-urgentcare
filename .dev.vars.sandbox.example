@@ -1,0 +1,8 @@
+# Local Worker secrets only, loaded by Wrangler --env sandbox.
+# Use a separately verified, approved test destination when one is named.
+CONTACT_TO=
+TURNSTILE_SECRET_KEY=
+
+# Use a matching sandbox Turnstile widget/key configured in wrangler.jsonc.
+# For the deployed sandbox, set both secrets with wrangler secret put --env sandbox.
+# No portal, OAuth, database, or Resend secrets are used by this website.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, rm, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -33,6 +33,9 @@ async function fixture() {
   const html = '<html><head><title>Clinic</title><meta name="description" content="Clinic information"></head><body><img src="/images/example-v1.webp"><script>window.bootstrap=1</script><script src="/_expo/entry.js"></script></body></html>';
   for (const route of routes) await writeFile(path.join(dir, 'dist', route.id === 'home' ? 'index.html' : `${route.id}.html`), html);
   await writeFile(path.join(dir, 'dist/+not-found.html'), html);
+  await mkdir(path.join(dir, 'dist/_expo/static/js/web'), { recursive: true });
+  await writeFile(path.join(dir, 'dist/_expo/static/js/web/entry-old.js'), 'window.unused=1');
+  await writeFile(path.join(dir, 'dist/_expo/static/js/web/entry-old.js.map'), '{}');
   return { dir, routes };
 }
 test('sitemap includes every public page and its images; sandbox stays uncrawlable; contact script is contact-only', async () => {
@@ -41,6 +44,9 @@ test('sitemap includes every public page and its images; sandbox stays uncrawlab
     const run = origin => spawnSync(process.execPath, [prepareScript], { cwd: dir, env: { ...process.env, EXPO_PUBLIC_SITE_URL: origin }, encoding: 'utf8' });
     const origin = 'https://smcurgentcareindy.com';
     const first = run(origin); assert.equal(first.status, 0, first.stderr);
+    const scripts = await readdir(path.join(dir, 'dist/_expo/static/js/web'));
+    assert.equal(scripts.length, 2, 'Only the two referenced standalone scripts are packaged');
+    assert.ok(scripts.every(file => /^(?:public|contact)-[a-f0-9]{24}\.js$/.test(file)));
     const xml = await readFile(path.join(dir, 'dist/sitemap.xml'), 'utf8');
     assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]), routes.map(r => origin + r.path));
     assert.match(xml, /<image:loc>https:\/\/smcurgentcareindy.com\/images\/example-v1.webp<\/image:loc>/);

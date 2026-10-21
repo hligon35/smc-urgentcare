@@ -286,56 +286,13 @@ header {
   color: var(--muted);
   margin-top: 2px;
 }
-.quick-strip {
-  display: grid;
-  grid-template-columns: 1.05fr 1.2fr 1fr;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  margin-top: 48px;
-}
-.quick-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 23px 26px 23px 0;
-}
-.quick-item + .quick-item {
-  border-left: 1px solid var(--line);
-  padding-left: 28px;
-}
-.quick-item strong {
-  display: block;
-  font-size: 12px;
-  margin-bottom: 3px;
-}
-.quick-item small {
-  font-size: 11px;
-  color: var(--muted);
-}
-.quick-item > a {
-  margin-left: auto;
-  color: var(--accent);
-}
 section {
   padding: 75px 0;
-}
-.section-head {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 40px;
-  margin-bottom: 32px;
 }
 h2 {
   font: normal clamp(33px, 3.4vw, 45px)/1.15 var(--serif);
   letter-spacing: -0.025em;
   margin: 14px 0 0;
-}
-.section-head p {
-  font-size: 13px;
-  max-width: 310px;
-  color: var(--muted);
-  margin: 0 0 4px;
 }
 .services {
   padding-top: 27px;
@@ -638,14 +595,6 @@ footer {
   gap: 25px;
   color: var(--muted);
 }
-.concept {
-  margin-top: 22px;
-  padding: 12px 16px;
-  background: #f2efec;
-  border-radius: 4px;
-  font-size: 10px;
-  color: #626359;
-}
 .mobile-bar {
   display: none;
 }
@@ -695,15 +644,6 @@ footer {
   }
   .location-grid {
     gap: 25px;
-  }
-  .quick-item {
-    padding-right: 15px;
-  }
-  .quick-item + .quick-item {
-    padding-left: 18px;
-  }
-  .quick-item > .icon {
-    display: none;
   }
 }
 @media (max-width: 760px) {
@@ -787,34 +727,6 @@ footer {
     right: 13px;
     padding: 14px;
     bottom: 6px;
-  }
-  .quick-strip {
-    margin-top: 27px;
-    grid-template-columns: 1fr;
-  }
-  .quick-item,
-  .quick-item + .quick-item {
-    padding: 16px 0;
-    border-left: 0;
-  }
-  .quick-item + .quick-item {
-    border-top: 1px solid var(--line);
-  }
-  .quick-item > .icon {
-    display: block;
-  }
-  .quick-item small {
-    font-size: 12px;
-  }
-  .quick-item strong {
-    font-size: 13px;
-  }
-  .section-head {
-    display: block;
-    margin-bottom: 24px;
-  }
-  .section-head p {
-    margin-top: 17px;
   }
   .services {
     padding-top: 10px;
@@ -1130,9 +1042,6 @@ address {
 }
 .service-card a {
   min-height: 30px;
-}
-.quick-item > a {
-  padding: 8px;
 }
 .location-actions > a:last-child {
   padding: 8px;
@@ -1564,15 +1473,12 @@ main p, main li,
 .links, .nav-actions, .portal, .btn, .mobile-bar .btn { font-size: 16px; }
 .service-card a, .text-link, .visit-card a.text-link, .tab { font-size: 16px; }
 .tab { min-height: 44px; }
-.utility, .utility .wrap, .eyebrow, .care-scene-compact .eyebrow,
-.quiet-note, .image-caption strong, .image-caption small, .quick-item small, .quick-item strong,
-.location .address small, .location-actions > a:last-child, .social-link,
-.footer-top p, .footer-links, .footer-links a, .footer-bottom .footer-links {
+.utility, .utility .wrap, .eyebrow, .care-scene-compact .eyebrow, .quiet-note, .image-caption strong, .image-caption small, .location .address small, .location-actions > a:last-child, .social-link, .footer-top p, .footer-links, .footer-links a, .footer-bottom .footer-links {
   font-size: 14px;
 }
 .eyebrow { letter-spacing: 0.08em; }
 .location .address { font-size: 16px; }
-.footer-bottom, .concept, main .care-note { font-size: 13px; }
+.footer-bottom, main .care-note { font-size: 13px; }
 .links a { line-height: 1.45; }
 .btn { white-space: normal; }
 .tabs { flex-wrap: wrap; }

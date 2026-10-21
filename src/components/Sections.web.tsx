@@ -4,7 +4,7 @@ import { CareImage } from "./CareImage.web";
 import { clinic } from "../config/site";
 import { faqs, services, values, visitSteps } from "../content/care";
 import { Icon } from "./Icon";
-import { DirectionsLink, PhoneLink, PortalLink } from "./Links";
+import { DirectionsLink, PhoneLink, PortalLink } from "./Links.web";
 
 export function PageIntro({
   eyebrow,
