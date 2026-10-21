@@ -1582,3 +1582,12 @@ main p, main li,
   .mobile-bar .btn { font-size: 15px; }
   .hero-grid, .two-column, .story-grid, .contact-grid { gap: 28px; }
 }
+
+/* Keep touch targets and the menu's available height usable in short viewports. */
+.service-card a, .footer-links a { min-height: 44px; }
+.menu-close-icon, .menu[aria-expanded="true"] .menu-open-icon { display: none; }
+.menu[aria-expanded="true"] .menu-close-icon { display: inline-flex; }
+.menu-open-icon { display: inline-flex; }
+@media (max-height: 500px) and (max-width: 1280px) {
+  header { position: sticky; }
+}

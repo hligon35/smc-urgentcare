@@ -42,6 +42,7 @@ export function ServiceCards({ detailed = false }: { detailed?: boolean }) {
         <button
           className="tab"
           aria-pressed={filter === "all"}
+          data-service-filter="all"
           onClick={() => setFilter("all")}
         >
           All services
@@ -51,6 +52,7 @@ export function ServiceCards({ detailed = false }: { detailed?: boolean }) {
             key={service.id}
             className="tab"
             aria-pressed={filter === service.id}
+            data-service-filter={service.id}
             onClick={() => setFilter(service.id)}
           >
             {service.label}
@@ -63,6 +65,7 @@ export function ServiceCards({ detailed = false }: { detailed?: boolean }) {
           .map((service) => (
             <article
               className="service-card"
+              data-service-category={service.id}
               key={service.id}
               id={detailed ? service.id : undefined}
             >
@@ -92,7 +95,7 @@ export function ServiceCards({ detailed = false }: { detailed?: boolean }) {
             </article>
           ))}
       </div>
-      <div className="sr-only" role="status" aria-live="polite">
+      <div className="sr-only" role="status" aria-live="polite" data-service-status>
         {filter === "all"
           ? "Showing all service categories"
           : `Showing ${services.find((service) => service.id === filter)?.label}`}
@@ -248,4 +251,3 @@ export function LocationCTA() {
     </section>
   );
 }
-

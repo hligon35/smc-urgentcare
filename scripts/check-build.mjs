@@ -232,3 +232,20 @@ assert.match(robots, /Allow: \/\n/);
 assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
 assert.doesNotMatch(robots, /Disallow: \/\n/, 'Production crawling allowed');
 console.log('PASS: production indexing, unique metadata, canonical URLs, structured data, brand initials and complete public/image sitemap.');
+
+// Public content must not download the portal/application hydration bundles.
+let publicScriptBytes = 0;
+for (const { file, html } of pages) {
+  const scripts = [...html.matchAll(/<script\b([^>]*)>/gi)]
+    .filter(([, attrs]) => !isInertScript(attrs));
+  assert.equal(scripts.length, 1, `${file}: one lightweight public enhancer`);
+  const source = scripts[0][1].match(/\bsrc="([^"]+)"/)?.[1];
+  assert.match(source, /^\/_expo\/static\/js\/web\/public-[a-f0-9]{24}\.js$/);
+  const bytes = (await stat(path.join('dist', source.slice(1)))).size;
+  assert.ok(bytes <= 6_000, `${file}: 6 KB public JavaScript budget`);
+  publicScriptBytes = Math.max(publicScriptBytes, bytes);
+  assert.doesNotMatch(html, /<link[^>]+as="script"/, `${file}: no application script preloads`);
+  assert.doesNotMatch(html, /href="[^"]*\/portal-[^"]+\.css/, `${file}: no private portal CSS`);
+  assert.match(html, /<noscript data-public-fallback>/, `${file}: navigation without JavaScript`);
+}
+console.log(`PASS: public JavaScript ${publicScriptBytes} bytes/page; portal runtime remains separate.`);
