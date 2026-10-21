@@ -48,7 +48,7 @@ column; the config endpoint checks required columns as well as table presence.
 
 | Result | Meaning and next step |
 | --- | --- |
-| JSON `Invalid origin.` / 403 | Active Worker vars do not approve the request's exact HTTPS origin. Confirm `AUTH_ORIGIN=https://smcuc.alphazonelabs.com`, with no slash/path, and the deployment target. |
+| JSON `Invalid origin.` / 403 | Active Worker vars do not approve the request's exact HTTPS origin. Keep `AUTH_ORIGIN=https://smcurgentcareindy.com` and explicitly include `https://smcurgentcareindy.com,https://smc-urgentcare.hligon.workers.dev` in `AUTH_ALLOWED_ORIGINS`, with no trailing slashes. Check the actual response hostname and active deployment target. |
 | HTML, redirect, or non-JSON 403 | An upstream Access/WAF rule may be answering. Inspect the actual response before changing application auth. |
 | `AUTH_DATABASE_BINDING_MISSING` | Bind a real D1 database as `AUTH_DB`; a text variable is not a binding. |
 | `AUTH_SCHEMA_MISSING` | Apply pending migrations to the database actually attached to the deployed Worker. |
@@ -56,7 +56,7 @@ column; the config endpoint checks required columns as well as table presence.
 | `AUTH_INTERNAL_ERROR` | Unexpected server exception; use the reference and request path in Worker logs to isolate it. |
 | `Bot verification failed.` / 403 | Server verification rejected the token. Check matching Turnstile keys, hostname, action, and token expiry. |
 | `googleReady: false` with database ready | Check the existing auth pepper, origin, Turnstile keys, and Google client credentials. Presence flags do not validate credential correctness. |
-| Google displays `redirect_uri_mismatch` | Authorize `https://smcuc.alphazonelabs.com/api/portal/auth/google/callback` on that Google OAuth Web client. |
+| Google displays `redirect_uri_mismatch` | Authorize the callback for each enabled login host on that Google OAuth Web client: `https://smcurgentcareindy.com/api/portal/auth/google/callback` and `https://smc-urgentcare.hligon.workers.dev/api/portal/auth/google/callback`. |
 | `recoveryReady: false` | Configure Resend to deliver account activation, verification and recovery email. This is separate from Google OAuth. |
 
 Unexpected auth failures now return safe codes and reference IDs with 5xx status,
@@ -93,3 +93,13 @@ Keep the preview gate and CSP enabled.
 See [patient sign-in setup](PATIENT-SIGN-IN-SETUP.md) for email/password enrollment,
 Google registration handoff, the third migration, and public patient-route Access
 policy settings. The Access preview allowlist must not control patient eligibility.
+
+## Public website and portal hostnames
+
+The patient portal is available on the canonical domain and the production Worker alias. Both hosts are explicitly allowed; arbitrary hosts, sandbox hosts and header-supplied origins remain rejected. Sessions remain host-only; signing in on one host does not sign in on another. Canonical links should continue to use the custom domain.
+
+Add both enabled hosts to the Turnstile widget's hostname list and both callbacks above to the application's Google Web OAuth client. These patient callbacks are separate from the Cloudflare Access identity provider callback.
+
+If `/api/portal/auth/config` returns HTML, a login redirect, or an Access denial, change the whole-site Access application covering the public website and patient routes. Leave staff-only policies scoped to their intended routes; patient eligibility must not depend on a staff Access allowlist. A successful config request returns JSON. Inspect its readiness flags after the Access gate is removed; do not disable the application's origin or session checks.
+
+Vital Check is a separate app and service. This website's API, D1 database and sign-in callbacks do not provision `vitalcheck.alphazonelabs.com`. Provider website links in Vital Check are outbound links only.

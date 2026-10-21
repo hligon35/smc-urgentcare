@@ -114,7 +114,7 @@ test("malformed requests stay 400 rather than being mislabeled server failures",
 test("default and production deployments agree; sandbox cannot overwrite the live Worker", () => {
   const config = JSON.parse(readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8"));
   assert.equal(config.name, "smc-urgentcare");
-  assert.equal(config.vars.AUTH_ORIGIN, origin);
+  assert.equal(config.vars.AUTH_ORIGIN, "https://smcurgentcareindy.com");
   assert.equal(config.d1_databases[0].database_name, "smc-db");
   assert.deepEqual(config.vars, config.env.production.vars);
   assert.deepEqual(config.d1_databases, config.env.production.d1_databases);
