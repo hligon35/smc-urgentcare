@@ -43,6 +43,11 @@ export async function auditLive(origin = 'https://smcurgentcareindy.com') {
   assert.ok(robots.includes(`Sitemap: ${canonical}/sitemap.xml`), 'robots.txt advertises sitemap');
   const sitemap = await get('/sitemap.xml');
   assert.match(sitemap, /<urlset\b/);
+  assert.match(sitemap, /xmlns:image=/, 'Image sitemap namespace present');
+  assert.doesNotMatch(sitemap, /\/api\/|\/portal(?:\/|<)|smc-urgentcare-sandbox\.hligon\.workers\.dev/, 'Private/sandbox URLs excluded from sitemap');
+  const imageUrls = [...sitemap.matchAll(/<image:loc>([^<]+)<\/image:loc>/g)].map(match => match[1]);
+  assert.ok(imageUrls.length > 0, 'Image sitemap includes clinic imagery');
+  assert.ok(imageUrls.every(url => url.startsWith(canonical + '/images/')), 'Image sitemap uses canonical origin');
   assert.deepEqual([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]).sort(), routes.map(route => canonical + route.path).sort(), 'All canonical public pages in sitemap');
   // A second request with a documented search crawler identity helps detect accidental edge blocks.
   // A passing response does not prove actual Google/Bing/AI indexing or verified bot identity.
