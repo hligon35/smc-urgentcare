@@ -19,7 +19,7 @@
     "ENVIRONMENT": "production",
     "SITE_ORIGIN": "https://smcurgentcareindy.com",
     "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
-    "CONTACT_FROM": "website@smcurgentcareindy.com",
+    "CONTACT_FROM": "front-desk@smcurgentcareindy.com",
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
   },
   "env": {
@@ -29,8 +29,8 @@
         "ENVIRONMENT": "sandbox",
         "SITE_ORIGIN": "https://smc-urgentcare.hligon.workers.dev",
         "CONTACT_ALLOWED_ORIGINS": "https://smc-urgentcare.hligon.workers.dev",
-        "CONTACT_FROM": "website@smcurgentcareindy.com",
-        "TURNSTILE_SITE_KEY": ""
+        "CONTACT_FROM": "front-desk@smcurgentcareindy.com",
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
       },
       "workers_dev": true,
       "routes": [],
@@ -38,7 +38,7 @@
         {
           "name": "CONTACT_EMAIL",
           "allowed_sender_addresses": [
-            "website@smcurgentcareindy.com"
+            "front-desk@smcurgentcareindy.com"
           ]
         }
       ],
@@ -60,7 +60,7 @@
         "ENVIRONMENT": "production",
         "SITE_ORIGIN": "https://smcurgentcareindy.com",
         "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
-        "CONTACT_FROM": "website@smcurgentcareindy.com",
+        "CONTACT_FROM": "front-desk@smcurgentcareindy.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
       },
       "workers_dev": false,
@@ -74,7 +74,7 @@
         {
           "name": "CONTACT_EMAIL",
           "allowed_sender_addresses": [
-            "website@smcurgentcareindy.com"
+            "front-desk@smcurgentcareindy.com"
           ]
         }
       ],
@@ -101,7 +101,7 @@
     {
       "name": "CONTACT_EMAIL",
       "allowed_sender_addresses": [
-        "website@smcurgentcareindy.com"
+        "front-desk@smcurgentcareindy.com"
       ]
     }
   ],
