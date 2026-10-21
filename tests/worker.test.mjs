@@ -16,7 +16,7 @@ function env(status = 200, type = "text/html", environment = "production") {
 }
 test("public pages receive security headers and revalidation without advertising or permission access", async () => {
   const response = await worker.fetch(
-    new Request("https://smc-urgentcare.com/visit"),
+    new Request("https://smcurgentcareindy.com/visit"),
     env(),
   );
   assert.equal(response.status, 200);
@@ -137,13 +137,13 @@ test("HEAD retains the response status and headers with no body", async () => {
 
 test("production aliases retain paths and query parameters when redirecting to the canonical host", async () => {
   const response = await worker.fetch(
-    new Request("https://www.smc-urgentcare.com/visit?source=link"),
+    new Request("https://www.smcurgentcareindy.com/visit?source=link"),
     env(),
   );
   assert.equal(response.status, 308);
   assert.equal(
     response.headers.get("Location"),
-    "https://smc-urgentcare.com/visit?source=link",
+    "https://smcurgentcareindy.com/visit?source=link",
   );
 });
 test("workers.dev origins stay out of search results even for a production deployment", async () => {
@@ -182,3 +182,4 @@ test("approved test-domain portal remains host-scoped and noindex", async () => 
   assert.equal(response.headers.get("Cache-Control"), "no-store");
   assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow");
 });
+

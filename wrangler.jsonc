@@ -3,7 +3,7 @@
   "name": "smc-urgentcare-production",
   "main": "worker/index.mjs",
   "compatibility_date": "2026-10-18",
-  "workers_dev": false,
+  "workers_dev": true,
   "preview_urls": false,
   "observability": {
     "enabled": true
@@ -59,7 +59,7 @@
           "migrations_dir": "migrations"
         }
       ],
-      "workers_dev": false,
+      "workers_dev": true,
       "routes": [
         {
           "pattern": "smcurgentcareindy.com",
@@ -91,3 +91,4 @@
     }
   ]
 }
+
