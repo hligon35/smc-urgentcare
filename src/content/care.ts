@@ -102,7 +102,7 @@ export const faqs = [
   {
     question: "How do I access the patient portal?",
     answer:
-      "Sign in to CareConnect using the patient portal link. CareConnect currently displays sample clinical information; use the clinic’s existing secure portal for real medical records and messaging.",
+      "Use the patient portal link to open the clinic’s secure PrognoCIS portal. Contact the clinic if you need help signing in.",
     link: "portal",
   },
   {

@@ -24,7 +24,7 @@ export function secureResponse(response, request, environment = "sandbox") {
   else if (
     response.status === 200 &&
     (path.startsWith("/_expo/static/") ||
-      /^\/images\/[a-z-]+-v\d+\.(?:webp|png)$/.test(path))
+      /^\/images\/[a-z-]+-v\d+\.(?:webp|png|jpg|avif)$/.test(path))
   )
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
   else if (type.includes("text/html"))
@@ -37,6 +37,7 @@ export function secureResponse(response, request, environment = "sandbox") {
     ) ||
     response.status >= 400 ||
     path.startsWith("/portal") ||
+    path.startsWith("/api/") ||
     path === "/+not-found"
   )
     headers.set("X-Robots-Tag", "noindex, nofollow");
@@ -111,4 +112,3 @@ export default {
     return secureResponse(response, request, env.ENVIRONMENT);
   },
 };
-

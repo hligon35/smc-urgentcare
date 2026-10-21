@@ -222,26 +222,13 @@ function Visit() {
           </div>
           <div>
             <p>
-              Sign in to SMC CareConnect to explore your new patient dashboard.
-              Clinical records and communications are not connected to CareConnect yet.
+              Use the clinic’s secure patient portal to access your care information.
+              Call our team if you need help signing in.
             </p>
             <PortalLink className="btn">
-              Open CareConnect
+              Open patient portal
               <Icon name="arrow" />
             </PortalLink>
-            <p className="care-note">
-              For actual medical records, messages, or other clinical services,
-              use the clinic’s existing secure portal.
-            </p>
-            <a
-              className="text-link"
-              href={clinic.portalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open existing clinical portal <Icon name="external" />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
           </div>
         </div>
       </section>
@@ -361,7 +348,7 @@ function Privacy() {
         </p>
         <h2>Patient portal and other websites</h2>
         <p>
-          The patient portal, Facebook, LinkedIn, and Google Maps are external services
+          The patient portal, Facebook, and Google Maps are external services
           with their own privacy practices. Information you provide there is
           handled by those services. Opening an external link can share
           technical connection information with its destination.
@@ -476,4 +463,3 @@ export default function Page({ page }: { page: string }) {
   const Content = pages[page] || NotFound;
   return <Content />;
 }
-

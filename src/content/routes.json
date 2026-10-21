@@ -19,7 +19,7 @@
     "id": "services",
     "path": "/services",
     "label": "Our services",
-    "title": "Urgent Care Services",
+    "title": "Urgent Care Services in Indianapolis",
     "description": "Explore care for common illnesses, allergies, minor injuries, sports and DOT physicals, and work-related concerns at SMC Urgent Care.",
     "icon": "cross"
   },
@@ -27,7 +27,7 @@
     "id": "visit",
     "path": "/visit",
     "label": "Your visit",
-    "title": "Plan Your Visit",
+    "title": "Plan Your Walk-in Visit",
     "description": "Prepare for a walk-in visit to SMC Urgent Care. Find what to bring, questions about insurance and payment, and answers before you arrive.",
     "icon": "calendar"
   },
@@ -35,7 +35,7 @@
     "id": "contact",
     "path": "/contact",
     "label": "Find us",
-    "title": "Contact & Directions",
+    "title": "Contact & Directions in Indianapolis",
     "description": "Call SMC Urgent Care at 317-852-3505 or find directions to 7411 Heathrow Way, Indianapolis, IN 46241. Call to confirm current hours.",
     "icon": "pin"
   },

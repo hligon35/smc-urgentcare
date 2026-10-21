@@ -31,7 +31,7 @@ for (const { file, html } of pages) {
     `${file}: one page heading`,
   );
   assert.match(html, /id="main"/, `${file}: skip link destination`);
-  assert.ok(html.includes('href="/portal"'), `${file}: CareConnect entry link`);
+  assert.ok(html.includes(`href="${clinic.portalUrl}"`), `${file}: clinic portal link`);
   headers.push(
     html
       .match(/<header>[\s\S]*?<\/header>/)?.[0]
@@ -75,7 +75,7 @@ for (const { file, html } of pages) {
 for (const { file, html } of pages) {
   for (const [name, url] of [
     ["Facebook", clinic.facebookUrl],
-    ["LinkedIn", clinic.linkedinUrl],
+    ...(clinic.linkedinEnabled ? [["LinkedIn", clinic.linkedinUrl]] : []),
   ]) {
     assert.ok(html.includes(url), `${file}: ${name} social profile`);
     assert.ok(
@@ -88,7 +88,7 @@ const visitHtml = pages.find((page) => page.file === "visit.html")?.html || "";
 assert.ok(visitHtml.includes(clinic.portalUrl), "Visit page retains existing clinical portal option");
 const contactHtml = pages.find((page) => page.file === "contact.html")?.html;
 assert.ok(contactHtml, "Find Us page exported");
-for (const url of [clinic.facebookUrl, clinic.linkedinUrl]) {
+for (const url of [clinic.facebookUrl, ...(clinic.linkedinEnabled ? [clinic.linkedinUrl] : [])]) {
   assert.ok(
     contactHtml.split(url).length >= 3,
     `Find Us includes a profile link in addition to the shared footer: ${url}`,
@@ -101,12 +101,13 @@ assert.match(homepage, /Your neighborhood urgent care/, "Homepage retains locati
 assert.doesNotMatch(homepage, /class="quick-strip"/, "Homepage omits quick information strip");
 assert.doesNotMatch(homepage, /class="services wrap"/, "Homepage omits services grid");
 assert.doesNotMatch(homepage, /class="faq"/, "Homepage omits FAQs");
-assert.match(homepage, /href="\/portal"/, "Homepage patient access points to CareConnect");
+assert.ok(homepage.includes(`href="${clinic.portalUrl}"`), "Homepage opens clinic patient portal");
 const sharedHeader = homepage.match(/<header>[\s\S]*?<\/header>/)?.[0] || "";
 assert.match(sharedHeader.replace(/<svg[\s\S]*?<\/svg>/g, "").replace(/<!--[\s\S]*?-->/g, ""), /href="\/"[^>]*>\s*Home<\/a>/, "Header includes Home navigation");
-assert.match(sharedHeader, /href="\/portal"/, "Header opens local patient portal");
+assert.ok(sharedHeader.includes(`href="${clinic.portalUrl}"`), "Header opens clinic patient portal");
 for (const { file, html } of pages) {
-  assert.match(html, /href="\/portal"/, `${file}: portal link is internal`);
+  assert.ok(html.includes(`href="${clinic.portalUrl}"`), `${file}: clinic portal destination`);
+  if (!clinic.linkedinEnabled) assert.ok(!html.includes(clinic.linkedinUrl), `${file}: LinkedIn hidden`);
 }
 assert.ok(headers[0] && footers[0], "Shell contains header and footer");
 assert.equal(
@@ -196,4 +197,38 @@ for await (const file of exportedHtmlFiles("dist")) {
 assert.ok(checkedHtml > routes.length, "Expected patient portal HTML exports");
 console.log(`PASS: strict CSP in all ${checkedHtml} exported HTML pages.`);
 
-
+// Search eligibility and route discovery must agree with the production origin.
+const origin = 'https://smcurgentcareindy.com';
+const sitemap = await readFile('dist/sitemap.xml', 'utf8');
+const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
+assert.deepEqual(sitemapUrls.sort(), routes.map(route => origin + route.path).sort(), 'Sitemap includes exactly every public route');
+assert.equal(new Set(sitemapUrls).size, routes.length, 'Sitemap contains no duplicates');
+assert.doesNotMatch(sitemap, /\/portal|\/api\/|\.html<|workers\.dev/, 'No private or duplicate URLs in sitemap');
+assert.match(sitemap, /xmlns:image=/, 'Image sitemap namespace');
+for (const [, src] of sitemap.matchAll(/<image:loc>([^<]+)<\/image:loc>/g)) {
+  assert.ok(src.startsWith(origin + '/images/'));
+  await stat(path.join('dist', new URL(src).pathname));
+}
+const titles = new Set();
+const descriptions = new Set();
+for (const route of routes) {
+  const { html } = pages.find(page => page.file === (route.id === 'home' ? 'index.html' : `${route.id}.html`));
+  assert.match(html, /name="robots" content="index, follow, max-image-preview:large"/, `${route.path}: production indexing enabled`);
+  assert.ok(html.includes(`rel="canonical" href="${origin}${route.path}"`), `${route.path}: exact canonical`);
+  titles.add(html.match(/<title>([^<]+)<\/title>/)[1]);
+  descriptions.add(html.match(/name="description" content="([^"]+)"/)[1]);
+  const graph = JSON.parse(html.match(/<script id="page-schema" type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
+  assert.ok(graph.some(node => node['@id'] === `${origin}${route.path}#webpage`), `${route.path}: page entity`);
+  assert.ok(graph.some(node => node['@type'] === 'BreadcrumbList'), `${route.path}: breadcrumbs`);
+  assert.equal((html.match(/class="brand-initial">S<\/span>/g) || []).length, 2, `${route.path}: red S in header and footer`);
+}
+assert.equal(titles.size, routes.length, 'Unique page titles');
+assert.equal(descriptions.size, routes.length, 'Unique descriptions');
+for await (const file of exportedHtmlFiles('dist/portal')) {
+  assert.match(await readFile(file, 'utf8'), /name="robots" content="noindex, nofollow"/, `${file}: private portal excluded from indexing`);
+}
+const robots = await readFile('dist/robots.txt', 'utf8');
+assert.match(robots, /Allow: \/\n/);
+assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
+assert.doesNotMatch(robots, /Disallow: \/\n/, 'Production crawling allowed');
+console.log('PASS: production indexing, unique metadata, canonical URLs, structured data, brand initials and complete public/image sitemap.');

@@ -1,19 +1,20 @@
-import { Image } from "react-native";
 import { clinic } from "../config/site";
 
-// Use the supplied brand icons so web exports bundle them as local assets.
+// Supplied icons resized to twice their display size for sharp, inexpensive rendering.
 const profiles = [
   {
+    enabled: true,
     name: "Facebook",
     href: clinic.facebookUrl,
-    icon: require("../../assets/facebook.png"),
+    icon: "/images/facebook-v1.png",
   },
   {
+    enabled: clinic.linkedinEnabled,
     name: "LinkedIn",
     href: clinic.linkedinUrl,
-    icon: require("../../assets/linkedIN.png"),
+    icon: "/images/linkedin-v1.png",
   },
-];
+].filter(profile => profile.enabled);
 
 export default function SocialLinks() {
   return (
@@ -27,12 +28,7 @@ export default function SocialLinks() {
           rel="noopener noreferrer"
           aria-label={`${clinic.name} on ${name} (opens in a new tab)`}
         >
-          <Image
-            source={icon}
-            style={{ width: 24, height: 24 }}
-            resizeMode="contain"
-            accessible={false}
-          />
+          <img src={icon} width={24} height={24} alt="" loading="lazy" decoding="async" />
           <span>{name}</span>
         </a>
       ))}

@@ -6,16 +6,18 @@ import { colors } from "../styles/theme";
 // Match the web social destinations while respecting native link handling.
 const profiles = [
   {
+    enabled: true,
     name: "Facebook",
     href: clinic.facebookUrl,
     icon: require("../../assets/facebook.png"),
   },
   {
+    enabled: clinic.linkedinEnabled,
     name: "LinkedIn",
     href: clinic.linkedinUrl,
     icon: require("../../assets/linkedIN.png"),
   },
-];
+].filter(profile => profile.enabled);
 
 export default function SocialLinks() {
   return (

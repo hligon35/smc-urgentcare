@@ -36,7 +36,7 @@ function FAQs() {
                   }
                   href={
                     faq.link === "portal"
-                      ? "/portal"
+                      ? clinic.portalUrl
                       : clinic.facebookUrl
                   }
                   secondary
@@ -115,7 +115,7 @@ function Visit() {
         </View>
         <NativeButton
           label="Open patient portal ↗"
-          href="/portal"
+          href={clinic.portalUrl}
           secondary
         />
       </NativeSection>
@@ -229,7 +229,7 @@ export default function Page({ page }: { page: string }) {
         </Text>
         <Text style={s.body}>
           The website hosting provider processes technical request data to serve
-          and protect web pages. The patient portal, maps, Facebook, and LinkedIn open
+          and protect web pages. The patient portal, maps and Facebook open
           separately and follow their own privacy practices.
         </Text>
         <Text style={s.body}>

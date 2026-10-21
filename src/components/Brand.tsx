@@ -16,7 +16,7 @@ export default function Brand() {
           accessibilityIgnoresInvertColors
         />
         <View style={styles.wordmark}>
-          <Text style={styles.name}>SMC</Text>
+          <Text style={styles.name}><Text style={{ color: colors.brandRed }}>S</Text>MC</Text>
           <Text style={styles.description}>URGENT CARE</Text>
         </View>
       </Pressable>

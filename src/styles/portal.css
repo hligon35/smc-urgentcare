@@ -97,3 +97,22 @@
   .portal-link { display: flex; width: 100%; text-align: center; }
   .portal-row > .icon:last-child { align-self: flex-end; }
 }
+
+/* Reflow before tablet sidebars squeeze sign-in fields and card content. */
+.portal-entry > *, .portal-top > *, .portal-toolbar > *, .portal-columns > *,
+.portal-logo > * { min-width: 0; }
+.portal-entry, .portal-app { width: 100%; }
+.portal-form button, .portal-google, .portal-primary { max-width: 100%; white-space: normal; }
+.portal-search { min-width: 0; }
+.portal-entry-main { padding-left: max(22px, env(safe-area-inset-left)); padding-right: max(22px, env(safe-area-inset-right)); }
+@media (max-width: 960px) {
+  .portal-entry { display: block; }
+  .portal-entry-aside { min-height: 0; padding: 28px; gap: 20px; }
+  .portal-entry-aside .portal-entry-foot { display: none; }
+  .portal-back { margin-bottom: 24px; }
+}
+@media (max-width: 780px) {
+  .portal-side, .portal-content, .portal-top { padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(18px, env(safe-area-inset-right)); }
+  .portal-mobile-nav { padding-left: max(9px, env(safe-area-inset-left)); padding-right: max(9px, env(safe-area-inset-right)); overscroll-behavior-inline: contain; }
+}
+@media (prefers-reduced-motion: reduce) { .portal-mobile-nav { scroll-behavior: auto; } }

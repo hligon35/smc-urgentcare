@@ -16,8 +16,8 @@ export function pageMetadata(page: string): Metadata {
     description,
     alternates: canonical ? { canonical } : undefined,
     robots:
-      route && siteUrl === "https://smc-urgentcare.com"
-        ? "index, follow"
+      route && siteUrl === "https://smcurgentcareindy.com"
+        ? "index, follow, max-image-preview:large"
         : "noindex, nofollow",
     openGraph: {
       title,
