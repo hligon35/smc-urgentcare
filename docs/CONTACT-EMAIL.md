@@ -19,7 +19,7 @@ The recipient is deliberately unset. The page initially disables its fields, req
    ```
 
    Keep this out of `EXPO_PUBLIC_*` variables and page HTML. Sandbox has its own secret and must use an approved test destination. Do not declare a blank `CONTACT_TO` ordinary var that would overwrite the secret on deployment.
-4. Confirm `CONTACT_FROM` (currently `website@smcurgentcareindy.com`) belongs to the onboarded domain and agrees with the sender allowlist on the `CONTACT_EMAIL` binding. The visitor address is never used as From or as the delivery destination.
+4. Confirm `CONTACT_FROM` (currently `front-desk@smcurgentcareindy.com`) belongs to the onboarded domain and agrees with the sender allowlist on the `CONTACT_EMAIL` binding. The visitor address is never used as From or as the delivery destination.
 5. Configure a Turnstile widget for the enabled website hostnames. Set its public key in that environment’s `TURNSTILE_SITE_KEY` and its matching secret:
 
    ```sh
