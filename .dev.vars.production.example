@@ -1,9 +1,0 @@
-# Local Worker secrets only, loaded by Wrangler --env production.
-# Leave blank until the destination has been named and verified in Cloudflare.
-CONTACT_TO=
-TURNSTILE_SECRET_KEY=
-
-# Local values do not configure the deployed Worker. When ready, run:
-# npx wrangler secret put CONTACT_TO --env production
-# npx wrangler secret put TURNSTILE_SECRET_KEY --env production
-# See docs/CONTACT-EMAIL.md. Never use patient information in test submissions.

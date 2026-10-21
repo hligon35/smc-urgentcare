@@ -31,11 +31,11 @@ The recipient is deliberately unset. The page initially disables its fields, req
 
 The binding restricts the sender and Cloudflare limits the default destination scope to verified destinations. The application always selects `CONTACT_TO` on the server and rejects unknown request fields such as `to`. Once the destination is final, the binding may instead be pinned to a single `destination_address` (choose a supported restriction type; do not combine incompatible restriction variants).
 
-## Local environment files
+## Optional local secrets
 
-Run `npm run env:init` to create `.env.production`, `.env.sandbox`, `.dev.vars.production` and `.dev.vars.sandbox` from their tracked example templates. Existing files are preserved, and new local files are created with owner-only permissions. The `.env` files contain only the public build origin. `.dev.vars.<environment>` contains only local `CONTACT_TO` and `TURNSTILE_SECRET_KEY`; blanks intentionally keep the form unavailable. Wrangler’s environment-specific file isolates local production and sandbox secrets. Nonsecret runtime values remain in the matching Wrangler environment.
+Builds and development read public settings directly from `wrangler.jsonc`; no `.env` files or environment initialization scripts are required. For local contact testing, copy `.dev.vars.sandbox.example` to `.dev.vars.sandbox` only when an approved test recipient and matching Turnstile secret are available. The file contains only `CONTACT_TO` and `TURNSTILE_SECRET_KEY`; it is ignored by Git. Keep the sandbox public widget key in Wrangler. Without local secrets the form intentionally stays unavailable.
 
-`npm run env:check` checks file keys and build/Worker origins without printing secret values or sending email. Local presence does not establish Cloudflare configuration or real delivery. Deploy secrets separately with the explicit commands above; never bulk-upload a build `.env` file as Worker secrets.
+`npm run preview` builds and checks sandbox output before starting the local Worker. Local configuration does not verify Cloudflare sending or real inbox delivery. Deployed secrets must be configured separately with the explicit Wrangler commands above.
 
 ## Security and behavior
 

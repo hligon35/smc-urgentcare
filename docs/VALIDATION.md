@@ -16,7 +16,7 @@ Before accepting production:
 
 ## Removal/contact implementation verification
 
-- 32 current unit/regression tests passed, including environment isolation, secret handling, non-overwriting initialization and generated-script pruning.
+- 30 current unit/regression tests passed, including Wrangler-derived build origins, secret isolation and generated-script pruning.
 - Production build/export checks passed across nine HTML files (seven pages and two branded error files); no custom portal routes/styles remain.
 - Production Worker packaging dry run passed with send-email/rate-limit/assets bindings and no D1 binding.
 - Chromium passed 160 public-page/viewport combinations without document overflow or JavaScript errors.
@@ -26,9 +26,11 @@ Before accepting production:
 
 ## Environment and dead-file cleanup
 
-- Updated build templates and added separate local Worker secret templates. `env:init` creates owner-only ignored local files and preserves existing values; `env:check` validates known keys and canonical/Worker alignment without printing secrets. Empty contact secrets are a supported pending state.
+- Public build origins come directly from Wrangler. Redundant `.env` files/templates and environment setup/check commands were removed. Only an optional sandbox Worker secret template remains; missing contact secrets are a supported pending state.
 - Production and sandbox builds now run their own output validation. Preview scripts build the matching target first; component development explicitly loads sandbox settings and bypasses implicit dotenv loading.
 - Removed 19 obsolete files: native-only duplicate components/screens/helpers, unused native launch/derivative images, the palette wrapper and OTA guide. Removed unused status/splash dependencies and updated the lockfile; Expo Router’s required peers remain.
 - Removed obsolete quick-strip/section-head/concept CSS. Original artwork/photos, active optimized images, temporarily hidden LinkedIn resources and icon licensing are retained.
 - The static export removes unused Expo application JavaScript after stripping hydration references. Only the public and contact scripts remain in the packaged script directory; both keep their existing 6 KB budgets.
 - Production Chromium regression covered 160 page/viewport combinations from 280 to 1920px, including landscape, without overflow or script errors; menu behavior, typography, red brand initials, hidden LinkedIn and external portal links passed. External map/challenge/email services were not exercised by this layout check.
+
+Removed the obsolete inline-script extraction helper and its test: the current static exporter strips application scripts and preserves inert JSON directly. Shared HTML traversal and script-type detection now live with the active public exporter. Redundant preview/verification/deploy aliases were removed; output validation still runs automatically on each build.
