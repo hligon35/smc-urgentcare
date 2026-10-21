@@ -9,7 +9,7 @@ export function loadBuildEnvironment(environment, root = process.cwd(), inherite
   const origin = target.vars.SITE_ORIGIN;
   const expected = environment === "production"
     ? "https://smcurgentcareindy.com"
-    : `https://${target.name}.hligon.workers.dev`;
+    : "https://smc-urgentcare.hligon.workers.dev";
   if (target.vars.ENVIRONMENT !== environment || origin !== expected)
     throw new Error(`${environment}: Wrangler must declare the correct environment and canonical origin.`);
   for (const key of ["CONTACT_TO", "TURNSTILE_SECRET_KEY"]) {
