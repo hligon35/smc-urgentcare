@@ -20,8 +20,10 @@ const schema = {
   image: `${origin}/images/caring-visit-v1.webp`,
   sameAs: [clinic.facebookUrl, ...(clinic.linkedinEnabled ? [clinic.linkedinUrl] : [])],
   hasMap: clinic.directionsUrl,
+  medicalSpecialty: "https://schema.org/Emergency",
   url: origin,
   telephone: clinic.phone,
+  isAccessibleForFree: true,
   areaServed: { "@type": "City", name: clinic.address.city, address: { "@type": "PostalAddress", addressRegion: clinic.address.region, addressCountry: clinic.address.country } },
   contactPoint: { "@type": "ContactPoint", telephone: clinic.phone, contactType: "customer service", availableLanguage: "English" },
   address: {
@@ -115,7 +117,7 @@ const prunedScripts = await pruneApplicationScripts("dist");
 await writeFile(
   "dist/robots.txt",
   production
-    ? `User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: ${origin}/sitemap.xml\n`
+    ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /portal\nSitemap: ${origin}/sitemap.xml\n`
     : "User-agent: *\nDisallow: /\n",
 );
 await writeFile(
