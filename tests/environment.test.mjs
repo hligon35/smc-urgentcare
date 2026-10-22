@@ -15,7 +15,7 @@ function fixture(t) {
 test("build origins come from Wrangler without dotenv or local secrets", t => {
   const root = fixture(t);
   writeFileSync(join(root, ".env.production"), "EXPO_PUBLIC_SITE_URL=https://old.example\n");
-  writeFileSync(join(root, ".dev.vars.sandbox"), "CONTACT_TO=private@example.test\n");
+  writeFileSync(join(root, ".dev.vars.sandbox"), "CONTACT_TO=private-example-secret\n");
   const config = JSON.parse(readFileSync(join(root, "wrangler.jsonc")));
   for (const environment of ["production", "sandbox"]) {
     const env = loadBuildEnvironment(environment, root, { EXPO_PUBLIC_SITE_URL: "https://stale.example" });
@@ -35,10 +35,10 @@ test("incorrect canonical or environment settings fail before export", t => {
   assert.throws(() => loadBuildEnvironment("production", root, {}), /correct environment and canonical origin/);
 });
 
-test("contact secrets cannot be moved into public Wrangler variables", t => {
+test("Turnstile secret cannot be moved into Wrangler variables", t => {
   const root = fixture(t);
   const config = JSON.parse(readFileSync(join(root, "wrangler.jsonc")));
-  config.env.sandbox.vars.CONTACT_TO = "private@example.test";
+  config.env.sandbox.vars.TURNSTILE_SECRET_KEY = "private-example-secret";
   writeFileSync(join(root, "wrangler.jsonc"), JSON.stringify(config));
   assert.throws(() => loadBuildEnvironment("sandbox", root, {}), error => {
     assert.match(error.message, /must be a Worker secret/);
