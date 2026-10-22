@@ -22,13 +22,19 @@ test('production custom domain and sandbox workers.dev serve public website with
   }
 });
 
+test('production WWW redirect preserves path and query', async () => {
+  const response = await worker.fetch(new Request('https://www.smcurgentcareindy.com/services?source=search'), { ENVIRONMENT: 'production' });
+  assert.equal(response.status, 308);
+  assert.equal(response.headers.get('Location'), 'https://smcurgentcareindy.com/services?source=search');
+});
+
 test('deployment targets preserve domain ownership and isolate contact configuration', async () => {
   const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
   assert.equal(config.name, 'smc-urgentcare');
   assert.equal(config.env.production.name, config.name);
   assert.equal(config.env.sandbox.name, 'smc-urgentcare-sandbox');
   assert.deepEqual(config.env.production.routes, config.routes);
-  assert.deepEqual(config.routes.map(route => route.pattern).sort(), ['smcurgentcareindy.com']);
+  assert.deepEqual(config.routes.map(route => route.pattern).sort(), ['smcurgentcareindy.com', 'www.smcurgentcareindy.com']);
   assert.ok(config.routes.every(route => route.custom_domain === true));
   assert.deepEqual(config.env.sandbox.routes, []);
   assert.equal(config.d1_databases, undefined);
