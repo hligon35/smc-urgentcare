@@ -1543,3 +1543,12 @@ main p, main li,
   .contact-panel .contact-heading h2 { font-size: clamp(25px, 7vw, 34px); }
   .contact-body .large-link { font-size: clamp(23px, 6vw, 30px); overflow-wrap: anywhere; }
 }
+
+/* Turnstile: separate label, widget, and submit action without overlap. */
+.contact-security-preview { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 22px 0 20px; max-width: 100%; }
+.contact-form-panel .contact-security-preview .contact-form-help { margin: 0; line-height: 1.45; }
+.contact-security-preview [data-contact-challenge] { width: min(100%, 320px); max-width: 100%; min-height: 70px; overflow: visible; }
+.contact-security-preview [data-contact-challenge][data-size="compact"] { width: 164px; min-height: 145px; }
+.contact-security-preview iframe { max-width: 100%; }
+.contact-form-panel [data-contact-submit] { display: inline-flex; margin-top: 0; }
+@media (max-width: 600px) { .contact-form-panel [data-contact-submit] { width: 100%; } }
