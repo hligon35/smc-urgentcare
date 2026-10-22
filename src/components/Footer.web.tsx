@@ -25,7 +25,7 @@ export default function Footer() {
         </div>
         <div className="footer-bottom">
           <span>
-            © {new Date().getFullYear()} {clinic.name}
+            © {new Date().getFullYear()} {clinic.name}. All rights reserved.
           </span>
           <nav className="footer-links" aria-label="Website information">
             {routes.slice(5).map((route) => (
@@ -38,6 +38,7 @@ export default function Footer() {
             For a life-threatening emergency, call <a href="tel:911">911</a>.
           </span>
         </div>
+        <div className="footer-credit">Website designed by <a href="https://alphazonelabs.com" target="_blank" rel="noopener noreferrer">Alpha Zone Labs LLC</a></div>
       </footer>
       <aside className="privacy-notice" data-privacy-notice hidden aria-label="Website privacy notice">
         <p><strong>Privacy on this website.</strong> We do not use advertising or analytics cookies. Google Maps and Cloudflare security checks may use cookies or similar technologies when loaded. <a href="/privacy">Read our privacy information</a>.</p>
