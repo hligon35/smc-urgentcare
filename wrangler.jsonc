@@ -84,6 +84,10 @@
         {
           "pattern": "smcurgentcareindy.com",
           "custom_domain": true
+        },
+        {
+          "pattern": "www.smcurgentcareindy.com",
+          "custom_domain": true
         }
       ],
       "send_email": [
@@ -110,6 +114,10 @@
   "routes": [
     {
       "pattern": "smcurgentcareindy.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.smcurgentcareindy.com",
       "custom_domain": true
     }
   ],
