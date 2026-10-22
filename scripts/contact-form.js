@@ -7,8 +7,8 @@
   const status = document.querySelector('[data-contact-status]');
   const challenge = form.querySelector('[data-contact-challenge]');
   const say = (message, error = false) => { status.textContent = message; status.setAttribute('role', error ? 'alert' : 'status'); };
-  let token = '', widget = null, busy = false, sent = false, observer = null, feedback = false;
-  const enable = () => { button.disabled = busy || !token; };
+  let token = '', widget = null, busy = false, sent = false, observer = null, feedback = false, deliveryReady = false;
+  const enable = () => { button.disabled = busy || !token || !deliveryReady; };
   const reset = () => { token = ''; if (widget !== null && window.turnstile) window.turnstile.reset(widget); enable(); };
   form.addEventListener('input', () => { if (feedback && !sent) { feedback = false; say(token ? 'Ready to send your general question.' : 'Please complete the security check.'); } });
   form.addEventListener('submit', async event => {
@@ -30,9 +30,10 @@
   try {
     const response = await fetch('/api/contact/config', { cache: 'no-store', credentials: 'omit' });
     const config = await response.json();
-    if (!response.ok || config.ready !== true || !config.siteKey) { say('Online contact is not available yet. Please call 317-852-3505.'); return; }
-    fields.disabled = false;
-    say('Loading the security check…');
+    if (!response.ok || config.turnstileReady !== true || !config.siteKey) { say('Online contact and its security check are unavailable. Please call 317-852-3505.'); return; }
+    deliveryReady = config.ready === true;
+    fields.disabled = !deliveryReady;
+    say(deliveryReady ? 'Loading the security check…' : 'Cloudflare Turnstile is configured. Online messaging is not available yet; please call 317-852-3505.');
     await new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
@@ -47,12 +48,12 @@
       token = ''; enable(); challenge.dataset.size = size;
       widget = window.turnstile.render(challenge, {
         sitekey: config.siteKey, action: 'contact_form', theme: 'light', size,
-        callback: value => { token = value; enable(); if (!busy && !feedback) say('Ready to send your general question.'); },
-        'expired-callback': () => { token = ''; enable(); if (!busy && !feedback) say('Please complete the security check again.'); },
+        callback: value => { token = value; enable(); if (!busy && !feedback && deliveryReady) say('Ready to send your general question.'); },
+        'expired-callback': () => { token = ''; enable(); if (!busy && !feedback && deliveryReady) say('Please complete the security check again.'); },
         'error-callback': () => { token = ''; enable(); if (!busy && !feedback) say('The security check is unavailable. Please reload or call the clinic.', true); },
       });
     };
     render();
     observer = new ResizeObserver(render); observer.observe(challenge);
-  } catch { fields.disabled = true; say('Online contact is unavailable. Please call 317-852-3505.', true); }
+  } catch { fields.disabled = true; say('The security check could not load. Please call 317-852-3505.', true); }
 })();
