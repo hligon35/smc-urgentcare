@@ -10,7 +10,7 @@ export function turnstileReady(env) {
 }
 
 export function contactReady(env) {
-  return mailbox(env.CONTACT_TO) && mailbox(env.CONTACT_FROM) && turnstileReady(env) && typeof env.CONTACT_EMAIL?.send === 'function' && typeof env.CONTACT_RATE_LIMITER?.limit === 'function';
+  return mailbox(env.CONTACT_TO) && mailbox(env.CONTACT_FROM) && mailbox(env.CONTACT_NOTIFICATION_FROM) && turnstileReady(env) && typeof env.CONTACT_EMAIL?.send === 'function' && typeof env.CONTACT_RATE_LIMITER?.limit === 'function';
 }
 
 const escapeHtml = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -91,7 +91,7 @@ export async function handleContact(request, env) {
     } catch { return fail('Security verification is unavailable. Please try again or call the clinic.', 503); }
     if (verification.success !== true || verification.hostname !== url.hostname || verification.action !== 'contact_form') return fail('Security check expired or failed. Please complete it again.', 403);
     await env.CONTACT_EMAIL.send({
-      from: env.CONTACT_FROM, to: env.CONTACT_TO, replyTo: input.email,
+      from: env.CONTACT_NOTIFICATION_FROM, to: env.CONTACT_TO, replyTo: input.email,
       subject: 'SMC website contact: ' + input.topic,
       text: `General website inquiry\n\nName: ${input.name}\nEmail: ${input.email}\nTopic: ${input.topic}\n\n${input.message}\n\nSubmitted through the public website. This form is not for medical records, medical advice, or emergencies.`,
     });
