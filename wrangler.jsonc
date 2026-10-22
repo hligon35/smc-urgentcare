@@ -38,7 +38,7 @@
     "CONTACT_FROM": "front-desk@alphazonelabs.com",
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83",
     "CONTACT_TO": "front-desk@alphazonelabs.com",
-    "CONTACT_NOTIFICATION_FROM": "front-desk@smcurgentcareindy.com"
+    "CONTACT_NOTIFICATION_FROM": "front-desk@alphazonelabs.com"
   },
   "env": {
     "sandbox": {
@@ -50,7 +50,7 @@
         "CONTACT_FROM": "front-desk@alphazonelabs.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83",
         "CONTACT_TO": "front-desk@alphazonelabs.com",
-        "CONTACT_NOTIFICATION_FROM": "front-desk@smcurgentcareindy.com"
+        "CONTACT_NOTIFICATION_FROM": "front-desk@alphazonelabs.com"
       },
       "workers_dev": true,
       "routes": [],
@@ -58,7 +58,7 @@
         {
           "name": "CONTACT_EMAIL",
           "allowed_sender_addresses": [
-            "front-desk@smcurgentcareindy.com",
+            "front-desk@alphazonelabs.com",
             "front-desk@alphazonelabs.com"
           ]
         }
@@ -84,7 +84,7 @@
         "CONTACT_FROM": "front-desk@alphazonelabs.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83",
         "CONTACT_TO": "front-desk@alphazonelabs.com",
-        "CONTACT_NOTIFICATION_FROM": "front-desk@smcurgentcareindy.com"
+        "CONTACT_NOTIFICATION_FROM": "front-desk@alphazonelabs.com"
       },
       "workers_dev": false,
       "routes": [
@@ -101,7 +101,7 @@
         {
           "name": "CONTACT_EMAIL",
           "allowed_sender_addresses": [
-            "front-desk@smcurgentcareindy.com",
+            "front-desk@alphazonelabs.com",
             "front-desk@alphazonelabs.com"
           ]
         }
@@ -133,7 +133,7 @@
     {
       "name": "CONTACT_EMAIL",
       "allowed_sender_addresses": [
-        "front-desk@smcurgentcareindy.com",
+        "front-desk@alphazonelabs.com",
         "front-desk@alphazonelabs.com"
       ]
     }
