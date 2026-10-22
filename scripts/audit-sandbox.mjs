@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-const origin = 'https://smc-urgentcare-sandbox.hligon.workers.dev';
+const origin = 'https://smc-urgentcare.hligon.workers.dev';
 const get = async (path) => {
   const response = await fetch(new URL(path, origin), { redirect: 'manual', signal: AbortSignal.timeout(15000) });
   assert.equal(response.status, 200, path + ': HTTP ' + response.status);
