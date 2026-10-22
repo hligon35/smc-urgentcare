@@ -40,7 +40,7 @@ export function secureResponse(response, request, environment = "sandbox") {
     response.status >= 400 ||
     path.startsWith("/portal") ||
     path.startsWith("/api/") ||
-    path === "/+not-found" || path === "/robots.txt" && environment !== "production"
+    path === "/+not-found"
   )
     headers.set("X-Robots-Tag", "noindex, nofollow");
   return new Response(request.method === "HEAD" ? null : response.body, {
