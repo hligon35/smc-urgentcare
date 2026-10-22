@@ -42,7 +42,7 @@
     });
     if (typeof window.turnstile?.render !== 'function') throw new Error('Turnstile did not initialize');
     const render = () => {
-      const size = challenge.getBoundingClientRect().width < 300 ? 'compact' : 'flexible';
+      const size = challenge.getBoundingClientRect().width < 320 ? 'compact' : 'normal';
       if (challenge.dataset.size === size && widget !== null) return;
       if (widget !== null) window.turnstile.remove(widget);
       token = ''; enable(); challenge.dataset.size = size;
