@@ -31,7 +31,7 @@ test('validated general message goes only to configured Cloudflare destination w
     assert.equal(response.status, 200); assert.equal((await response.json()).ok, true);
     assert.equal(sent.length, 2); assert.equal(sent[0].to, env.CONTACT_TO); assert.equal(sent[0].from, env.CONTACT_NOTIFICATION_FROM); assert.equal(sent[0].replyTo, payload.email);
     assert.equal(sent[0].subject, 'SMC website contact: General question'); assert.ok(sent[0].text.includes(payload.message));
-    assert.equal(sent[0].html, undefined); assert.equal(sent[0].attachments, undefined);
+    assert.match(sent[0].html, /smc-logo-v1\.png/); assert.match(sent[0].html, /New contact submission/); assert.match(sent[0].html, /Reply to visitor/); assert.equal(sent[0].attachments, undefined);
     assert.equal(sent[1].to, payload.email); assert.equal(sent[1].from, env.CONTACT_FROM); assert.match(sent[1].html, /smc-logo-v1\.png/);
     assert.match(rateKeys[0], /^contact:[a-f0-9]{64}$/); assert.ok(!rateKeys[0].includes(payload.email));
     assert.equal(response.headers.get('Cache-Control'), 'no-store'); assert.equal(response.headers.has('Set-Cookie'), false);
@@ -85,4 +85,14 @@ test('misconfigured mail or protection bindings keep the contact endpoint closed
     assert.equal(configuration.ready, false);
     assert.equal(configuration.turnstileReady, !['TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY'].includes(key));
   }
+});
+
+test('contact notification escapes visitor content in branded HTML', async () => {
+  const { notificationEmail } = await import('../worker/contact.mjs');
+  const email = notificationEmail({ name: 'Sam <script>alert(1)</script>', email: 'sam@example.test', topic: 'General question', message: 'Hello <img src=x onerror=alert(1)> & goodbye' });
+  assert.ok(email.html.includes('&lt;script&gt;'));
+  assert.ok(email.html.includes('&lt;img'));
+  assert.ok(!email.html.includes('<script>'));
+  assert.ok(email.text.includes('Hello <img'));
+  assert.match(email.html, /mailto:sam@example.test/);
 });
