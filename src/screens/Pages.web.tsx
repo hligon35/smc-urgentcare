@@ -326,7 +326,7 @@ function Privacy() {
         <h2>Website data</h2>
         <p>
           This implementation does not use advertising trackers, analytics
-          scripts or browser storage for patient information. Hosting providers
+          scripts or browser storage for patient information. A local preference stores only whether you dismissed our privacy notice. Hosting providers
           process technical request information, such as IP addresses and
           browser details, to deliver and protect the website. The clinic’s
           hosting configuration determines log retention.
