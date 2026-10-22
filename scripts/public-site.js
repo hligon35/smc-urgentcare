@@ -41,6 +41,16 @@
     const bar = document.querySelector('.mobile-bar');
     if (bar) observer.observe(bar);
   }
+  const notice = document.querySelector('[data-privacy-notice]');
+  const dismiss = document.querySelector('[data-privacy-dismiss]');
+  // Persist only dismissal preference, never health or contact information.
+  let dismissed = false;
+  try { dismissed = localStorage.getItem('smc-privacy-notice-v1') === 'dismissed'; } catch {}
+  if (notice && !dismissed) notice.hidden = false;
+  dismiss?.addEventListener('click', () => {
+    notice.hidden = true;
+    try { localStorage.setItem('smc-privacy-notice-v1', 'dismissed'); } catch {}
+  });
   const filters = [...document.querySelectorAll('[data-service-filter]')];
   const cards = [...document.querySelectorAll('[data-service-category]')];
   const status = document.querySelector('[data-service-status]');
