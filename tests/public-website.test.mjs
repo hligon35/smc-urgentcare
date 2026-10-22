@@ -11,7 +11,7 @@ test('production custom domain and sandbox workers.dev serve public website with
   assert.equal(config.env.production.preview_urls, false);
   assert.equal(config.env.sandbox.workers_dev, true);
   assert.equal(config.env.sandbox.preview_urls, false);
-  for (const [host, environment] of [['smcurgentcareindy.com', 'production'], ['smc-urgentcare.hligon.workers.dev', 'sandbox']]) {
+  for (const [host, environment] of [['smcurgentcareindy.com', 'production'], ['smc-urgentcare-sandbox.hligon.workers.dev', 'sandbox']]) {
     for (const path of ['/', '/services', '/contact']) {
       const response = await worker.fetch(new Request('https://' + host + path), { ENVIRONMENT: environment, ASSETS: { fetch: async () => new Response('Public website', { headers: { 'Content-Type': 'text/html' } }) } });
       assert.equal(response.status, 200);
@@ -24,9 +24,9 @@ test('production custom domain and sandbox workers.dev serve public website with
 
 test('deployment targets preserve domain ownership and isolate contact configuration', async () => {
   const config = JSON.parse(await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
-  assert.equal(config.name, 'smc-urgentcare-production');
+  assert.equal(config.name, 'smc-urgentcare');
   assert.equal(config.env.production.name, config.name);
-  assert.equal(config.env.sandbox.name, 'smc-urgentcare');
+  assert.equal(config.env.sandbox.name, 'smc-urgentcare-sandbox');
   assert.deepEqual(config.env.production.routes, config.routes);
   assert.deepEqual(config.routes.map(route => route.pattern).sort(), ['smcurgentcareindy.com']);
   assert.ok(config.routes.every(route => route.custom_domain === true));
