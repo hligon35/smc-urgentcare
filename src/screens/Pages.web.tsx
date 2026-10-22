@@ -253,9 +253,8 @@ function Contact() {
       <section className="wrap contact-grid page-section">
         <div className="contact-panel">
           <CareImage name="welcome" className="contact-photo" />
-          <Icon name="phone" />
-          <h2>Give us a call.</h2>
-          <PhoneLink className="large-link" />
+          <div className="contact-heading"><Icon name="phone" /><h2>Give us a call.</h2></div>
+          <div className="contact-body"><PhoneLink className="large-link" />
           <p>{clinic.hoursNote}. Please call before traveling to the clinic.</p>
           <div className="divider" />
           <h3>Already a patient?</h3>
@@ -266,12 +265,11 @@ function Contact() {
           <PortalLink className="btn btn-outline">
             Patient portal
             <Icon name="external" />
-          </PortalLink>
+          </PortalLink></div>
         </div>
         <div className="contact-panel location-panel">
-          <Icon name="pin" />
-          <h2>Come see us.</h2>
-          <address>
+          <div className="contact-heading"><Icon name="pin" /><h2>Come see us.</h2></div>
+          <div className="contact-body"><address>
             {clinic.address.street}
             <br />
             {clinic.address.city}, {clinic.address.region}{" "}
@@ -286,7 +284,7 @@ function Contact() {
           <div className="divider" />
           <h3>Clinic updates</h3>
           <p>Follow SMC for clinic news and updates.</p>
-          <SocialLinks />
+          <SocialLinks /></div>
         </div>
       </section>
       <ContactForm />
