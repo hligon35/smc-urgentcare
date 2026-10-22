@@ -32,6 +32,27 @@ This is an automatic confirmation. For emergencies, call 911.`;
   return { subject: 'We received your message | SMC Urgent Care', text, html };
 }
 
+
+export function notificationEmail({ name, email, topic, message }) {
+  const safe = value => escapeHtml(value);
+  const subject = 'SMC website contact: ' + topic;
+  const text = `New SMC Urgent Care website inquiry
+
+Name: ${name}
+Email: ${email}
+Topic: ${topic}
+
+Message:
+${message}
+
+Reply to this email to respond to the visitor.
+
+This form is for general, nonmedical questions only.
+https://smcurgentcareindy.com`;
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head><body style="margin:0;padding:30px 12px;background:#f2f5f9;font-family:Arial,Helvetica,sans-serif;color:#10244a"><div style="max-width:600px;margin:auto;background:#ffffff;border:1px solid #dce3ec;border-radius:10px;overflow:hidden"><div style="border-top:5px solid #c31831;padding:23px 26px 18px"><img src="https://smcurgentcareindy.com/images/smc-logo-v1.png" width="58" height="58" alt="SMC Urgent Care" style="vertical-align:middle;object-fit:contain"><span style="display:inline-block;vertical-align:middle;margin-left:10px;font-size:20px;font-weight:700">SMC Urgent Care</span><div style="font-size:12px;letter-spacing:1px;color:#52617a;margin-top:14px;text-transform:uppercase">Website inquiry</div><h1 style="margin:8px 0 0;font-size:23px;line-height:1.3">New contact submission</h1></div><div style="padding:4px 26px 26px"><table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;line-height:1.6;border-collapse:collapse"><tr><td style="padding:10px 0;color:#52617a;width:92px;vertical-align:top">Name</td><td style="padding:10px 0;font-weight:600;overflow-wrap:anywhere">${safe(name)}</td></tr><tr><td style="padding:10px 0;color:#52617a;vertical-align:top;border-top:1px solid #e6ebf0">Email</td><td style="padding:10px 0;border-top:1px solid #e6ebf0;overflow-wrap:anywhere"><a style="color:#173e7b" href="mailto:${safe(email)}">${safe(email)}</a></td></tr><tr><td style="padding:10px 0;color:#52617a;vertical-align:top;border-top:1px solid #e6ebf0">Topic</td><td style="padding:10px 0;border-top:1px solid #e6ebf0">${safe(topic)}</td></tr></table><div style="background:#f4f7fa;border-left:3px solid #c31831;padding:15px 17px;margin:14px 0 24px"><div style="font-size:12px;font-weight:700;color:#52617a;margin-bottom:9px">MESSAGE</div><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.65">${safe(message)}</div></div><a href="mailto:${safe(email)}" style="display:inline-block;background:#173e7b;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 20px;border-radius:5px">Reply to visitor</a></div><div style="background:#f4f7fa;padding:18px 26px;color:#52617a;font-size:12px;line-height:1.55">Submitted through the SMC Urgent Care website. For general, nonmedical inquiries only.<br><a href="https://smcurgentcareindy.com" style="color:#173e7b">smcurgentcareindy.com</a></div></div></body></html>`;
+  return { subject, text, html };
+}
+
 async function readBody(request) {
   if (!request.body) throw Object.assign(new Error('Empty request.'), { status: 400 });
   if (Number(request.headers.get('Content-Length')) > MAX_BODY) throw Object.assign(new Error('Message is too large.'), { status: 413 });
@@ -93,8 +114,7 @@ export async function handleContact(request, env) {
     try {
       await env.CONTACT_EMAIL.send({
         from: env.CONTACT_NOTIFICATION_FROM, to: env.CONTACT_TO, replyTo: input.email,
-        subject: 'SMC website contact: ' + input.topic,
-        text: `General website inquiry\n\nName: ${input.name}\nEmail: ${input.email}\nTopic: ${input.topic}\n\n${input.message}\n\nSubmitted through the public website. This form is not for medical records, medical advice, or emergencies.`,
+        ...notificationEmail(input),
       });
     } catch {
       return fail('The contact notification could not be accepted by the email provider. Please call the clinic or try again later.', 503);
