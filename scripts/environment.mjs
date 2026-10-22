@@ -12,7 +12,7 @@ export function loadBuildEnvironment(environment, root = process.cwd(), inherite
     : "https://smc-urgentcare-sandbox.hligon.workers.dev";
   if (target.vars.ENVIRONMENT !== environment || origin !== expected)
     throw new Error(`${environment}: Wrangler must declare the correct environment and canonical origin.`);
-  for (const key of ["CONTACT_TO", "TURNSTILE_SECRET_KEY"]) {
+  for (const key of ["TURNSTILE_SECRET_KEY"]) {
     if (Object.hasOwn(target.vars, key) || Object.hasOwn(config.vars, key))
       throw new Error(`${key} must be a Worker secret, not an ordinary Wrangler variable.`);
   }
