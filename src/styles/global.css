@@ -1521,3 +1521,11 @@ main p, main li,
 @media (max-width: 600px) { .contact-form-grid { grid-template-columns: minmax(0, 1fr); } .contact-form-panel button { width: 100%; } }
 
 .contact-form-panel fieldset[hidden] { display: none; }
+
+/* Informational privacy notice; no tracking or optional-cookie gate. */
+.privacy-notice[hidden] { display: none; }
+.privacy-notice { position: fixed; z-index: 60; bottom: 20px; left: 20px; width: min(510px, calc(100% - 40px)); padding: 17px 20px; display: flex; align-items: center; gap: 16px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-left: 4px solid var(--brandRed); box-shadow: 0 8px 30px #06184c24; border-radius: 8px; }
+.privacy-notice p { font-size: 13px; line-height: 1.5; margin: 0; flex: 1; }
+.privacy-notice a { text-decoration: underline; text-underline-offset: 2px; }
+.privacy-notice-dismiss { flex-shrink: 0; border: 0; border-radius: 5px; min-height: 44px; padding: 8px 14px; background: var(--primary); color: #fff; font-weight: 700; }
+@media (max-width: 600px) { .privacy-notice { left: 12px; width: calc(100% - 24px); bottom: calc(82px + env(safe-area-inset-bottom, 0px)); padding: 13px; gap: 9px; } .privacy-notice p { font-size: 12px; } .privacy-notice-dismiss { padding: 8px 10px; } }
