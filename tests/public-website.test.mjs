@@ -41,8 +41,8 @@ test('deployment targets preserve domain ownership and isolate contact configura
   assert.equal(config.env.production.d1_databases, undefined);
   assert.equal(config.env.sandbox.d1_databases, undefined);
   assert.notEqual(config.env.production.ratelimits[0].namespace_id, config.env.sandbox.ratelimits[0].namespace_id);
-  assert.equal(config.vars.CONTACT_TO, undefined);
-  assert.equal(config.env.sandbox.vars.CONTACT_TO, undefined);
+  assert.equal(config.vars.CONTACT_TO, 'front-desk@alphazonelabs.com');
+  assert.equal(config.env.sandbox.vars.CONTACT_TO, 'front-desk@alphazonelabs.com');
   assert.equal(config.send_email[0].name, 'CONTACT_EMAIL');
   const sandboxOrigin = 'https://' + config.env.sandbox.name + '.hligon.workers.dev';
   assert.equal(config.env.sandbox.vars.SITE_ORIGIN, sandboxOrigin);
