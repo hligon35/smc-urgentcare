@@ -5,8 +5,12 @@ const mailbox = value => typeof value === 'string' && value.length <= 254 && EMA
 const unavailable = 'Online contact is not available yet. Please call the clinic at 317-852-3505.';
 const fail = (error, status, headers = {}) => Response.json({ ok: false, error }, { status, headers });
 
+export function turnstileReady(env) {
+  return !!env.TURNSTILE_SITE_KEY && !!env.TURNSTILE_SECRET_KEY;
+}
+
 export function contactReady(env) {
-  return mailbox(env.CONTACT_TO) && mailbox(env.CONTACT_FROM) && !!env.TURNSTILE_SITE_KEY && !!env.TURNSTILE_SECRET_KEY && typeof env.CONTACT_EMAIL?.send === 'function' && typeof env.CONTACT_RATE_LIMITER?.limit === 'function';
+  return mailbox(env.CONTACT_TO) && mailbox(env.CONTACT_FROM) && turnstileReady(env) && typeof env.CONTACT_EMAIL?.send === 'function' && typeof env.CONTACT_RATE_LIMITER?.limit === 'function';
 }
 async function readBody(request) {
   if (!request.body) throw Object.assign(new Error('Empty request.'), { status: 400 });
@@ -39,7 +43,7 @@ export async function handleContact(request, env) {
   const url = new URL(request.url);
   if (url.pathname === '/api/contact/config' && ['GET', 'HEAD'].includes(request.method)) {
     const ready = contactReady(env);
-    return Response.json({ ready, siteKey: ready ? env.TURNSTILE_SITE_KEY : '' });
+    return Response.json({ ready, turnstileReady: turnstileReady(env), siteKey: turnstileReady(env) ? env.TURNSTILE_SITE_KEY : '' });
   }
   if (url.pathname !== '/api/contact') return fail('Not found.', 404);
   if (request.method !== 'POST') return fail('Method not allowed.', 405, { Allow: 'POST' });
