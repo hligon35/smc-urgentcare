@@ -39,6 +39,10 @@ export default function Footer() {
           </span>
         </div>
       </footer>
+      <aside className="privacy-notice" data-privacy-notice hidden aria-label="Website privacy notice">
+        <p><strong>Privacy on this website.</strong> We do not use advertising or analytics cookies. Google Maps and Cloudflare security checks may use cookies or similar technologies when loaded. <a href="/privacy">Read our privacy information</a>.</p>
+        <button type="button" className="privacy-notice-dismiss" data-privacy-dismiss>Got it</button>
+      </aside>
       <div className="mobile-bar">
         <PhoneLink className="btn">
           <Icon name="phone" />
