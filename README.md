@@ -34,7 +34,7 @@ Follow [CONTACT-EMAIL.md](docs/CONTACT-EMAIL.md) after the destination is named.
 
 ## Cloudflare environments
 
-Production and default Wrangler settings target `smc-urgentcare` with the `smcurgentcareindy.com` custom domain, `workers_dev: false`, and `preview_urls: false`. Sandbox targets `smc-urgentcare-sandbox` at `https://smc-urgentcare-sandbox.hligon.workers.dev` with no custom domains, `workers_dev: true`, and `preview_urls: false`. Runtime variables, email bindings and rate-limit namespaces are declared per environment in `wrangler.jsonc`; there are no D1 bindings.
+Production and default Wrangler settings target `smc-urgentcare-production` with the `smcurgentcareindy.com` custom domain, `workers_dev: false`, and `preview_urls: false`. Sandbox targets `smc-urgentcare` at `https://smc-urgentcare.hligon.workers.dev` with no custom domains, `workers_dev: true`, and `preview_urls: false`. Runtime variables, email bindings and rate-limit namespaces are declared per environment in `wrangler.jsonc`; there are no D1 bindings.
 
 Public build origins and nonsecret runtime settings come directly from `wrangler.jsonc`; no `.env` files or setup commands are needed. Build and component-development scripts disable implicit dotenv loading, so stale local files cannot override canonical URLs.
 
