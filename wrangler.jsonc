@@ -36,7 +36,8 @@
     "SITE_ORIGIN": "https://smcurgentcareindy.com",
     "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
     "CONTACT_FROM": "front-desk@alphazonelabs.com",
-    "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83",
+    "CONTACT_TO": "front-desk@alphazonelabs.com"
   },
   "env": {
     "sandbox": {
@@ -46,7 +47,8 @@
         "SITE_ORIGIN": "https://smc-urgentcare-sandbox.hligon.workers.dev",
         "CONTACT_ALLOWED_ORIGINS": "https://smc-urgentcare-sandbox.hligon.workers.dev",
         "CONTACT_FROM": "front-desk@alphazonelabs.com",
-        "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83",
+        "CONTACT_TO": "front-desk@alphazonelabs.com"
       },
       "workers_dev": true,
       "routes": [],
@@ -77,7 +79,8 @@
         "SITE_ORIGIN": "https://smcurgentcareindy.com",
         "CONTACT_ALLOWED_ORIGINS": "https://smcurgentcareindy.com",
         "CONTACT_FROM": "front-desk@alphazonelabs.com",
-        "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83"
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAFa2g5YSlEYZhv83",
+        "CONTACT_TO": "front-desk@alphazonelabs.com"
       },
       "workers_dev": false,
       "routes": [
