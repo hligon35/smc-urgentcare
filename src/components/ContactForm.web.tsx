@@ -22,7 +22,7 @@ export default function ContactForm() {
             <div className="contact-honeypot" aria-hidden="true"><label>Leave this field blank<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
             <label className="contact-confirm"><input name="privacyAccepted" type="checkbox" required /><span>I understand this form is for general questions and will not include sensitive health information. I have read the <a href="/privacy">website privacy information</a>.</span></label>
           </fieldset>
-          <div className="contact-security-preview"><p className="contact-form-help">Protected by Cloudflare Turnstile</p><div data-contact-challenge aria-label="Cloudflare Turnstile security check" /></div></div>
+          <div className="contact-security-preview"><p className="contact-form-help">Protected by Cloudflare Turnstile</p><div data-contact-challenge aria-label="Cloudflare Turnstile security check" /></div>
           <button className="btn" type="submit" data-contact-submit disabled>Send message</button>
         </form>
         <noscript><p>Please enable JavaScript for the security check, or call {clinic.phone}.</p></noscript>
