@@ -6,7 +6,7 @@ const securityHeaders = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
   "Cross-Origin-Opener-Policy": "same-origin",
-  "Strict-Transport-Security": "max-age=31536000",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   // Expo's generated style elements require inline styles; executable scripts remain same-origin only.
   "Content-Security-Policy":
     "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; object-src 'none'; frame-src https://www.google.com/maps/embed https://challenges.cloudflare.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
@@ -19,6 +19,8 @@ export function secureResponse(response, request, environment = "sandbox") {
     headers.set(name, value);
   const path = new URL(request.url).pathname;
   const type = headers.get("Content-Type") || "";
+  headers.delete("Server");
+  headers.delete("X-Powered-By");
   if (response.status >= 400 || path.startsWith("/api/") || path.startsWith("/portal"))
     headers.set("Cache-Control", "no-store");
   else if (
@@ -38,7 +40,7 @@ export function secureResponse(response, request, environment = "sandbox") {
     response.status >= 400 ||
     path.startsWith("/portal") ||
     path.startsWith("/api/") ||
-    path === "/+not-found"
+    path === "/+not-found" || path === "/robots.txt" && environment !== "production"
   )
     headers.set("X-Robots-Tag", "noindex, nofollow");
   return new Response(request.method === "HEAD" ? null : response.body, {
