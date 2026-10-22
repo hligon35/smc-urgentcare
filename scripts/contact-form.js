@@ -30,7 +30,7 @@
   try {
     const response = await fetch('/api/contact/config', { cache: 'no-store', credentials: 'omit' });
     const config = await response.json();
-    if (!response.ok || config.ready !== true || !config.siteKey) return;
+    if (!response.ok || config.ready !== true || !config.siteKey) { say('Online contact is not available yet. Please call 317-852-3505.'); return; }
     fields.disabled = false;
     say('Loading the security check…');
     await new Promise((resolve, reject) => {
@@ -39,6 +39,7 @@
       script.async = true; script.onload = resolve; script.onerror = reject;
       document.head.appendChild(script);
     });
+    if (typeof window.turnstile?.render !== 'function') throw new Error('Turnstile did not initialize');
     const render = () => {
       const size = challenge.getBoundingClientRect().width < 300 ? 'compact' : 'flexible';
       if (challenge.dataset.size === size && widget !== null) return;
