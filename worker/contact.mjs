@@ -90,11 +90,15 @@ export async function handleContact(request, env) {
       verification = await response.json();
     } catch { return fail('Security verification is unavailable. Please try again or call the clinic.', 503); }
     if (verification.success !== true || verification.hostname !== url.hostname || verification.action !== 'contact_form') return fail('Security check expired or failed. Please complete it again.', 403);
-    await env.CONTACT_EMAIL.send({
-      from: env.CONTACT_NOTIFICATION_FROM, to: env.CONTACT_TO, replyTo: input.email,
-      subject: 'SMC website contact: ' + input.topic,
-      text: `General website inquiry\n\nName: ${input.name}\nEmail: ${input.email}\nTopic: ${input.topic}\n\n${input.message}\n\nSubmitted through the public website. This form is not for medical records, medical advice, or emergencies.`,
-    });
+    try {
+      await env.CONTACT_EMAIL.send({
+        from: env.CONTACT_NOTIFICATION_FROM, to: env.CONTACT_TO, replyTo: input.email,
+        subject: 'SMC website contact: ' + input.topic,
+        text: `General website inquiry\n\nName: ${input.name}\nEmail: ${input.email}\nTopic: ${input.topic}\n\n${input.message}\n\nSubmitted through the public website. This form is not for medical records, medical advice, or emergencies.`,
+      });
+    } catch {
+      return fail('The contact notification could not be accepted by the email provider. Please call the clinic or try again later.', 503);
+    }
     // A visitor confirmation is secondary: never turn a successful clinic delivery into
     // a client-visible failure (which might prompt a duplicate submission).
     // Cloudflare Email Service may restrict unverified visitor destinations.
