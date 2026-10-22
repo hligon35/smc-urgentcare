@@ -15,7 +15,8 @@
     "deploy:production": "npm run build && wrangler deploy --env production",
     "deploy:dry-run": "npm run build && wrangler deploy --env production --dry-run",
     "smoke": "node scripts/smoke.mjs",
-    "audit:live": "node scripts/audit-live.mjs"
+    "audit:live": "node scripts/audit-live.mjs",
+    "audit:sandbox": "node scripts/audit-sandbox.mjs"
   },
   "keywords": [],
   "dependencies": {
