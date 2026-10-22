@@ -19,7 +19,7 @@ const valid = async url => { assert.equal(url, 'https://challenges.cloudflare.co
 test('recipient is deliberately unset: readiness stays false and no submission can be accepted', async () => {
   const { env, sent } = setup(); env.CONTACT_TO = '';
   const config = await worker.fetch(new Request(origin + '/api/contact/config'), env);
-  assert.deepEqual(await config.json(), { ready: false, siteKey: '' });
+  assert.deepEqual(await config.json(), { ready: false, turnstileReady: true, siteKey: 'test-site' });
   assert.equal(config.headers.get('Cache-Control'), 'no-store');
   const result = await worker.fetch(request(), env);
   assert.equal(result.status, 503); assert.equal((await result.json()).ok, false); assert.equal(sent.length, 0);
@@ -80,6 +80,8 @@ test('misconfigured mail or protection bindings keep the contact endpoint closed
   for (const key of ['CONTACT_TO', 'CONTACT_FROM', 'TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY', 'CONTACT_EMAIL', 'CONTACT_RATE_LIMITER']) {
     const { env } = setup(); delete env[key];
     assert.equal((await worker.fetch(request(), env)).status, 503, key);
-    assert.equal((await (await worker.fetch(new Request(origin + '/api/contact/config'), env)).json()).ready, false);
+    const configuration = await (await worker.fetch(new Request(origin + '/api/contact/config'), env)).json();
+    assert.equal(configuration.ready, false);
+    assert.equal(configuration.turnstileReady, !['TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY'].includes(key));
   }
 });
