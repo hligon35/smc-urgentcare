@@ -51,6 +51,10 @@ test('sitemap includes every public page and its images; sandbox stays uncrawlab
     assert.deepEqual([...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]), routes.map(r => origin + r.path));
     assert.match(xml, /<image:loc>https:\/\/smcurgentcareindy.com\/images\/example-v1.webp<\/image:loc>/);
     assert.doesNotMatch(xml, /\/portal|404|lastmod/);
+    const robots = await readFile(path.join(dir, "dist/robots.txt"), "utf8");
+    assert.match(robots, /Disallow: \/api\//);
+    assert.match(robots, /Disallow: \/portal/);
+    assert.match(robots, /Sitemap: https:\/\/smcurgentcareindy\.com\/sitemap\.xml/);
     const contact = await readFile(path.join(dir, 'dist/contact.html'), 'utf8');
     const home = await readFile(path.join(dir, 'dist/index.html'), 'utf8');
     assert.match(contact, /src="\/_expo\/static\/js\/web\/contact-[a-f0-9]{24}\.js"/);
