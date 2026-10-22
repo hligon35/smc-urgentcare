@@ -6,20 +6,20 @@ Visitor → `/api/contact` Worker → Cloudflare `CONTACT_EMAIL` send binding �
 
 Email Routing receives/forwards mail; the HTTP form needs the Worker email send binding to turn a submission into email. The current Cloudflare binding supports a structured message with fixed server-side From/To and visitor Reply-To. No Resend, OAuth client, database or custom patient portal is used.
 
-The recipient is deliberately unset. The page initially disables its fields, requests `/api/contact/config`, and only enables the form if email and security configuration are present. Missing configuration returns `ready: false`; POST returns HTTP 503. Nothing is queued or accepted for later delivery. The page keeps the clinic’s phone and existing clinical portal available.
+The contact recipient is configured as `front-desk@alphazonelabs.com` in the server-side Worker environment. The page initially disables its fields, requests `/api/contact/config`, and only enables the form if email and security configuration are present. Missing mail verification, Turnstile secret or another required binding returns `ready: false`; POST returns HTTP 503. Nothing is queued or accepted for later delivery. The page keeps the clinic’s phone and existing clinical portal available.
 
-## Finish setup when the recipient is named
+## Finish Cloudflare sending setup
 
 1. Confirm the intended Cloudflare account/zone for `smcurgentcareindy.com` and its current email provider. Configure Cloudflare Email Routing/email sending for the website sender domain. Review existing MX records before changing them; preserve any established clinic mailbox service. If needed, onboard a dedicated sending subdomain and update `CONTACT_FROM` plus the sender restriction in `send_email` together.
-2. Add the chosen inbox as an Email Routing destination and complete the verification email. A placeholder or unverified inbox is not a usable destination.
-3. Set `CONTACT_TO` as a Worker secret:
+2. Add `front-desk@alphazonelabs.com` as an Email Routing destination and complete the verification email. A placeholder or unverified inbox is not a usable destination.
+3. `CONTACT_TO` is currently a non-sensitive, server-side Wrangler variable for both environments; do not also configure a duplicate secret of the same name. Previous secret-based instructions were:
 
    ```sh
    npx wrangler secret put CONTACT_TO --env production
    ```
 
    Keep this out of `EXPO_PUBLIC_*` variables and page HTML. Sandbox has its own secret and must use an approved test destination. Do not declare a blank `CONTACT_TO` ordinary var that would overwrite the secret on deployment.
-4. Confirm `CONTACT_FROM` (currently `front-desk@smcurgentcareindy.com`) belongs to the onboarded domain and agrees with the sender allowlist on the `CONTACT_EMAIL` binding. The visitor address is never used as From or as the delivery destination.
+4. Confirm `CONTACT_FROM` (currently `front-desk@alphazonelabs.com`) belongs to the onboarded domain and agrees with the sender allowlist on the `CONTACT_EMAIL` binding. The visitor address is never used as From or as the delivery destination.
 5. Configure a Turnstile widget for the enabled website hostnames. Set its public key in that environment’s `TURNSTILE_SITE_KEY` and its matching secret:
 
    ```sh
@@ -43,7 +43,7 @@ Builds and development read public settings directly from `wrangler.jsonc`; no `
 - 16 KB streamed body cap, JSON-only requests, strict field/type/length validation, checkbox acknowledgement and honeypot.
 - Turnstile server validation with timeout, expected action and hostname; expiry/replay failures require a new challenge.
 - Per-email hashed rate-limit key, five attempts per minute per Cloudflare location; separate production/sandbox namespaces. Cloudflare’s limiter is approximate and supplements Turnstile, not a strict global quota.
-- Plain text email, fixed topic-derived subject, no attachments and no automatic visitor confirmation email.
+- Plain text inbound clinic email and a short branded HTML/plain-text visitor confirmation attempt. No attachments.
 - Awaited send result; provider failures never appear as success. Network uncertainty tells visitors to call instead of silently retrying. The browser does not automatically resend.
 - No application database, browser draft storage or contact-content logging. Email/infrastructure providers still process delivery/security information and the clinic controls retention in its inbox.
 - This is general contact only. No symptoms, records, dates of birth, insurance information or other sensitive health details should be submitted. Clinical questions belong in the existing portal or by phone. It is not an emergency channel.
