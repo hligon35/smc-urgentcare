@@ -1552,3 +1552,8 @@ main p, main li,
 .contact-security-preview iframe { max-width: 100%; }
 .contact-form-panel [data-contact-submit] { display: inline-flex; margin-top: 0; }
 @media (max-width: 600px) { .contact-form-panel [data-contact-submit] { width: 100%; } }
+
+/* Final footer attribution sits below the legal/navigation row. */
+.footer-credit { text-align:center; padding:16px 12px 22px; font-size:13px; color:var(--muted); border-top:1px solid var(--line); }
+.footer-credit a { color:inherit; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.footer-credit a:hover, .footer-credit a:focus-visible { color:var(--accent); }
