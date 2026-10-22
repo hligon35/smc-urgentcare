@@ -6,7 +6,7 @@ const origin = 'https://smcurgentcareindy.com';
 const payload = { name: 'Sam Sample', email: 'sam@example.test', topic: 'General question', message: 'What are your current opening hours?', privacyAccepted: true, website: '', turnstileToken: 'valid-token' };
 function setup() {
   const sent = [], rateKeys = [];
-  return { sent, rateKeys, env: { ENVIRONMENT: 'production', SITE_ORIGIN: origin, CONTACT_ALLOWED_ORIGINS: origin, CONTACT_TO: 'recipient@example.test', CONTACT_FROM: 'front-desk@smcurgentcareindy.com', TURNSTILE_SITE_KEY: 'test-site', TURNSTILE_SECRET_KEY: 'test-secret', CONTACT_RATE_LIMITER: { async limit({ key }) { rateKeys.push(key); return { success: true }; } }, CONTACT_EMAIL: { async send(message) { sent.push(message); return { messageId: 'test' }; } } } };
+  return { sent, rateKeys, env: { ENVIRONMENT: 'production', SITE_ORIGIN: origin, CONTACT_ALLOWED_ORIGINS: origin, CONTACT_TO: 'front-desk@alphazonelabs.com', CONTACT_FROM: 'front-desk@alphazonelabs.com', TURNSTILE_SITE_KEY: 'test-site', TURNSTILE_SECRET_KEY: 'test-secret', CONTACT_RATE_LIMITER: { async limit({ key }) { rateKeys.push(key); return { success: true }; } }, CONTACT_EMAIL: { async send(message) { sent.push(message); return { messageId: 'test' }; } } } };
 }
 const request = (data = payload, headers = {}, path = '/api/contact') => new Request(origin + path, { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', ...headers }, body: typeof data === 'string' ? data : JSON.stringify(data) });
 function verify(fn) {
@@ -29,9 +29,10 @@ test('validated general message goes only to configured Cloudflare destination w
   try {
     const response = await worker.fetch(request(), env);
     assert.equal(response.status, 200); assert.equal((await response.json()).ok, true);
-    assert.equal(sent.length, 1); assert.equal(sent[0].to, env.CONTACT_TO); assert.equal(sent[0].from, env.CONTACT_FROM); assert.equal(sent[0].replyTo, payload.email);
+    assert.equal(sent.length, 2); assert.equal(sent[0].to, env.CONTACT_TO); assert.equal(sent[0].from, env.CONTACT_FROM); assert.equal(sent[0].replyTo, payload.email);
     assert.equal(sent[0].subject, 'SMC website contact: General question'); assert.ok(sent[0].text.includes(payload.message));
     assert.equal(sent[0].html, undefined); assert.equal(sent[0].attachments, undefined);
+    assert.equal(sent[1].to, payload.email); assert.match(sent[1].html, /smc-logo-v1\.png/);
     assert.match(rateKeys[0], /^contact:[a-f0-9]{64}$/); assert.ok(!rateKeys[0].includes(payload.email));
     assert.equal(response.headers.get('Cache-Control'), 'no-store'); assert.equal(response.headers.has('Set-Cookie'), false);
   } finally { restore(); }
