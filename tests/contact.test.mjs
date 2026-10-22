@@ -6,7 +6,7 @@ const origin = 'https://smcurgentcareindy.com';
 const payload = { name: 'Sam Sample', email: 'sam@example.test', topic: 'General question', message: 'What are your current opening hours?', privacyAccepted: true, website: '', turnstileToken: 'valid-token' };
 function setup() {
   const sent = [], rateKeys = [];
-  return { sent, rateKeys, env: { ENVIRONMENT: 'production', SITE_ORIGIN: origin, CONTACT_ALLOWED_ORIGINS: origin, CONTACT_TO: 'front-desk@alphazonelabs.com', CONTACT_FROM: 'front-desk@alphazonelabs.com', CONTACT_NOTIFICATION_FROM: 'front-desk@smcurgentcareindy.com', TURNSTILE_SITE_KEY: 'test-site', TURNSTILE_SECRET_KEY: 'test-secret', CONTACT_RATE_LIMITER: { async limit({ key }) { rateKeys.push(key); return { success: true }; } }, CONTACT_EMAIL: { async send(message) { sent.push(message); return { messageId: 'test' }; } } } };
+  return { sent, rateKeys, env: { ENVIRONMENT: 'production', SITE_ORIGIN: origin, CONTACT_ALLOWED_ORIGINS: origin, CONTACT_TO: 'hligon@getsparqd.com', CONTACT_FROM: 'front-desk@smcurgentcareindy.com', CONTACT_NOTIFICATION_FROM: 'front-desk@smcurgentcareindy.com', TURNSTILE_SITE_KEY: 'test-site', TURNSTILE_SECRET_KEY: 'test-secret', CONTACT_RATE_LIMITER: { async limit({ key }) { rateKeys.push(key); return { success: true }; } }, CONTACT_EMAIL: { async send(message) { sent.push(message); return { messageId: 'test' }; } } } };
 }
 const request = (data = payload, headers = {}, path = '/api/contact') => new Request(origin + path, { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', ...headers }, body: typeof data === 'string' ? data : JSON.stringify(data) });
 function verify(fn) {
